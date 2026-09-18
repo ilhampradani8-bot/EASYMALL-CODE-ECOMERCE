@@ -1,7 +1,7 @@
 # 📘 DOKUMENTASI LENGKAP SISTEM EASYMALL
 > File ini adalah sumber kebenaran tunggal (Single Source of Truth) untuk seluruh sistem EasyMall.
 > Selalu update file ini setiap ada perubahan besar.
-> Terakhir diperbarui: 2026-07-04
+> Terakhir diperbarui: 2026-09-18
 
 ---
 
@@ -9,78 +9,53 @@
 
 ```
 /root/ecommerce/                        ← ROOT PROJECT
-├── .env                                ← Semua kredensial & konfigurasi rahasia
-├── .gitignore                          ← Mengabaikan .env, dist/, target/
-├── api.ilhampradani.me.conf            ← Konfigurasi Apache (Reverse Proxy → port 5002)
+├── vercel.json                         ← Konfigurasi Vercel (cleanUrls, rewrites)
 ├── SISTEM_EASYMALL.md                  ← 📌 File ini (dokumentasi master)
-├── frontend/                           ← Kode sumber tampilan website (Astro)
-└── dinamis/                            ← Kode backend server (Rust)
-    ├── ecom_api/                       ← ⭐ Backend utama (Rust/Axum)
-    │   ├── src/main.rs                 ← SATU-SATUNYA file kode backend (2100+ baris)
-    │   ├── Cargo.toml                  ← Dependensi Rust
-    │   └── target/release/ecom_api    ← Binary yang dijalankan oleh PM2
-    ├── dashboard/
-    │   └── ecommerce.db               ← ⭐ Database SQLite utama (semua data)
-    ├── api_docs/                       ← Dokumen API eksternal (BuatQRIS, dll)
-    ├── mesin_include.py                ← Script Python pembantu (terpisah)
-    └── update_info_product.py          ← Script update produk (terpisah)
+├── frontend/                           ← Frontend & Serverless API (Astro)
+│   ├── astro.config.mjs                ← Adapter @astrojs/vercel (output: 'server')
+│   ├── vercel.json                     ← Konfigurasi build Vercel
+│   ├── package.json                    ← Dependensi (Astro 7 + @astrojs/vercel)
+│   └── src/
+│       ├── pages/                      ← Halaman web (.astro)
+│       └── pages/api/                  ← ⭐ Serverless API Routes (TypeScript)
+│           ├── products.ts             ← API Katalog Produk (KoalaStore + Miracle Gaming)
+│           ├── db-products.ts          ← API Fallback DB Produk
+│           ├── checkout.ts             ← API Checkout & Generate QRIS (BuatQRIS / KoalaStore)
+│           ├── order/status/[transaction_id].ts ← API Cek Status Transaksi
+│           ├── auth/status.ts          ← API Status Sesi & Login
+│           └── cart.ts                 ← API Keranjang Belanja
 ```
 
 ---
 
 ## 🖥️ CARA MENJALANKAN & MENGELOLA SERVER
 
-### Server API Backend (Rust)
-Server dikelola oleh **PM2** dengan nama proses **`easymall-api`**.
+### Serverless Vercel Architecture (100% VPS-Free)
+Sistem API tidak lagi membutuhkan server VPS/Rust/PM2. Seluruh API dan tampilan frontend kini berjalan di serverless Vercel.
 
+### Alur Deploy Perubahan
+Setiap kali ada perubahan kode di folder `frontend/`:
 ```bash
-# Cek status server
-pm2 list
-
-# Restart server (misal setelah update kode)
-pm2 restart easymall-api
-
-# Lihat log live
-pm2 logs easymall-api
-
-# Lihat 20 baris log terakhir
-pm2 logs easymall-api --lines 20 --nostream
-
-# Stop server
-pm2 stop easymall-api
-```
-
-> ⚠️ **JANGAN gunakan `kill` manual!** PM2 akan langsung menghidupkan kembali prosesnya dan menyebabkan bentrokan port.
-
-### Alur Deploy Perubahan Backend (Rust)
-Setiap kali mengubah `src/main.rs`:
-```bash
-# 1. Compile ulang binary
-cd /root/ecommerce/dinamis/ecom_api
-cargo build --release
-
-# 2. Restart via PM2 (gunakan binary baru secara otomatis)
-pm2 restart easymall-api
-```
-
-### Alur Deploy Perubahan Frontend (Astro)
-Setiap kali mengubah file di `frontend/src/`:
-```bash
-# 1. Build ulang halaman statis
-cd /root/ecommerce/frontend
+# 1. Test build lokal
+cd frontend
 npm run build
 
-# 2. Tidak perlu restart PM2 — backend langsung serve dari frontend/dist/
+# 2. Push ke GitHub repository
+git add .
+git commit -m "Update API serverless / UI"
+git push origin main
+
+# 3. Vercel secara otomatis melakukan auto-deploy!
 ```
 
 ---
 
 ## 🌐 INFRASTRUKTUR & DOMAIN
 
-| Domain | Arah | Keterangan |
+| Domain | Host | Keterangan |
 |--------|------|------------|
-| `easymall.ilhampradani.me` | → Vercel | Frontend statis (build dari `frontend/dist/`) |
-| `api.ilhampradani.me` | → Apache → port 5002 | Backend Rust via Reverse Proxy |
+| `easymall.ilhampradani.me` | Vercel | Website Utama & Serverless API Routes |
+
 
 ### Konfigurasi Reverse Proxy Apache
 File: `/root/ecommerce/api.ilhampradani.me.conf`
