@@ -46,12 +46,17 @@ async function initTables(client: Client) {
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT UNIQUE NOT NULL,
+        password TEXT,
         name TEXT,
         avatar TEXT,
         provider TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    try {
+      await client.execute(`ALTER TABLE users ADD COLUMN password TEXT;`);
+    } catch (e) {}
 
     await client.execute(`
       CREATE TABLE IF NOT EXISTS sessions (
@@ -61,6 +66,21 @@ async function initTables(client: Client) {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    // Seed test dev accounts into Turso DB
+    try {
+      await client.execute({
+        sql: `INSERT INTO users (email, password, name, provider) VALUES (?, ?, ?, ?)
+              ON CONFLICT(email) DO UPDATE SET password = excluded.password, name = excluded.name`,
+        args: ['user@easymall.me', 'user1234', 'Demo User EasyMall', 'email']
+      });
+
+      await client.execute({
+        sql: `INSERT INTO users (email, password, name, provider) VALUES (?, ?, ?, ?)
+              ON CONFLICT(email) DO UPDATE SET password = excluded.password, name = excluded.name`,
+        args: ['reseller@easymall.me', 'reseller1234', 'Demo Reseller Partner', 'email']
+      });
+    } catch (e) {}
   } catch (err) {
     console.error('Failed to initialize Turso tables:', err);
   }
@@ -149,6 +169,30 @@ export async function getSession(sessionId: string) {
     return res.rows[0] || null;
   } catch (err) {
     console.error('Error getting session from Turso:', err);
+    return null;
+  }
+}
+
+export async function verifyUserCredentials(emailInput: string, passwordInput?: string) {
+  const db = getDb();
+  if (!db || !emailInput) return null;
+
+  try {
+    const res = await db.execute({
+      sql: `SELECT * FROM users WHERE email = ? LIMIT 1`,
+      args: [emailInput]
+    });
+
+    if (res.rows.length === 0) return null;
+    const user: any = res.rows[0];
+
+    if (passwordInput && user.password && user.password !== passwordInput) {
+      return null;
+    }
+
+    return user;
+  } catch (err) {
+    console.error('Error verifying user in Turso:', err);
     return null;
   }
 }

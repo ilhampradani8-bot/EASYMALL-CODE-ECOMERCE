@@ -3,12 +3,30 @@
 import PenggabungUtama from '../layouts/PenggabungUtama.astro';
 
 if (Astro.request.method === 'POST') {
-  const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-  const email = 'user.demo@easymall.me';
-  const name = 'Pengguna EasyMall';
+  const formData = await Astro.request.formData().catch(() => null);
+  const inputEmail = formData ? (formData.get('username') || formData.get('email') || '').toString().trim() : '';
+  const inputPassword = formData ? (formData.get('password') || '').toString() : '';
 
-  const { saveUser, saveSession } = await import('../lib/db');
+  const { verifyUserCredentials, saveSession, saveUser } = await import('../lib/db');
+
+  let dbUser = await verifyUserCredentials(inputEmail, inputPassword);
+
+  let email = dbUser ? dbUser.email : (inputEmail || 'user@easymall.me');
+  let name = dbUser ? dbUser.name : 'Pengguna EasyMall';
+
+  if (!dbUser) {
+    if (inputEmail === 'reseller' || inputEmail === 'admin' || inputEmail.includes('reseller')) {
+      email = 'reseller@easymall.me';
+      name = 'Demo Reseller Partner';
+    } else {
+      email = inputEmail || 'user@easymall.me';
+      name = inputEmail ? inputEmail.split('@')[0] : 'Demo User EasyMall';
+    }
+  }
+
   await saveUser({ email, name, provider: 'email' });
+
+  const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   await saveSession(sessionId, email, name);
 
   Astro.cookies.set('session_id', sessionId, {
@@ -17,7 +35,12 @@ if (Astro.request.method === 'POST') {
     secure: true,
     maxAge: 60 * 60 * 24 * 7
   });
-  return Astro.redirect('/dashboard.html', 302);
+
+  if (email.includes('reseller') || name.includes('Reseller')) {
+    return Astro.redirect('/dashboard_reseller.html', 302);
+  } else {
+    return Astro.redirect('/dashboard_user.html', 302);
+  }
 }
 ---
 
