@@ -128,7 +128,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                     <div class="card-body">
                         <p>Mengambil daftar seluruh produk beserta kode varian, harga modal, kategori, dan status keaktifan.</p>
                         <div class="api-url-box">
-                            <span>GET https://api.ilhampradani.me/api/products</span>
+                            <span>GET https://easymall.ilhampradani.me/api/products</span>
                         </div>
 
                         <h4 class="sub-title">Query Parameters</h4>
@@ -189,7 +189,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                     <div class="card-body">
                         <p>Menginisiasi transaksi baru. Endpoint ini akan mengembalikan link atau data gambar QRIS untuk discan oleh pembeli.</p>
                         <div class="api-url-box">
-                            <span>POST https://api.ilhampradani.me/api/checkout</span>
+                            <span>POST https://easymall.ilhampradani.me/api/checkout</span>
                         </div>
 
                         <h4 class="sub-title">Request Body (JSON)</h4>
@@ -266,7 +266,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                     <div class="card-body">
                         <p>Mengambil status pembayaran QRIS dan status fulfillment dari transaksi Anda secara real-time.</p>
                         <div class="api-url-box">
-                            <span>GET https://api.ilhampradani.me/api/order/status/&#123;transaction_id&#125;</span>
+                            <span>GET https://easymall.ilhampradani.me/api/order/status/&#123;transaction_id&#125;</span>
                         </div>
 
                         <h4 class="sub-title">Response Status (JSON)</h4>
@@ -290,7 +290,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                 <div class="card">
                     <div class="card-body">
                         <h4 class="sub-title">Menggunakan cURL</h4>
-                        <pre><code>{`curl -X POST https://api.ilhampradani.me/api/checkout \\
+                        <pre><code>{`curl -X POST https://easymall.ilhampradani.me/api/checkout \\
   -H "Content-Type: application/json" \\
   -d '{
     "reseller_key": "DEMO_RESELLER_KEY_X987HSD23",
@@ -304,7 +304,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                         <h4 class="sub-title" style="margin-top: 1.5rem;">Menggunakan Python</h4>
                         <pre><code>{`import requests
 
-url = "https://api.ilhampradani.me/api/checkout"
+url = "https://easymall.ilhampradani.me/api/checkout"
 payload = {
     "reseller_key": "DEMO_RESELLER_KEY_X987HSD23",
     "whatsapp_id": "081234567890",

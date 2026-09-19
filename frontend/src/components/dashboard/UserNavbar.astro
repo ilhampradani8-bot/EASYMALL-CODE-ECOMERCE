@@ -499,7 +499,7 @@ import UserProfileCard from './UserProfileCard.astro';
             try {
                 let API_BASE_URL = '';
                 if (window.location.port !== '5002' && window.location.protocol !== 'file:') {
-                    API_BASE_URL = 'https://api.ilhampradani.me';
+                    API_BASE_URL = '';
                 }
                 await fetch(`${API_BASE_URL}/logout`, { credentials: 'include' });
             } catch(e){}
@@ -529,7 +529,7 @@ import UserProfileCard from './UserProfileCard.astro';
             try {
                 let API_BASE_URL = '';
                 if (window.location.port !== '5002' && window.location.protocol !== 'file:') {
-                    API_BASE_URL = 'https://api.ilhampradani.me';
+                    API_BASE_URL = '';
                 }
                 const res = await fetch(`${API_BASE_URL}/api/notifications/unread-count`, { credentials: 'include' });
                 if (res.ok) {
@@ -551,7 +551,7 @@ import UserProfileCard from './UserProfileCard.astro';
             try {
                 let API_BASE_URL = '';
                 if (window.location.port !== '5002' && window.location.protocol !== 'file:') {
-                    API_BASE_URL = 'https://api.ilhampradani.me';
+                    API_BASE_URL = '';
                 }
                 const res = await fetch(`${API_BASE_URL}/api/notifications`, { credentials: 'include' });
                 if (res.ok) {
@@ -588,7 +588,7 @@ import UserProfileCard from './UserProfileCard.astro';
             try {
                 let API_BASE_URL = '';
                 if (window.location.port !== '5002' && window.location.protocol !== 'file:') {
-                    API_BASE_URL = 'https://api.ilhampradani.me';
+                    API_BASE_URL = '';
                 }
                 await fetch(`${API_BASE_URL}/api/notifications/read/${id}`, { method: 'POST', credentials: 'include' });
                 fetchNotifCount();
@@ -626,7 +626,7 @@ import UserProfileCard from './UserProfileCard.astro';
                     try {
                         let API_BASE_URL = '';
                         if (window.location.port !== '5002' && window.location.protocol !== 'file:') {
-                            API_BASE_URL = 'https://api.ilhampradani.me';
+                            API_BASE_URL = '';
                         }
                         await fetch(`${API_BASE_URL}/api/notifications/read`, { method: 'POST', credentials: 'include' });
                         fetchNotifCount();

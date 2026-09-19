@@ -111,11 +111,7 @@ window.showModernCartModal = function(onConfirm) {
 let allProducts = [];
 let allCategories = [];
 
-// Determine API base URL dynamically
 let API_BASE_URL = '';
-if (window.location.protocol === 'file:') {
-    API_BASE_URL = 'https://api.ilhampradani.me';
-}
 
 function formatRupiah(num) {
     if (num === undefined || num === null) return '0';

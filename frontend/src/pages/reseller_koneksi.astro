@@ -251,7 +251,7 @@ import BottomNav from '../components/BottomNav.astro';
                     <p style="color: #64748b; font-size: 0.9rem;">Mengambil daftar seluruh produk beserta kode produk (variant_code), harga, dan status ketersediaannya.</p>
                     
                     <div class="api-url-box">
-                        <span id="endpoint-products">GET https://api.ilhampradani.me/api/products</span>
+                        <span id="endpoint-products">GET https://easymall.ilhampradani.me/api/products</span>
                         <button class="btn-copy" onclick="copyText('endpoint-products')">Salin URL</button>
                     </div>
 
@@ -308,7 +308,7 @@ import BottomNav from '../components/BottomNav.astro';
                     <p style="color: #64748b; font-size: 0.9rem;">Membuat transaksi baru untuk memicu pembayaran QRIS dan pengisian pulsa/game otomatis.</p>
                     
                     <div class="api-url-box">
-                        <span id="endpoint-checkout">POST https://api.ilhampradani.me/api/checkout</span>
+                        <span id="endpoint-checkout">POST https://easymall.ilhampradani.me/api/checkout</span>
                         <button class="btn-copy" onclick="copyText('endpoint-checkout')">Salin URL</button>
                     </div>
 
@@ -393,7 +393,7 @@ import BottomNav from '../components/BottomNav.astro';
                     <p style="color: #64748b; font-size: 0.9rem;">Mengecek status pembayaran QRIS dan status fulfillment pengisian produk oleh sistem.</p>
                     
                     <div class="api-url-box">
-                        <span id="endpoint-status">GET https://api.ilhampradani.me/api/order/status/&#123;transaction_id&#125;</span>
+                        <span id="endpoint-status">GET https://easymall.ilhampradani.me/api/order/status/&#123;transaction_id&#125;</span>
                         <button class="btn-copy" onclick="copyText('endpoint-status')">Salin URL</button>
                     </div>
 
@@ -413,7 +413,7 @@ import BottomNav from '../components/BottomNav.astro';
                 <div class="card-header">💻 Contoh Implementasi Kode</div>
                 <div class="card-body">
                     <h4 class="section-title">Request Transaksi via cURL</h4>
-                    <pre><code>{`curl -X POST https://api.ilhampradani.me/api/checkout \\
+                    <pre><code>{`curl -X POST https://easymall.ilhampradani.me/api/checkout \\
   -H "Content-Type: application/json" \\
   -d '{
     "reseller_key": "DEMO_RESELLER_KEY_X987HSD23",
@@ -427,7 +427,7 @@ import BottomNav from '../components/BottomNav.astro';
                     <h4 class="section-title" style="margin-top: 1.5rem;">Request Transaksi via Python</h4>
                     <pre><code>{`import requests
 
-url = "https://api.ilhampradani.me/api/checkout"
+url = "https://easymall.ilhampradani.me/api/checkout"
 payload = {
     "reseller_key": "DEMO_RESELLER_KEY_X987HSD23",
     "whatsapp_id": "081234567890",
@@ -446,7 +446,7 @@ print(response.json())`}</code></pre>
     <script is:inline>
         let API_BASE_URL = '';
         if (window.location.port !== '5002' && window.location.protocol !== 'file:') {
-            API_BASE_URL = 'https://api.ilhampradani.me';
+            API_BASE_URL = '';
         }
 
         async function fetchResellerData() {

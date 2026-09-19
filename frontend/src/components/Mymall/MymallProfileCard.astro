@@ -16,7 +16,7 @@
         try {
             let API_BASE_URL = '';
             if (window.location.port !== '5002' && window.location.protocol !== 'file:') {
-                API_BASE_URL = 'https://api.ilhampradani.me';
+                API_BASE_URL = '';
             }
             const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
             if (authRes.ok) {

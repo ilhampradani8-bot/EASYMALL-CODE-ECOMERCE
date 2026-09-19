@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://api.ilhampradani.me",
+      "url": "https://easymall.ilhampradani.me",
       "description": "Production Server"
     }
   ],

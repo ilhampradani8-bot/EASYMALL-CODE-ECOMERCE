@@ -111,13 +111,7 @@ let selectedProduct = null;
 let statusPollingInterval = null;
 let loggedInUserEmail = "";
 
-// Determine API base URL dynamically for static files, Live Server, and native Flask environment
 let API_BASE_URL = '';
-if (window.location.port !== '5002' && window.location.protocol !== 'file:') {
-    API_BASE_URL = 'https://api.ilhampradani.me';
-} else if (window.location.protocol === 'file:') {
-    API_BASE_URL = 'https://api.ilhampradani.me';
-}
 
 function formatRupiah(num) {
     if (num === undefined || num === null) return '0';

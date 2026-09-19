@@ -433,7 +433,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
         // Scoped login API URL — avoids conflict with global API_BASE_URL from index.js
         const LOGIN_API_URL = (window.location.protocol === 'file:' || window.location.port === '5002')
             ? 'http://localhost:5002'
-            : 'https://api.ilhampradani.me';
+            : '';
 
         // Set action immediately to prevent empty action 404s on early clicks
         const loginForm = document.getElementById('loginForm');

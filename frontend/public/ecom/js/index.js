@@ -115,13 +115,7 @@ let showAllProducts = false;
 let selectedProduct = null;
 let statusPollingInterval = null;
 
-// Determine API base URL dynamically for static files, Live Server, and native Flask environment
 let API_BASE_URL = '';
-// If running locally as a file URL or specific dev port, you could use the direct IP.
-// But since Vercel handles rewrites for `/api/(.*)`, we want to use the relative path `""`.
-if (window.location.protocol === 'file:') {
-    API_BASE_URL = 'https://api.ilhampradani.me';
-}
 
 // Load external HTML templates dynamically to keep files separated
 async function loadTemplates() {

@@ -6,9 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let API_BASE_URL = '';
 if (window.location.port !== '5002' && window.location.protocol !== 'file:') {
-    API_BASE_URL = 'https://api.ilhampradani.me';
+    API_BASE_URL = '';
 } else if (window.location.protocol === 'file:') {
-    API_BASE_URL = 'https://api.ilhampradani.me';
+    API_BASE_URL = '';
 }
 
 function formatRupiah(num) {
