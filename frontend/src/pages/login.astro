@@ -468,22 +468,21 @@ if (Astro.request.method === 'POST') {
             }
         }
 
-        // Use onGoogleLibraryLoad callback — guaranteed to fire after GSI fully loads
-        // (more reliable than window.onload with async/defer scripts)
+        const googleClientId = window.GOOGLE_CLIENT_ID || "812430784237-70vet0sepo0f0eti0cs62nnjd4s89ia8.apps.googleusercontent.com";
+
         window.onGoogleLibraryLoad = function() {
             google.accounts.id.initialize({
-                client_id: "812430784237-70vet0sepo0f0eti0cs62nnjd4s89ia8.apps.googleusercontent.com",
+                client_id: googleClientId,
                 callback: handleCredentialResponse,
-                use_fedcm_for_prompt: false  // Disable FedCM — avoids .well-known/web-identity requirement
+                use_fedcm_for_prompt: false
             });
             renderGoogleButton();
         };
 
-        // Fallback: also initialize on window.onload in case onGoogleLibraryLoad doesn't fire
         window.addEventListener('load', function() {
             if (typeof google !== 'undefined' && google.accounts) {
                 google.accounts.id.initialize({
-                    client_id: "812430784237-70vet0sepo0f0eti0cs62nnjd4s89ia8.apps.googleusercontent.com",
+                    client_id: googleClientId,
                     callback: handleCredentialResponse,
                     use_fedcm_for_prompt: false
                 });
