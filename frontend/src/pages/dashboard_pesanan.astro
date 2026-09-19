@@ -57,6 +57,26 @@ import BottomNav from '../components/BottomNav.astro';
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
+            min-width: 0;
+        }
+
+        @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden;
+                width: 100%;
+            }
+            body {
+                padding-bottom: 74px !important;
+            }
+            .container {
+                grid-template-columns: 1fr;
+                padding: 0 0.75rem;
+                margin: 1rem auto;
+            }
+            .content-area {
+                min-width: 0;
+                width: 100%;
+            }
         }
 
         .card {
@@ -176,17 +196,6 @@ import BottomNav from '../components/BottomNav.astro';
             to { transform: rotate(360deg); }
         }
 
-        @media (max-width: 768px) {
-            body {
-                padding-bottom: 74px !important;
-            }
-            .container {
-                grid-template-columns: 1fr;
-            }
-            .sidebar-col {
-                display: none !important;
-            }
-        }
     </style>
 </head>
 <body>

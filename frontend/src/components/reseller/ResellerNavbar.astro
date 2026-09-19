@@ -306,6 +306,41 @@ import ResellerProfileCard from './ResellerProfileCard.astro';
         background: #bb2d3b;
         border-color: #b02a37;
     }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .navbar {
+            padding: 0 0.75rem;
+            height: 60px;
+        }
+        .navbar-brand span {
+            font-size: 1.1rem;
+        }
+        .nav-actions {
+            gap: 0.6rem;
+        }
+        .btn-mymall {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            height: 34px;
+        }
+        .mymall-scroller {
+            display: none !important;
+        }
+        .btn-profile-toggle {
+            width: 44px;
+        }
+        .profile-dropdown-menu {
+            position: fixed !important;
+            top: 58px !important;
+            right: 12px !important;
+            left: 12px !important;
+            width: auto !important;
+            max-width: calc(100vw - 24px) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25) !important;
+        }
+    }
 </style>
 
 <script is:inline>

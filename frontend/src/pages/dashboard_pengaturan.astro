@@ -59,6 +59,7 @@ import BottomNav from '../components/BottomNav.astro';
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            min-width: 0;
         }
 
         /* Tabs Header */
@@ -298,12 +299,21 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden;
+                width: 100%;
+            }
             body {
                 padding-bottom: 74px !important;
             }
             .container {
                 grid-template-columns: 1fr;
                 margin: 0.75rem auto;
+                padding: 0 0.75rem;
+            }
+            .content-area {
+                min-width: 0;
+                width: 100%;
             }
             .sidebar-col {
                 display: none !important;

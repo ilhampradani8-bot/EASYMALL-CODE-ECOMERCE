@@ -347,6 +347,36 @@ const {
             font-weight: 600;
         }
         
+        .footer-top-brand-banner {
+            width: 100%;
+            background: var(--primary);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1rem;
+            font-weight: 800;
+            letter-spacing: 0.4em;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            line-height: 1;
+            margin-top: 4rem;
+            border-bottom: 1px solid var(--border-color);
+            font-family: 'Marcellus SC', serif;
+            box-sizing: border-box;
+            max-width: 100vw;
+            overflow: hidden;
+        }
+
+        .footer-logo {
+            max-height: 140px;
+            width: auto;
+            max-width: 100%;
+            object-fit: contain;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
         .contact-details a:hover {
             text-decoration: underline;
         }
@@ -355,15 +385,18 @@ const {
             display: flex;
             gap: 0.5rem;
             margin-top: 0.8rem;
+            width: 100%;
+            max-width: 100%;
         }
         
         .footer-search-input {
             flex: 1;
+            min-width: 0;
             padding: 8px 12px;
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
             outline: none;
-            font-size: 0.85rem;
+            font-size: 16px;
         }
         
         .footer-search-input:focus {
@@ -379,6 +412,8 @@ const {
             cursor: pointer;
             font-weight: 600;
             font-size: 0.85rem;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
         
         .footer-bottom {
@@ -412,6 +447,38 @@ const {
             }
             .site-footer {
                 padding: 3rem 0 1.5rem 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-top-brand-banner {
+                letter-spacing: 0.15em !important;
+                font-size: 0.95rem !important;
+                padding: 0.6rem 0.5rem !important;
+            }
+            .footer-top-brand-banner svg {
+                width: 22px !important;
+                height: 22px !important;
+                margin: 0 4px !important;
+            }
+            .site-footer {
+                padding: 2rem 0 1.5rem 0 !important;
+                margin-top: 2rem !important;
+                width: 100% !important;
+                overflow-x: hidden !important;
+            }
+            .footer-container {
+                grid-template-columns: 1fr !important;
+                gap: 1.75rem !important;
+                padding: 0 1rem !important;
+                width: 100% !important;
+            }
+            .footer-logo {
+                max-height: 90px !important;
+            }
+            .footer-bottom {
+                margin-top: 1.5rem !important;
+                padding: 1.25rem 1rem 0 1rem !important;
             }
         }
 
