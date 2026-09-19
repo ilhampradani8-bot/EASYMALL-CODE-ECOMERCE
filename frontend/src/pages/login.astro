@@ -1,6 +1,17 @@
 ---
 // login.astro
 import PenggabungUtama from '../layouts/PenggabungUtama.astro';
+
+if (Astro.request.method === 'POST') {
+  const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  Astro.cookies.set('session_id', sessionId, {
+    path: '/',
+    httpOnly: true,
+    secure: true,
+    maxAge: 60 * 60 * 24 * 7
+  });
+  return Astro.redirect('/dashboard.html', 302);
+}
 ---
 
 <PenggabungUtama title="Masuk ke Akun Anda | EasyMall">
