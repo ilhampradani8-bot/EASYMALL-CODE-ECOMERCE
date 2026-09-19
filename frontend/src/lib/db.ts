@@ -97,3 +97,58 @@ export async function saveTransaction(data: {
     console.error('Error saving transaction to Turso:', err);
   }
 }
+
+export async function saveUser(data: {
+  email: string;
+  name?: string;
+  avatar?: string;
+  provider?: string;
+}) {
+  const db = getDb();
+  if (!db || !data.email) return;
+
+  try {
+    await db.execute({
+      sql: `INSERT INTO users (email, name, avatar, provider) VALUES (?, ?, ?, ?)
+            ON CONFLICT(email) DO UPDATE SET name = excluded.name, avatar = excluded.avatar, provider = excluded.provider`,
+      args: [
+        data.email,
+        data.name || 'User EasyMall',
+        data.avatar || '',
+        data.provider || 'email'
+      ]
+    });
+  } catch (err) {
+    console.error('Error saving user to Turso:', err);
+  }
+}
+
+export async function saveSession(sessionId: string, email: string, name?: string) {
+  const db = getDb();
+  if (!db || !sessionId || !email) return;
+
+  try {
+    await db.execute({
+      sql: `INSERT OR REPLACE INTO sessions (session_id, email, name) VALUES (?, ?, ?)`,
+      args: [sessionId, email, name || 'User EasyMall']
+    });
+  } catch (err) {
+    console.error('Error saving session to Turso:', err);
+  }
+}
+
+export async function getSession(sessionId: string) {
+  const db = getDb();
+  if (!db || !sessionId) return null;
+
+  try {
+    const res = await db.execute({
+      sql: `SELECT * FROM sessions WHERE session_id = ? LIMIT 1`,
+      args: [sessionId]
+    });
+    return res.rows[0] || null;
+  } catch (err) {
+    console.error('Error getting session from Turso:', err);
+    return null;
+  }
+}

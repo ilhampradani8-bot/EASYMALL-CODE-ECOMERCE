@@ -4,6 +4,13 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
 
 if (Astro.request.method === 'POST') {
   const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  const email = 'user.demo@easymall.me';
+  const name = 'Pengguna EasyMall';
+
+  const { saveUser, saveSession } = await import('../lib/db');
+  await saveUser({ email, name, provider: 'email' });
+  await saveSession(sessionId, email, name);
+
   Astro.cookies.set('session_id', sessionId, {
     path: '/',
     httpOnly: true,

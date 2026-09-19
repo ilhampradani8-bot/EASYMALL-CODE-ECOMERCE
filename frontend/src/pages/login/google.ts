@@ -25,6 +25,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     }
 
     const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    
+    // Save User and Session to Turso Cloud Database
+    const { saveUser, saveSession } = await import('../../lib/db');
+    await saveUser({ email, name, provider: 'google' });
+    await saveSession(sessionId, email, name);
+
     cookies.set('session_id', sessionId, {
       path: '/',
       httpOnly: true,
