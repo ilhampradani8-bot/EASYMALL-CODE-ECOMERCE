@@ -381,7 +381,7 @@
 
             let itemsHtml = matches.map(p => `
                 <div class="autocomplete-item" onclick="window.location.href='/product/${p.code}'" style="padding: 10px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-bottom: 1px solid #f1f3f5; transition: background 0.15s;">
-                    <img src="/gambar/logo/easymall-logo.png" alt="${p.name}" style="width: 32px; height: 32px; object-fit: contain; flex-shrink: 0; border-radius: 4px;">
+                    <img src="${p.image || p.image_url || '/gambar/logo/easymall-logo.png'}" alt="${p.name}" style="width: 32px; height: 32px; object-fit: contain; flex-shrink: 0; border-radius: 4px;">
                     <div class="autocomplete-item-info" style="display: flex; flex-direction: column; min-width: 0; flex-grow: 1;">
                         <span class="autocomplete-item-name" style="font-weight: 700; font-size: 0.85rem; color: #212529; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</span>
                         <span style="font-size: 0.72rem; color: #6c757d;">${p.category || 'Digital'}</span>

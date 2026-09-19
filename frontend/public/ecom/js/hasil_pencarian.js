@@ -258,8 +258,8 @@ function renderSearchResults(queryText) {
 
     grid.innerHTML = '';
     filtered.forEach(p => {
-        const cat = allCategories.find(c => c.slug === p.category_slug);
-        const iconEmoji = `<img src="/gambar/logo/easymall-logo.png" alt="${p.name}" style="height: 70px; width: auto; object-fit: contain;">`;
+        const productImg = p.image || p.image_url || '/gambar/logo/easymall-logo.png';
+        const iconEmoji = `<img src="${productImg}" alt="${p.name}" style="height: 70px; width: auto; object-fit: contain;">`;
         const originalPrice = Math.round(p.price * 1.15);
         
         const card = document.createElement('div');
