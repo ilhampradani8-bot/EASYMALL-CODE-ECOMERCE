@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { saveTransaction } from '../../lib/db';
 
 export const prerender = false;
 
@@ -63,6 +64,15 @@ export const POST: APIRoute = async ({ request }) => {
               ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(raw_qris)}`
               : `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`00020101021226670016COM.NOBUBANK.WWW01189360050300000898400215200826180358503033605204581253033605802ID5910EASYMALL6007JAKARTA61051234562070703A016304EB43`)}`;
 
+            await saveTransaction({
+              transaction_id,
+              whatsapp_id: whatsapp,
+              product_name,
+              variant_name,
+              amount: total_amount,
+              provider: 'koalastore'
+            });
+
             return new Response(JSON.stringify({
               success: true,
               transaction_id,
@@ -113,6 +123,15 @@ export const POST: APIRoute = async ({ request }) => {
               ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrisData.qr_string)}`
               : '');
 
+            await saveTransaction({
+              transaction_id,
+              whatsapp_id: whatsapp,
+              product_name,
+              variant_name,
+              amount,
+              provider
+            });
+
             return new Response(JSON.stringify({
               success: true,
               transaction_id,
@@ -134,6 +153,15 @@ export const POST: APIRoute = async ({ request }) => {
     const transaction_id = `EM-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     const dummyQris = `00020101021226670016COM.NOBUBANK.WWW01189360050300000898400215200826180358503033605204581253033605802ID5910EASYMALL6007JAKARTA61051234562070703A016304EB43`;
     const qr_image_url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(dummyQris)}`;
+
+    await saveTransaction({
+      transaction_id,
+      whatsapp_id: whatsapp,
+      product_name,
+      variant_name,
+      amount,
+      provider: provider || 'koalastore'
+    });
 
     return new Response(JSON.stringify({
       success: true,
