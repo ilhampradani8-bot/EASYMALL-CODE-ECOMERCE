@@ -94,3 +94,30 @@
         <p>&copy; 2026 PT Easymall Software Development. Seluruh hak cipta dilindungi undang-undang.</p>
     </div>
 </footer>
+
+<script is:inline>
+    (function() {
+        const input = document.getElementById('footerSearchInput');
+        const btn = document.getElementById('footerSearchBtn');
+        if (!input || !btn) return;
+
+        function doFooterSearch() {
+            const query = input.value.trim();
+            if (query) {
+                window.location.href = `/hasil_pencarian.html?query=${encodeURIComponent(query)}`;
+            }
+        }
+
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            doFooterSearch();
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                doFooterSearch();
+            }
+        });
+    })();
+</script>

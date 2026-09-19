@@ -309,6 +309,7 @@
         let products = [];
         const input = document.getElementById('headerSearchInput');
         const dropdown = document.getElementById('search-autocomplete-dropdown');
+        const searchBtn = document.getElementById('headerSearchBtn');
 
         if (!input || !dropdown) return;
 
@@ -330,37 +331,77 @@
             }
         }
 
+        function triggerSearch() {
+            const query = input.value.trim();
+            if (query) {
+                dropdown.style.display = 'none';
+                window.location.href = `/hasil_pencarian.html?query=${encodeURIComponent(query)}`;
+            }
+        }
+
+        if (searchBtn) {
+            searchBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                triggerSearch();
+            });
+        }
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                triggerSearch();
+            }
+        });
+
         input.addEventListener('focus', loadProducts);
 
         input.addEventListener('input', async () => {
             await loadProducts();
             const text = input.value.trim().toLowerCase();
-            if (text.length < 3) {
+            if (text.length < 1) {
                 dropdown.style.display = 'none';
                 return;
             }
 
-            const matches = products.filter(p => p.name.toLowerCase().includes(text)).slice(0, 5);
+            const matches = products.filter(p => 
+                (p.name && p.name.toLowerCase().includes(text)) || 
+                (p.category && p.category.toLowerCase().includes(text)) ||
+                (p.code && p.code.toLowerCase().includes(text))
+            ).slice(0, 6);
+
             if (matches.length === 0) {
                 dropdown.style.display = 'block';
-                dropdown.innerHTML = '<div style="padding: 10px; font-size: 0.8rem; color: #6c757d; text-align: center;">Tidak ada hasil ditemukan</div>';
+                dropdown.innerHTML = `
+                    <div style="padding: 12px; font-size: 0.82rem; color: #6c757d; text-align: center;">
+                        Tidak ada produk ditemukan untuk "<strong>${input.value}</strong>"
+                    </div>
+                `;
                 return;
             }
 
-            dropdown.innerHTML = matches.map(p => `
-                <div class="autocomplete-item" onclick="window.location.href='/product/${p.code}'">
-                    <img src="/gambar/logo/easymall-logo.png" alt="${p.name}">
-                    <div class="autocomplete-item-info">
-                        <span class="autocomplete-item-name">${p.name}</span>
-                        <span class="autocomplete-item-price">Rp ${p.price.toLocaleString('id-ID')}</span>
+            let itemsHtml = matches.map(p => `
+                <div class="autocomplete-item" onclick="window.location.href='/product/${p.code}'" style="padding: 10px 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-bottom: 1px solid #f1f3f5; transition: background 0.15s;">
+                    <img src="/gambar/logo/easymall-logo.png" alt="${p.name}" style="width: 32px; height: 32px; object-fit: contain; flex-shrink: 0; border-radius: 4px;">
+                    <div class="autocomplete-item-info" style="display: flex; flex-direction: column; min-width: 0; flex-grow: 1;">
+                        <span class="autocomplete-item-name" style="font-weight: 700; font-size: 0.85rem; color: #212529; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</span>
+                        <span style="font-size: 0.72rem; color: #6c757d;">${p.category || 'Digital'}</span>
                     </div>
+                    <span class="autocomplete-item-price" style="font-size: 0.8rem; color: #e03131; font-weight: 700; flex-shrink: 0;">Rp ${(p.price || 0).toLocaleString('id-ID')}</span>
                 </div>
             `).join('');
+
+            itemsHtml += `
+                <div onclick="window.location.href='/hasil_pencarian.html?query=${encodeURIComponent(input.value.trim())}'" style="padding: 10px 12px; font-size: 0.8rem; font-weight: 700; color: #0d6efd; text-align: center; cursor: pointer; background: #f8f9fa; border-top: 1px solid #dee2e6; transition: background 0.15s;" onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
+                    🔍 Lihat semua hasil untuk "${input.value.trim()}" →
+                </div>
+            `;
+
+            dropdown.innerHTML = itemsHtml;
             dropdown.style.display = 'block';
         });
 
         document.addEventListener('click', (e) => {
-            if (e.target !== input && e.target !== dropdown && !dropdown.contains(e.target)) {
+            if (e.target !== input && e.target !== dropdown && !dropdown.contains(e.target) && e.target !== searchBtn && !searchBtn.contains(e.target)) {
                 dropdown.style.display = 'none';
             }
         });
