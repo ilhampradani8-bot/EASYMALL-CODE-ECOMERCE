@@ -32,7 +32,6 @@ if (Astro.request.method === 'POST') {
   Astro.cookies.set('session_id', sessionId, {
     path: '/',
     httpOnly: true,
-    secure: true,
     maxAge: 60 * 60 * 24 * 7
   });
 

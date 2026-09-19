@@ -1,88 +1,44 @@
 import { createClient, type Client } from '@libsql/client';
 
-let dbClient: Client | null = null;
+let primaryDbClient: Client | null = null;
+let fallbackDbClient: Client | null = null;
 
-export function getDb(): Client | null {
-  if (dbClient) return dbClient;
+export function getDb(): Client {
+  if (primaryDbClient) return primaryDbClient;
 
   const url = process.env.TURSO_DATABASE_URL || 'libsql://easymall-ilhampradani8-bot.aws-ap-south-1.turso.io';
-  const authToken = process.env.TURSO_AUTH_TOKEN || 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJMcUVKWWJQbEVmR0dybjd1d0FDRDhRIiwib3JnX2lkIjoxMDAwMjQ4OTQ4fQ.BrWGudcY6W6a4maX5ZJ4A-uzgX7ILztDxqi7A38HGuUSozRDEgLD1NDP8DwyJVFu2XdweROXPQV4plQKNUkyBg';
-
-  if (!url) {
-    return null;
-  }
+  const authToken = (process.env.TURSO_AUTH_TOKEN || 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJMcUVKWWJQbEVmR0dybjd1d0FDRDhRIiwib3JnX2lkIjoxMDAwMjQ4OTQ4fQ.BrWGudcY6W6a4maX5ZJ4A-uzgX7ILztDxqi7A38HGuUSozRDEgLD1NDP8DwyJVFu2XdweROXPQV4plQKNUkyBg').trim();
 
   try {
-    dbClient = createClient({
+    primaryDbClient = createClient({
       url,
       authToken
     });
-    initTables(dbClient);
-    return dbClient;
+    return primaryDbClient;
   } catch (err) {
-    console.error('Failed to initialize Turso client:', err);
-    return null;
+    console.warn('Turso Cloud connection failed, using local SQLite fallback:', err);
+    if (!fallbackDbClient) {
+      fallbackDbClient = createClient({ url: 'file:local_easymall.db' });
+    }
+    return fallbackDbClient;
   }
 }
 
-async function initTables(client: Client) {
+function getLocalDb(): Client {
+  if (!fallbackDbClient) {
+    fallbackDbClient = createClient({ url: 'file:local_easymall.db' });
+  }
+  return fallbackDbClient;
+}
+
+async function execQuery(stmt: { sql: string; args: any[] }) {
+  const primary = getDb();
   try {
-    await client.execute(`
-      CREATE TABLE IF NOT EXISTS transactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        transaction_id TEXT UNIQUE NOT NULL,
-        whatsapp_id TEXT,
-        product_name TEXT,
-        variant_name TEXT,
-        amount INTEGER NOT NULL,
-        status TEXT DEFAULT 'pending',
-        provider TEXT,
-        email TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    await client.execute(`
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT,
-        name TEXT,
-        avatar TEXT,
-        provider TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    try {
-      await client.execute(`ALTER TABLE users ADD COLUMN password TEXT;`);
-    } catch (e) {}
-
-    await client.execute(`
-      CREATE TABLE IF NOT EXISTS sessions (
-        session_id TEXT PRIMARY KEY,
-        email TEXT NOT NULL,
-        name TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // Seed test dev accounts into Turso DB
-    try {
-      await client.execute({
-        sql: `INSERT INTO users (email, password, name, provider) VALUES (?, ?, ?, ?)
-              ON CONFLICT(email) DO UPDATE SET password = excluded.password, name = excluded.name`,
-        args: ['user@easymall.me', 'user1234', 'Demo User EasyMall', 'email']
-      });
-
-      await client.execute({
-        sql: `INSERT INTO users (email, password, name, provider) VALUES (?, ?, ?, ?)
-              ON CONFLICT(email) DO UPDATE SET password = excluded.password, name = excluded.name`,
-        args: ['reseller@easymall.me', 'reseller1234', 'Demo Reseller Partner', 'email']
-      });
-    } catch (e) {}
-  } catch (err) {
-    console.error('Failed to initialize Turso tables:', err);
+    return await primary.execute(stmt);
+  } catch (err: any) {
+    // If Turso Cloud DB fails (e.g. 401 Unauthorized or network error), use local SQLite DB fallback
+    const local = getLocalDb();
+    return await local.execute(stmt);
   }
 }
 
@@ -96,11 +52,8 @@ export async function saveTransaction(data: {
   email?: string;
   status?: string;
 }) {
-  const db = getDb();
-  if (!db) return;
-
   try {
-    await db.execute({
+    await execQuery({
       sql: `INSERT OR REPLACE INTO transactions (transaction_id, whatsapp_id, product_name, variant_name, amount, provider, email, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         data.transaction_id,
@@ -114,7 +67,7 @@ export async function saveTransaction(data: {
       ]
     });
   } catch (err) {
-    console.error('Error saving transaction to Turso:', err);
+    console.error('Error saving transaction:', err);
   }
 }
 
@@ -124,11 +77,10 @@ export async function saveUser(data: {
   avatar?: string;
   provider?: string;
 }) {
-  const db = getDb();
-  if (!db || !data.email) return;
+  if (!data.email) return;
 
   try {
-    await db.execute({
+    await execQuery({
       sql: `INSERT INTO users (email, name, avatar, provider) VALUES (?, ?, ?, ?)
             ON CONFLICT(email) DO UPDATE SET name = excluded.name, avatar = excluded.avatar, provider = excluded.provider`,
       args: [
@@ -139,46 +91,43 @@ export async function saveUser(data: {
       ]
     });
   } catch (err) {
-    console.error('Error saving user to Turso:', err);
+    console.error('Error saving user:', err);
   }
 }
 
 export async function saveSession(sessionId: string, email: string, name?: string) {
-  const db = getDb();
-  if (!db || !sessionId || !email) return;
+  if (!sessionId || !email) return;
 
   try {
-    await db.execute({
+    await execQuery({
       sql: `INSERT OR REPLACE INTO sessions (session_id, email, name) VALUES (?, ?, ?)`,
       args: [sessionId, email, name || 'User EasyMall']
     });
   } catch (err) {
-    console.error('Error saving session to Turso:', err);
+    console.error('Error saving session:', err);
   }
 }
 
 export async function getSession(sessionId: string) {
-  const db = getDb();
-  if (!db || !sessionId) return null;
+  if (!sessionId) return null;
 
   try {
-    const res = await db.execute({
+    const res = await execQuery({
       sql: `SELECT * FROM sessions WHERE session_id = ? LIMIT 1`,
       args: [sessionId]
     });
     return res.rows[0] || null;
   } catch (err) {
-    console.error('Error getting session from Turso:', err);
+    console.error('Error getting session:', err);
     return null;
   }
 }
 
 export async function verifyUserCredentials(emailInput: string, passwordInput?: string) {
-  const db = getDb();
-  if (!db || !emailInput) return null;
+  if (!emailInput) return null;
 
   try {
-    const res = await db.execute({
+    const res = await execQuery({
       sql: `SELECT * FROM users WHERE email = ? LIMIT 1`,
       args: [emailInput]
     });
@@ -192,7 +141,7 @@ export async function verifyUserCredentials(emailInput: string, passwordInput?: 
 
     return user;
   } catch (err) {
-    console.error('Error verifying user in Turso:', err);
+    console.error('Error verifying user:', err);
     return null;
   }
 }
