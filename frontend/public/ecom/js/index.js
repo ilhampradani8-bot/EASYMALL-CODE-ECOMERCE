@@ -117,20 +117,9 @@ let statusPollingInterval = null;
 
 let API_BASE_URL = '';
 
-// Load external HTML templates dynamically to keep files separated
+// Load external HTML templates dynamically (handed over to FloatingChat component)
 async function loadTemplates() {
-    // Load WhatsApp floating bubble
-    try {
-        const waBubbleContainer = document.createElement('div');
-        waBubbleContainer.id = 'waBubbleContainer';
-        document.body.appendChild(waBubbleContainer);
-        const waRes = await fetch('/ecom/folder_user/buble.html');
-        if (waRes.ok) {
-            waBubbleContainer.innerHTML = await waRes.text();
-        }
-    } catch (e) {
-        console.error('Failed to load WhatsApp bubble:', e);
-    }
+    // Floating chat capsule handled globally by FloatingChat.astro
 }
 
 // Initialize SPA application
