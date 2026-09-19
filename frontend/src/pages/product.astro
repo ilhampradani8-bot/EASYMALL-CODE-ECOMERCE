@@ -174,14 +174,19 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
             }
             .product-checkout-col {
                 width: 100% !important;
+                min-width: 0 !important;
             }
             .product-details-col {
                 width: 100% !important;
             }
         }
         @media (max-width: 768px) {
+            .product-page-container {
+                padding: 1rem 1rem 3rem 1rem !important;
+            }
             .recom-grid {
                 grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.75rem !important;
             }
         }
     </style>

@@ -105,16 +105,16 @@ if (pathname.includes('reseller')) {
             bottom: 0;
             left: 0;
             right: 0;
-            height: 64px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-top: 1px solid #dee2e6;
+            height: calc(62px + env(safe-area-inset-bottom, 0px));
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
             z-index: 1999;
             justify-content: space-around;
             align-items: center;
-            padding: 4px 0;
-            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+            padding: 4px 0 calc(4px + env(safe-area-inset-bottom, 0px)) 0;
+            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06);
         }
 
         .nav-item {
@@ -124,27 +124,43 @@ if (pathname.includes('reseller')) {
             justify-content: center;
             color: #64748b;
             text-decoration: none;
-            font-size: 0.725rem;
+            font-size: 0.7rem;
             font-weight: 600;
             flex-grow: 1;
             height: 100%;
-            gap: 4px;
-            transition: color 0.15s ease;
+            gap: 3px;
+            position: relative;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .nav-item:active {
+            transform: scale(0.92);
         }
 
         .nav-item:hover, .nav-item.active {
-            color: #4f46e5;
+            color: #000000;
             text-decoration: none;
         }
 
         .nav-item svg {
-            transition: transform 0.2s;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.2s ease;
         }
 
         .nav-item.active svg {
-            transform: scale(1.1);
+            transform: translateY(-2px) scale(1.12);
+            stroke: #000000;
         }
-        
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            width: 18px;
+            height: 3px;
+            background: #000000;
+            border-radius: 4px;
+        }
+
         .cart-icon-wrapper {
             position: relative;
         }
