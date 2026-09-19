@@ -3,8 +3,18 @@ import { saveTransaction } from '../../lib/db';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   try {
+    let userEmail = '';
+    const sessionCookie = cookies.get('session_id');
+    if (sessionCookie && sessionCookie.value) {
+      try {
+        const { getSession } = await import('../../lib/db');
+        const session = await getSession(sessionCookie.value);
+        if (session && session.email) userEmail = String(session.email);
+      } catch (e) {}
+    }
+
     const payload = await request.json().catch(() => ({}));
     const {
       provider = 'koalastore',
@@ -70,7 +80,9 @@ export const POST: APIRoute = async ({ request }) => {
               product_name,
               variant_name,
               amount: total_amount,
-              provider: 'koalastore'
+              provider: 'koalastore',
+              email: userEmail,
+              status: 'pending'
             });
 
             return new Response(JSON.stringify({
@@ -129,7 +141,9 @@ export const POST: APIRoute = async ({ request }) => {
               product_name,
               variant_name,
               amount,
-              provider
+              provider,
+              email: userEmail,
+              status: 'pending'
             });
 
             return new Response(JSON.stringify({
@@ -160,7 +174,9 @@ export const POST: APIRoute = async ({ request }) => {
       product_name,
       variant_name,
       amount,
-      provider: provider || 'koalastore'
+      provider: provider || 'koalastore',
+      email: userEmail,
+      status: 'pending'
     });
 
     return new Response(JSON.stringify({

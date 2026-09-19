@@ -277,6 +277,17 @@ import BottomNav from '../components/BottomNav.astro';
             }
         }
 
+        function renderStatusBadge(status) {
+            const st = (status || 'pending').toLowerCase();
+            if (st === 'paid' || st === 'success') {
+                return '<span style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-block;">✅ Lunas / Berhasil</span>';
+            } else if (st === 'failed' || st === 'cancelled') {
+                return '<span style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-block;">❌ Gagal</span>';
+            } else {
+                return '<span style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-block;">⏳ Menunggu Pembayaran</span>';
+            }
+        }
+
         function renderOrders(list) {
             const container = document.getElementById('table-container');
             if (list.length === 0) {
@@ -292,6 +303,7 @@ import BottomNav from '../components/BottomNav.astro';
                             <th>Nama Produk</th>
                             <th>Varian</th>
                             <th>Total Bayar</th>
+                            <th>Status</th>
                             <th>Tanggal</th>
                         </tr>
                     </thead>
@@ -302,7 +314,8 @@ import BottomNav from '../components/BottomNav.astro';
                                 <td>${o.product_name || '-'}</td>
                                 <td>${o.variant_name || '-'}</td>
                                 <td><span style="color: #28a745; font-weight: bold;">${formatRupiah(o.amount)}</span></td>
-                                <td>${o.created_at}</td>
+                                <td>${renderStatusBadge(o.status)}</td>
+                                <td>${o.created_at || '-'}</td>
                             </tr>
                         `).join('')}
                     </tbody>

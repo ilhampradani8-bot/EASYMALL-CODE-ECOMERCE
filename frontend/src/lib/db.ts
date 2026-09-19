@@ -145,3 +145,24 @@ export async function verifyUserCredentials(emailInput: string, passwordInput?: 
     return null;
   }
 }
+
+export async function getTransactions(userEmail?: string) {
+  try {
+    if (userEmail) {
+      const res = await execQuery({
+        sql: `SELECT * FROM transactions WHERE email = ? OR email IS NULL OR email = '' ORDER BY id DESC LIMIT 50`,
+        args: [userEmail]
+      });
+      return res.rows || [];
+    } else {
+      const res = await execQuery({
+        sql: `SELECT * FROM transactions ORDER BY id DESC LIMIT 50`,
+        args: []
+      });
+      return res.rows || [];
+    }
+  } catch (err) {
+    console.error('Error fetching transactions:', err);
+    return [];
+  }
+}
