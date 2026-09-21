@@ -9,6 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "npm run build && wrangler dev",
+    "db:view": "node scripts/view-db.mjs",
+    "db:seed": "node scripts/seed-db.mjs",
     "astro": "astro",
     "generate-types": "wrangler types",
     "deploy": "npm run build && wrangler deploy"
