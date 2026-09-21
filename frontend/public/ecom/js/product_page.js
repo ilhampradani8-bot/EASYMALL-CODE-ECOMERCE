@@ -245,8 +245,8 @@ function renderProductDetails(product, category, storeInfo) {
     const layout = document.getElementById('productViewLayout');
     if (!layout) return;
 
-    const imageUrl = product.images && product.images[0] ? product.images[0] : '/gambar/logo/easymall-logo.png';
-    const iconEmoji = `<img src="${imageUrl}" alt="${product.name}" style="width: 100%; height: auto; border-radius: 6px; object-fit: contain;">`;
+    const imageUrl = product.image || product.image_url || (product.images && product.images[0] ? product.images[0] : '/gambar/logo/easymall-logo.png');
+    const iconEmoji = `<img src="${imageUrl}" alt="${product.name}" style="width: 100%; max-height: 220px; border-radius: 6px; object-fit: contain; padding: 10px; background: #fafafa;">`;
     const originalPrice = Math.round(product.price * 1.15);
 
     let specHtml = '';
@@ -696,9 +696,10 @@ function renderRecommendations(currentProduct, allProducts, allCategories) {
         const card = document.createElement('div');
         card.className = 'card';
         card.style.cursor = 'pointer';
+        const productImg = p.image || p.image_url || '/gambar/logo/easymall-logo.png';
         card.innerHTML = `
             <div class="card-image-wrapper" style="height: 100px;">
-                <img src="/gambar/logo/easymall-logo.png" alt="${p.name}" style="height: 60px; width: auto; object-fit: contain;">
+                <img src="${productImg}" alt="${p.name}" style="height: 60px; width: auto; object-fit: contain;">
             </div>
             <div class="card-body" style="padding: 0.6rem;">
                 <span style="font-size: 0.65rem; color: var(--text-muted);">${cat ? cat.name : p.category_slug}</span>

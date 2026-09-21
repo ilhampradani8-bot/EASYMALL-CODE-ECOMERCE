@@ -151,7 +151,7 @@ function renderStorefront(store, products, phone, email) {
     grid.innerHTML = '';
     products.forEach(p => {
         const originalPrice = Math.round(p.price * 1.15);
-        const imageUrl = p.images && p.images[0] ? p.images[0] : '/gambar/logo/easymall-logo.png';
+        const imageUrl = p.image || p.image_url || (p.images && p.images[0] ? p.images[0] : '/gambar/logo/easymall-logo.png');
         const card = document.createElement('div');
         card.className = 'card product-card';
         card.style.cursor = 'pointer';

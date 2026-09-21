@@ -608,7 +608,8 @@ function renderProducts(categorySlug = 'all', searchQuery = '') {
                 </div>
             `;
         } else {
-            const iconEmoji = `<img src="gambar/logo/easymall-logo.png" alt="${p.name}" style="height: 70px; width: auto; object-fit: contain;">`;
+            const productImg = p.image || p.image_url || '/gambar/logo/easymall-logo.png';
+            const iconEmoji = `<img src="${productImg}" alt="${p.name}" style="height: 70px; width: auto; object-fit: contain;">`;
             card.className = 'card product-card';
             card.innerHTML = `
                 <div class="card-image-wrapper" style="height: 110px;">
@@ -881,9 +882,9 @@ function renderDbProducts(products) {
         const card = document.createElement('div');
         card.className = 'card product-card';
         
-        // Use first image if available, else logo
-        const imageUrl = p.images && p.images[0] ? p.images[0] : 'gambar/logo/easymall-logo.png';
-        const imageHtml = `<img src="${imageUrl}" alt="${p.product_name}" style="width: 100%; height: 100%; object-fit: cover; display: block;">`;
+        // Use product image or logo
+        const imageUrl = p.image || p.image_url || (p.images && p.images[0] ? p.images[0] : '/gambar/logo/easymall-logo.png');
+        const imageHtml = `<img src="${imageUrl}" alt="${p.product_name || p.name}" style="width: 100%; height: 100%; object-fit: contain; display: block; padding: 10px; background: #fafafa;">`;
         
         card.innerHTML = `
             <div class="card-image-wrapper" style="height: 160px; width: 100%; overflow: hidden; position: relative;">
