@@ -397,7 +397,7 @@ if (Astro.request.method === 'POST') {
 
                     <!-- Login Pane -->
                     <div id="loginPane">
-                        <form id="loginForm" method="POST" autocomplete="off">
+                        <form id="loginForm" method="POST" action="/login" autocomplete="off">
                             <div class="form-group">
                                 <label for="username">Username</label>
                                 <input type="text" id="username" name="username" class="form-control" placeholder="Masukkan username" required autofocus>
@@ -482,7 +482,7 @@ if (Astro.request.method === 'POST') {
         // Set action immediately to prevent empty action 404s on early clicks
         const loginForm = document.getElementById('loginForm');
         if (loginForm) {
-            loginForm.action = LOGIN_API_URL + '/login';
+            loginForm.action = LOGIN_API_URL ? (LOGIN_API_URL + '/login') : '/login';
         }
 
         // Render standard Google Button
