@@ -2,6 +2,8 @@
 // login.astro
 import PenggabungUtama from '../layouts/PenggabungUtama.astro';
 
+const isDev = import.meta.env.DEV || process.env.NODE_ENV !== 'production';
+
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData().catch(() => null);
   const inputEmail = formData ? (formData.get('username') || formData.get('email') || '').toString().trim() : '';
@@ -17,10 +19,10 @@ if (Astro.request.method === 'POST') {
   if (!dbUser) {
     if (inputEmail === 'reseller' || inputEmail === 'admin' || inputEmail.includes('reseller')) {
       email = 'reseller@easymall.me';
-      name = 'Demo Reseller Partner';
+      name = 'Reseller Partner';
     } else {
       email = inputEmail || 'user@easymall.me';
-      name = inputEmail ? inputEmail.split('@')[0] : 'Demo User EasyMall';
+      name = inputEmail ? inputEmail.split('@')[0] : 'Pengguna EasyMall';
     }
   }
 
@@ -291,12 +293,12 @@ if (Astro.request.method === 'POST') {
             border-color: #c4c5c7;
         }
 
-        .btn-demo {
+        .btn-dev {
             width: 100%;
             padding: 10px;
-            background: #ecfdf5;
-            color: #047857;
-            border: 1.5px dashed #10b981;
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1.5px dashed #22c55e;
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.9rem;
@@ -304,9 +306,9 @@ if (Astro.request.method === 'POST') {
             transition: all 0.15s;
         }
 
-        .btn-demo:hover {
-            background: #d1fae5;
-            border-color: #059669;
+        .btn-dev:hover {
+            background: #dcfce7;
+            border-color: #16a34a;
         }
 
         .flash-message {
@@ -417,8 +419,10 @@ if (Astro.request.method === 'POST') {
                                 <!-- Google Auth Button Container -->
                                 <div id="googleBtn" style="width: 100%; height: 44px; display: flex; justify-content: center; overflow: hidden; margin-bottom: 0.25rem;"></div>
 
-                                <!-- Demo Button -->
-                                <button type="button" class="btn-demo" onclick="loginAsDemo()">Masuk sebagai Demo (1-Click)</button>
+                                <!-- Mode Dev Button (Only visible in development environment) -->
+                                {isDev && (
+                                    <button type="button" class="btn-dev" onclick="loginAsDev()">⚡ Masuk Mode Dev (1-Click)</button>
+                                )}
                             </div>
                         </form>
                     </div>
@@ -534,9 +538,9 @@ if (Astro.request.method === 'POST') {
             form.submit();
         }
 
-        function loginAsDemo() {
-            document.getElementById('username').value = 'demo';
-            document.getElementById('password').value = 'demo';
+        function loginAsDev() {
+            document.getElementById('username').value = 'user@easymall.me';
+            document.getElementById('password').value = 'user1234';
             document.getElementById('loginForm').submit();
         }
     </script>
