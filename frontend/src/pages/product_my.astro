@@ -94,7 +94,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
         <div class="product-page-container" style="max-width: 1200px; margin: 0 auto; padding: 2rem 2rem 4rem 2rem;">
             <!-- Breadcrumbs -->
             <div style="margin-bottom: 1.5rem;">
-                <a href="/mymall.html" style="color: var(--text-muted); font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
+                <a href="/mymall" style="color: var(--text-muted); font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
                     ← Kembali ke My Mall
                 </a>
             </div>
@@ -188,7 +188,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                 const res = await fetch(`${API_BASE_URL}/api/user/products/${id}`, { credentials: 'include' });
                 if (!res.ok) {
                     if (res.status === 401) {
-                        window.location.href = '/login.html';
+                        window.location.href = '/login';
                         return;
                     }
                     throw new Error("Gagal mengambil detail produk");

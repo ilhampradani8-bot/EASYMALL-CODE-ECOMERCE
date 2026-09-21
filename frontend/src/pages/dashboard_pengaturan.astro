@@ -420,7 +420,7 @@ import BottomNav from '../components/BottomNav.astro';
                     <div class="card-body">
                         <div id="store-unregistered-msg" style="display: none; text-align: center; padding: 2rem; color: #64748b;">
                             <p style="margin-bottom: 1rem;">Anda belum memiliki toko aktif di EasyMall.</p>
-                            <a href="/mymall.html" class="btn-save" style="background: var(--primary); text-decoration: none;">Buka Toko Sekarang</a>
+                            <a href="/mymall" class="btn-save" style="background: var(--primary); text-decoration: none;">Buka Toko Sekarang</a>
                         </div>
 
                         <form id="store-settings-form" onsubmit="saveStoreSettings(event)">
@@ -540,12 +540,12 @@ import BottomNav from '../components/BottomNav.astro';
             try {
                 const settingsRes = await fetch(`${API_BASE_URL}/api/user/settings`, { credentials: 'include' });
                 if (!settingsRes.ok) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
                 const data = await settingsRes.json();
                 if (!data.success) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
 

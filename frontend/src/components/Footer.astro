@@ -41,7 +41,7 @@
         <div class="footer-col footer-links">
             <h4>Informasi</h4>
             <ul>
-                <li><a href="/dokumentasi.html" style="font-weight: 600; color: #38bdf8;">Dokumentasi API</a></li>
+                <li><a href="/dokumentasi" style="font-weight: 600; color: #38bdf8;">Dokumentasi API</a></li>
                 <li><a href="/about">Tentang Kami</a></li>
                 <li><a href="/term">Syarat & Ketentuan</a></li>
                 <li><a href="/condition">Kebijakan Refund</a></li>
@@ -104,7 +104,7 @@
         function doFooterSearch() {
             const query = input.value.trim();
             if (query) {
-                window.location.href = `/hasil_pencarian.html?query=${encodeURIComponent(query)}`;
+                window.location.href = `/hasil_pencarian?query=${encodeURIComponent(query)}`;
             }
         }
 

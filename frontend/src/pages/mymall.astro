@@ -1146,12 +1146,12 @@ import BottomNav from '../components/BottomNav.astro';
                 // 1. Fetch authentication status to get user details
                 const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
                 if (!authRes.ok) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
                 const authData = await authRes.json();
                 if (!authData.logged_in) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
 
@@ -1355,7 +1355,7 @@ import BottomNav from '../components/BottomNav.astro';
                 const mainImage = (p.images && p.images.length > 0) ? p.images[0] : '/gambar/logo/easymall-logo.png';
 
                 return `
-                    <div class="card product-card" onclick="window.location.href='/product_my.html?id=${p.id}'" style="cursor: pointer; display: flex; flex-direction: column; overflow: hidden;">
+                    <div class="card product-card" onclick="window.location.href='/product_my?id=${p.id}'" style="cursor: pointer; display: flex; flex-direction: column; overflow: hidden;">
                         <div class="card-image-wrapper" style="height: 180px; position: relative; border-bottom: 1px solid var(--border-color); overflow: hidden;">
                             <img src="${mainImage}" alt="${p.product_name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/gambar/logo/easymall-logo.png'">
                             ${statusBadge}

@@ -103,7 +103,7 @@ function renderStorefront(store, products, phone, email) {
         pesanBtn.style.color = '#ffffff';
         pesanBtn.style.border = '1px solid var(--primary)';
         pesanBtn.textContent = 'Kirim Pesan';
-        pesanBtn.href = `/pesan.html?chat=${encodeURIComponent(email)}`;
+        pesanBtn.href = `/pesan?chat=${encodeURIComponent(email)}`;
         storeActions.appendChild(pesanBtn);
     }
 

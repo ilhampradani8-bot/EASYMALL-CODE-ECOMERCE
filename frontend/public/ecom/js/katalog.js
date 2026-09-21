@@ -662,7 +662,7 @@ function renderProducts(categorySlug = 'all', searchQuery = '') {
                     const authData = await authRes.json();
                     if (!authData.logged_in) {
                         alert("Silakan login/masuk terlebih dahulu untuk menggunakan fitur keranjang!");
-                        window.location.href = '/login.html';
+                        window.location.href = '/login';
                         return;
                     }
 
@@ -686,7 +686,7 @@ function renderProducts(categorySlug = 'all', searchQuery = '') {
 
                     if (res.ok) {
                         alert('Produk berhasil dimasukkan ke keranjang!');
-                        window.location.href = '/dashboard_keranjang.html';
+                        window.location.href = '/dashboard_keranjang';
                     } else {
                         alert('Gagal memasukkan ke keranjang. Silakan coba lagi.');
                     }
@@ -715,11 +715,11 @@ function setupHeaderActions() {
 
     if (cartBtn) {
         cartBtn.onclick = () => {
-            window.location.href = '/dashboard_keranjang.html';
+            window.location.href = '/dashboard_keranjang';
         };
     }
 
-    const isHomePage = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html') || window.location.pathname === '';
+    const isHomePage = window.location.pathname === '/' || window.location.pathname.endsWith('/') || window.location.pathname === '';
 
     if (logoLink) logoLink.onclick = (e) => {
         if (!isHomePage) {
@@ -758,7 +758,7 @@ function setupHeaderActions() {
         const triggerSearchRedirect = () => {
             const query = searchInput.value.trim();
             if (query.length > 0) {
-                window.location.href = `/hasil_pencarian.html?query=${encodeURIComponent(query)}`;
+                window.location.href = `/hasil_pencarian?query=${encodeURIComponent(query)}`;
             }
         };
         
@@ -774,8 +774,8 @@ function setupHeaderActions() {
     }
     
     if (loginBtn) {
-        const loginUrl = '/login.html';
-        const dashboardUrl = API_BASE_URL ? `${API_BASE_URL}/dashboard.html` : '/dashboard.html';
+        const loginUrl = '/login';
+        const dashboardUrl = API_BASE_URL ? `${API_BASE_URL}/dashboard.html` : '/dashboard';
 
         loginBtn.onclick = () => { window.location.href = loginUrl; };
         
@@ -938,7 +938,7 @@ function renderDbProducts(products) {
                     const authData = await authRes.json();
                     if (!authData.logged_in) {
                         alert("Silakan login/masuk terlebih dahulu untuk menggunakan fitur keranjang!");
-                        window.location.href = '/login.html';
+                        window.location.href = '/login';
                         return;
                     }
 
@@ -962,7 +962,7 @@ function renderDbProducts(products) {
 
                     if (res.ok) {
                         alert('Produk berhasil dimasukkan ke keranjang!');
-                        window.location.href = '/dashboard_keranjang.html';
+                        window.location.href = '/dashboard_keranjang';
                     } else {
                         alert('Gagal memasukkan ke keranjang. Silakan coba lagi.');
                     }

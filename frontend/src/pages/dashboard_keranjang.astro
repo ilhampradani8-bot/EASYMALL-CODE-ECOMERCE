@@ -249,12 +249,12 @@ import BottomNav from '../components/BottomNav.astro';
             try {
                 const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
                 if (!authRes.ok) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
                 const authData = await authRes.json();
                 if (!authData.logged_in) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
 
@@ -412,7 +412,7 @@ import BottomNav from '../components/BottomNav.astro';
                 });
 
                 alert('Checkout sukses! Pembayaran Anda sedang diproses. Silakan cek pesan WhatsApp Anda.');
-                window.location.href = '/dashboard_pesanan.html';
+                window.location.href = '/dashboard_pesanan';
             } catch (err) {
                 console.error(err);
                 alert('Gagal melakukan checkout.');
@@ -429,7 +429,7 @@ import BottomNav from '../components/BottomNav.astro';
             try {
                 await fetch(`${API_BASE_URL}/logout`, { credentials: 'include' });
             } catch(e){}
-            window.location.href = '/login.html';
+            window.location.href = '/login';
         }
 
         fetchUserData();

@@ -453,12 +453,12 @@ print(response.json())`}</code></pre>
             try {
                 const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
                 if (!authRes.ok) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
                 const authData = await authRes.json();
                 if (!authData.logged_in) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
 
@@ -496,7 +496,7 @@ print(response.json())`}</code></pre>
             try {
                 await fetch(`${API_BASE_URL}/logout`, { credentials: 'include' });
             } catch(e){}
-            window.location.href = '/login.html';
+            window.location.href = '/login';
         }
 
         fetchResellerData();

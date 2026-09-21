@@ -392,12 +392,12 @@ import BottomNav from '../components/BottomNav.astro';
                 // 1. Check user login status
                 const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
                 if (!authRes.ok) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
                 const authData = await authRes.json();
                 if (!authData.logged_in) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
 
@@ -473,7 +473,7 @@ import BottomNav from '../components/BottomNav.astro';
                                     <p class="notif-message">${n.message}</p>
                                     <div class="notif-actions">
                                         ${readActionBtn}
-                                        ${n.type === 'order' ? `<button class="btn-action-link" onclick="window.location.href='/dashboard_pesanan.html'">Lihat Pesanan</button>` : ''}
+                                        ${n.type === 'order' ? `<button class="btn-action-link" onclick="window.location.href='/dashboard_pesanan'">Lihat Pesanan</button>` : ''}
                                     </div>
                                 </div>
                             </div>

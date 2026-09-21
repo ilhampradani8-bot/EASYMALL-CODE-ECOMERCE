@@ -314,9 +314,9 @@ import BottomNav from '../components/BottomNav.astro';
     async function loadWallet() {
       try {
         const res = await fetch(`${API_BASE_URL}/api/wallet`, { credentials: 'include' });
-        if (!res.ok) { window.location.href = '/login.html'; return; }
+        if (!res.ok) { window.location.href = '/login'; return; }
         const data = await res.json();
-        if (!data.success) { window.location.href = '/login.html'; return; }
+        if (!data.success) { window.location.href = '/login'; return; }
 
         currentBalance = data.balance;
         const balDisp = document.getElementById('balance-display');

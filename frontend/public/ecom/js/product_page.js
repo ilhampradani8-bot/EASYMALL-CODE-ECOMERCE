@@ -315,7 +315,7 @@ function renderProductDetails(product, category, storeInfo) {
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.907h.004c4.368 0 7.926-3.558 7.93-7.93a7.896 7.896 0 0 0-2.327-5.545zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592z"/></svg>
                     ${chatText}
                 </a>
-                <a href="/pesan.html?chat=${encodeURIComponent(product.email || '')}" style="padding: 6px 14px; background: var(--primary); color: #ffffff; font-weight: 700; font-size: 0.85rem; border-radius: var(--radius); text-decoration: none; display: inline-flex; align-items: center; transition: all 0.2s; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">Chat Toko</a>
+                <a href="/pesan?chat=${encodeURIComponent(product.email || '')}" style="padding: 6px 14px; background: var(--primary); color: #ffffff; font-weight: 700; font-size: 0.85rem; border-radius: var(--radius); text-decoration: none; display: inline-flex; align-items: center; transition: all 0.2s; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">Chat Toko</a>
                 ${storeLinkHtml}
             </div>
         `;
@@ -519,7 +519,7 @@ function initCheckoutForm(product) {
                     const authData = await authRes.json();
                     if (!authData.logged_in) {
                         alert("Silakan login/masuk terlebih dahulu untuk menggunakan fitur keranjang!");
-                        window.location.href = '/login.html';
+                        window.location.href = '/login';
                         return;
                     }
 
@@ -543,7 +543,7 @@ function initCheckoutForm(product) {
 
                     if (res.ok) {
                         alert('Produk berhasil dimasukkan ke keranjang!');
-                        window.location.href = '/dashboard_keranjang.html';
+                        window.location.href = '/dashboard_keranjang';
                     } else {
                         alert('Gagal memasukkan ke keranjang. Silakan coba lagi.');
                     }
@@ -568,7 +568,7 @@ async function submitCheckout() {
     if (!targetVal) {
         if (!isSpecialCategory) {
             alert('Silakan login terlebih dahulu untuk melanjutkan pembayaran!');
-            window.location.href = '/login.html';
+            window.location.href = '/login';
             return;
         } else {
             alert('Mohon lengkapi ID Pengguna / Nomor Tujuan Anda terlebih dahulu!');
@@ -752,7 +752,7 @@ function setupSearchActions() {
         const triggerSearch = () => {
             const val = searchInput.value.trim();
             if (val.length > 0) {
-                window.location.href = `/hasil_pencarian.html?query=${encodeURIComponent(val)}`;
+                window.location.href = `/hasil_pencarian?query=${encodeURIComponent(val)}`;
             }
         };
         searchInput.addEventListener('keydown', (e) => {
@@ -777,7 +777,7 @@ function setupHeaderActions() {
 
     if (cartBtn) {
         cartBtn.onclick = () => {
-            window.location.href = '/dashboard_keranjang.html';
+            window.location.href = '/dashboard_keranjang';
         };
     }
 
@@ -795,8 +795,8 @@ function setupHeaderActions() {
     };
 
     if (loginBtn) {
-        const loginUrl = '/login.html';
-        const dashboardUrl = API_BASE_URL ? `${API_BASE_URL}/dashboard.html` : '/dashboard.html';
+        const loginUrl = '/login';
+        const dashboardUrl = API_BASE_URL ? `${API_BASE_URL}/dashboard.html` : '/dashboard';
 
         loginBtn.onclick = () => { window.location.href = loginUrl; };
         

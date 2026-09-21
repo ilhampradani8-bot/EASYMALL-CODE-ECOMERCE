@@ -99,7 +99,7 @@
                 });
                 
                 if (!response.ok) {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return;
                 }
 
@@ -109,16 +109,16 @@
                     const name = data.name || '';
                     
                     if (email.includes('reseller') || name.includes('Reseller') || name.includes('Demo') || email.includes('admin') || name.includes('admin') || name.includes('Discord Demo')) {
-                        window.location.href = '/dashboard_reseller.html';
+                        window.location.href = '/dashboard_reseller';
                     } else {
-                        window.location.href = '/dashboard_user.html';
+                        window.location.href = '/dashboard_user';
                     }
                 } else {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                 }
             } catch (err) {
                 console.error(err);
-                window.location.href = '/login.html';
+                window.location.href = '/login';
             }
         }
 

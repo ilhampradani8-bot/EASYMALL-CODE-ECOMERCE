@@ -18,7 +18,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                     <p class="hero-subtitle">Cepat, aman, dan minimalis. Website ini dirancang khusus untuk kecepatan tinggi dan kemudahan penggunaan. Nikmati semua transaksi yang serba cepat, instan, dan lancar tanpa hambatan!</p>
                     <div class="hero-cta">
                         <a href="#recommendations" class="btn">Lihat Rekomendasi</a>
-                        <a href="/katalog.html" class="btn" style="background: transparent; border: 2px solid #ffffff; color: #ffffff; margin-left: 0.75rem;">Produk Lainnya →</a>
+                        <a href="/katalog" class="btn" style="background: transparent; border: 2px solid #ffffff; color: #ffffff; margin-left: 0.75rem;">Produk Lainnya →</a>
                     </div>
                 </div>
             </section>
@@ -30,7 +30,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                     
                     <div class="category-scroll-container" style="display: grid; grid-template-rows: repeat(2, auto); grid-auto-flow: column; gap: 1rem; overflow-x: auto; padding: 0.5rem 0.25rem 1rem 0.25rem; scroll-snap-type: x mandatory; scrollbar-width: thin; -webkit-overflow-scrolling: touch;">
                         <!-- Kategori 1 -->
-                        <a href="/hasil_pencarian.html?query=Perangkat Lunak & Aplikasi" class="category-card-link" style="text-decoration: none; color: inherit; scroll-snap-align: start;">
+                        <a href="/hasil_pencarian?query=Perangkat Lunak & Aplikasi" class="category-card-link" style="text-decoration: none; color: inherit; scroll-snap-align: start;">
                             <div class="category-card" style="border: 1px solid var(--border-color); padding: 0.75rem 1.25rem; border-radius: var(--radius); background: #fafafa; transition: all 0.25s ease; display: flex; align-items: center; gap: 0.75rem; min-width: 290px; height: 56px;">
                                 <div class="category-icon-wrapper" style="width: 36px; height: 36px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.25s;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
@@ -40,7 +40,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                         </a>
                         
                         <!-- Kategori 2 -->
-                        <a href="/hasil_pencarian.html?query=Jasa Desain & Kreatif" class="category-card-link" style="text-decoration: none; color: inherit; scroll-snap-align: start;">
+                        <a href="/hasil_pencarian?query=Jasa Desain & Kreatif" class="category-card-link" style="text-decoration: none; color: inherit; scroll-snap-align: start;">
                             <div class="category-card" style="border: 1px solid var(--border-color); padding: 0.75rem 1.25rem; border-radius: var(--radius); background: #fafafa; transition: all 0.25s ease; display: flex; align-items: center; gap: 0.75rem; min-width: 290px; height: 56px;">
                                 <div class="category-icon-wrapper" style="width: 36px; height: 36px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.25s;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C4.94902 19.092 5 19.2166 5 19.3478V20C5 21.1046 5.89543 22 7 22H12Z"/><circle cx="7.5" cy="10.5" r="1.5"/><circle cx="11.5" cy="7.5" r="1.5"/><circle cx="16.5" cy="9.5" r="1.5"/></svg>
@@ -50,7 +50,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                         </a>
 
                         <!-- Kategori 3 -->
-                        <a href="/hasil_pencarian.html?query=Jasa Pengembangan & IT" class="category-card-link" style="text-decoration: none; color: inherit; scroll-snap-align: start;">
+                        <a href="/hasil_pencarian?query=Jasa Pengembangan & IT" class="category-card-link" style="text-decoration: none; color: inherit; scroll-snap-align: start;">
                             <div class="category-card" style="border: 1px solid var(--border-color); padding: 0.75rem 1.25rem; border-radius: var(--radius); background: #fae8ff; display: flex; align-items: center; gap: 0.75rem; min-width: 290px; height: 56px;">
                                 <div class="category-icon-wrapper" style="width: 36px; height: 36px; border-radius: 50%; background: #fae8ff; color: #d946ef; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.25s;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
@@ -60,7 +60,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                         </a>
 
                         <!-- Kategori 4 -->
-                        <a href="/hasil_pencarian.html?query=Konten Digital & Edukasi" class="category-card-link" style="text-decoration: none; color: inherit; scroll-snap-align: start;">
+                        <a href="/hasil_pencarian?query=Konten Digital & Edukasi" class="category-card-link" style="text-decoration: none; color: inherit; scroll-snap-align: start;">
                             <div class="category-card" style="border: 1px solid var(--border-color); padding: 0.75rem 1.25rem; border-radius: var(--radius); background: #fafafa; transition: all 0.25s ease; display: flex; align-items: center; gap: 0.75rem; min-width: 290px; height: 56px;">
                                 <div class="category-icon-wrapper" style="width: 36px; height: 36px; border-radius: 50%; background: #dcfce7; color: #15803d; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.25s;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>
@@ -87,7 +87,7 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
  
                     <!-- CTA to full catalog -->
                     <div style="text-align: center; margin-top: 2.5rem;">
-                        <a href="/katalog.html" class="btn" style="padding: 0.75rem 2rem; background: transparent; border: 2px solid var(--primary); color: var(--primary); font-weight: 700; border-radius: var(--radius); text-decoration: none; display: inline-block; transition: all 0.2s;">
+                        <a href="/katalog" class="btn" style="padding: 0.75rem 2rem; background: transparent; border: 2px solid var(--primary); color: var(--primary); font-weight: 700; border-radius: var(--radius); text-decoration: none; display: inline-block; transition: all 0.2s;">
                             Lihat Semua Produk Lain →
                         </a>
                     </div>
@@ -103,31 +103,31 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                         <!-- Kategori 1 -->
                         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                             <h3 style="font-size: 1.1rem; font-weight: 800; margin: 0; font-family: 'Marcellus SC', serif; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;">
-                                <a href="/hasil_pencarian.html?query=Perangkat Lunak & Aplikasi" style="text-decoration: none; color: var(--primary); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">1. Perangkat Lunak & Aplikasi</a>
+                                <a href="/hasil_pencarian?query=Perangkat Lunak & Aplikasi" style="text-decoration: none; color: var(--primary); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">1. Perangkat Lunak & Aplikasi</a>
                             </h3>
                             <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Aplikasi Manajemen Lapangan" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Aplikasi Manajemen Lapangan" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Aplikasi Manajemen Lapangan (Field & Patrol Apps)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Sistem Manajemen Kasus & Berkas" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Sistem Manajemen Kasus & Berkas" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Sistem Manajemen Kasus & Berkas (Case & Document Management)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Software Analisis Data & Intelijen" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Software Analisis Data & Intelijen" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Software Analisis Data & Intelijen (OSINT & Analytics)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Software Forensik & Keamanan Siber" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Software Forensik & Keamanan Siber" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Software Forensik & Keamanan Siber (Forensics & Cyber Security)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Aplikasi Komunikasi & HT Digital" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Aplikasi Komunikasi & HT Digital" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Aplikasi Komunikasi & HT Digital (Communication & VoIP Apps)
                                     </a>
                                 </li>
@@ -137,31 +137,31 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                         <!-- Kategori 2 -->
                         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                             <h3 style="font-size: 1.1rem; font-weight: 800; margin: 0; font-family: 'Marcellus SC', serif; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;">
-                                <a href="/hasil_pencarian.html?query=Jasa Desain & Kreatif" style="text-decoration: none; color: var(--primary); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">2. Jasa Desain & Kreatif</a>
+                                <a href="/hasil_pencarian?query=Jasa Desain & Kreatif" style="text-decoration: none; color: var(--primary); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">2. Jasa Desain & Kreatif</a>
                             </h3>
                             <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Jasa Desain UI/UX Website & Dashboard" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Jasa Desain UI/UX Website & Dashboard" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Jasa Desain UI/UX Website & Dashboard (Web Design)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Jasa Desain UI/UX Aplikasi Mobile" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Jasa Desain UI/UX Aplikasi Mobile" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Jasa Desain UI/UX Aplikasi Mobile (Mobile App Design)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Jasa Pembuatan Prototype & Wireframe" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Jasa Pembuatan Prototype & Wireframe" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Jasa Pembuatan Prototype & Wireframe (Figma/Interactive Prototype)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Jasa Desain Infografis & Aset Grafis" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Jasa Desain Infografis & Aset Grafis" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Jasa Desain Infografis & Aset Grafis (Graphic Design)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Jasa Redesign & Pembaruan Tampilan" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Jasa Redesign & Pembaruan Tampilan" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Jasa Redesign & Pembaruan Tampilan (Web/App Makeover)
                                     </a>
                                 </li>
@@ -171,31 +171,31 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                         <!-- Kategori 3 -->
                         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                             <h3 style="font-size: 1.1rem; font-weight: 800; margin: 0; font-family: 'Marcellus SC', serif; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;">
-                                <a href="/hasil_pencarian.html?query=Jasa Pengembangan & IT" style="text-decoration: none; color: var(--primary); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">3. Jasa Pengembangan & IT</a>
+                                <a href="/hasil_pencarian?query=Jasa Pengembangan & IT" style="text-decoration: none; color: var(--primary); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">3. Jasa Pengembangan & IT</a>
                             </h3>
                             <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Jasa Pembuatan Website Kustom" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Jasa Pembuatan Website Kustom" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Jasa Pembuatan Website Kustom (Web Development)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Jasa Pembuatan Aplikasi Mobile" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Jasa Pembuatan Aplikasi Mobile" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Jasa Pembuatan Aplikasi Mobile (Mobile Development)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Jasa Integrasi API & Database" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Jasa Integrasi API & Database" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Jasa Integrasi API & Database (System Integration)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Jasa Kustomisasi & Modifikasi Software" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Jasa Kustomisasi & Modifikasi Software" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Jasa Kustomisasi & Modifikasi Software (Software Customization)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Jasa Setup Server & Cloud Security" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Jasa Setup Server & Cloud Security" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Jasa Setup Server & Cloud Security (Cloud & Infrastructure)
                                     </a>
                                 </li>
@@ -205,31 +205,31 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                         <!-- Kategori 4 -->
                         <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                             <h3 style="font-size: 1.1rem; font-weight: 800; margin: 0; font-family: 'Marcellus SC', serif; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;">
-                                <a href="/hasil_pencarian.html?query=Konten Digital & Edukasi" style="text-decoration: none; color: var(--primary); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">4. Konten Digital & Edukasi</a>
+                                <a href="/hasil_pencarian?query=Konten Digital & Edukasi" style="text-decoration: none; color: var(--primary); transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">4. Konten Digital & Edukasi</a>
                             </h3>
                             <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Voucher Kursus & Sertifikasi Online" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Voucher Kursus & Sertifikasi Online" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Voucher Kursus & Sertifikasi Online (Online Course & Certification)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Modul Pelatihan & Panduan Digital" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Modul Pelatihan & Panduan Digital" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Modul Pelatihan & Panduan Digital (E-Learning Modules)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=E-Book & Panduan Prosedur Resmi" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=E-Book & Panduan Prosedur Resmi" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> E-Book & Panduan Prosedur Resmi (E-Books & Manuals)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Template Dokumen & Administrasi Siap Pakai" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Template Dokumen & Administrasi Siap Pakai" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Template Dokumen & Administrasi Siap Pakai (Document Templates)
                                     </a>
                                 </li>
                                 <li style="font-size: 0.9rem; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.4;">
-                                    <a href="/hasil_pencarian.html?query=Akses Database & API Berlangganan" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
+                                    <a href="/hasil_pencarian?query=Akses Database & API Berlangganan" style="text-decoration: none; color: var(--text-main); display: flex; align-items: flex-start; gap: 6px; transition: color 0.2s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-main)'">
                                         <span style="color: var(--primary);">•</span> Akses Database & API Berlangganan (Data & API Subscription)
                                     </a>
                                 </li>

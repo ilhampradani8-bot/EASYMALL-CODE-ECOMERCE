@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (loginBtn) {
-        const loginUrl = '/login.html';
-        const dashboardUrl = '/dashboard.html';
+        const loginUrl = '/login';
+        const dashboardUrl = '/dashboard';
 
         loginBtn.onclick = () => { window.location.href = loginUrl; };
         

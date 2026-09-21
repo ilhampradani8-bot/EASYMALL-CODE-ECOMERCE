@@ -37,12 +37,12 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
       maxAge: 60 * 60 * 24 * 7 // 7 days
     });
 
-    return redirect('/dashboard.html', 302);
+    return redirect('/dashboard', 302);
   } catch (err) {
-    return redirect('/login.html?error=google_failed', 302);
+    return redirect('/login?error=google_failed', 302);
   }
 };
 
 export const GET: APIRoute = async ({ redirect }) => {
-  return redirect('/dashboard.html', 302);
+  return redirect('/dashboard', 302);
 };

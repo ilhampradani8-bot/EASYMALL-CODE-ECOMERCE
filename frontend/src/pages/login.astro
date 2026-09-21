@@ -38,9 +38,9 @@ if (Astro.request.method === 'POST') {
   });
 
   if (email.includes('reseller') || name.includes('Reseller')) {
-    return Astro.redirect('/dashboard_reseller.html', 302);
+    return Astro.redirect('/dashboard_reseller', 302);
   } else {
-    return Astro.redirect('/dashboard_user.html', 302);
+    return Astro.redirect('/dashboard_user', 302);
   }
 }
 ---
