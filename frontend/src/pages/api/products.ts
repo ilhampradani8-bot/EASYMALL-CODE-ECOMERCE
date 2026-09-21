@@ -157,8 +157,14 @@ export const GET: APIRoute = async () => {
             });
           }
 
-          const basePrice = product.variants && product.variants.length > 0 ? product.variants[0].price : 0;
-          product.price = basePrice;
+          if (Array.isArray(product.variants) && product.variants.length > 0) {
+            const validPrices = product.variants
+              .map((v: any) => parseFloat(v.price || 0))
+              .filter((p: number) => p > 0);
+            product.price = validPrices.length > 0 ? Math.min(...validPrices) : (parseFloat(product.price || 0) || 0);
+          } else {
+            product.price = parseFloat(product.price || 0) || 0;
+          }
           product.provider = 'koalastore';
 
           // Override image with clean local logo
@@ -454,6 +460,14 @@ export const GET: APIRoute = async () => {
 
   for (const item of additionalProducts) {
     if (!addedCodes.has(item.code)) {
+      if (Array.isArray(item.variants) && item.variants.length > 0) {
+        const validPrices = item.variants
+          .map((v: any) => parseFloat(v.price || 0))
+          .filter((p: number) => p > 0);
+        if (validPrices.length > 0) {
+          item.price = Math.min(...validPrices);
+        }
+      }
       finalProducts.push(item);
       addedCodes.add(item.code);
     }

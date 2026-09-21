@@ -394,34 +394,61 @@ function initCheckoutForm(product) {
     confirmBuyBtn.textContent = 'Lanjutkan Pembayaran';
     targetInput.value = '';
 
-    // Clear & Populate variants
+    // Clear & Populate variants with real-time stock
     variantSelect.innerHTML = '';
     product.variants.forEach((v) => {
         const option = document.createElement('option');
-        option.value = v.code;
+        option.value = v.code_variant || v.code;
         option.dataset.price = v.price;
-        option.textContent = `${v.name} - Rp ${formatRupiah(v.price)}`;
-        if (v.stock !== undefined && v.stock <= 0) {
-            option.textContent += ' (Habis)';
+
+        const stock = (v.available_stock !== undefined) ? v.available_stock : ((v.stock !== undefined) ? v.stock : 99);
+        option.dataset.stock = stock;
+
+        let stockText = '';
+        if (stock <= 0) {
+            stockText = ' [❌ Stok Habis]';
             option.disabled = true;
+        } else if (v.available_stock !== undefined) {
+            stockText = ` [Stok: ${stock}]`;
         }
+
+        option.textContent = `${v.name} - Rp ${formatRupiah(v.price)}${stockText}`;
         variantSelect.appendChild(option);
     });
 
-    // Update Price value on change
-    variantSelect.onchange = () => {
+    function updateVariantDisplay() {
         const selectedOption = variantSelect.options[variantSelect.selectedIndex];
+        const stockBadge = document.getElementById('variantStockBadge');
         if (selectedOption) {
             const price = selectedOption.dataset.price;
             document.getElementById('modalPriceValue').textContent = `Rp ${formatRupiah(price)}`;
+
+            if (stockBadge) {
+                const stock = parseInt(selectedOption.dataset.stock || '99', 10);
+                if (isNaN(stock) || stock <= 0) {
+                    stockBadge.textContent = '❌ Stok Habis';
+                    stockBadge.style.background = '#f8d7da';
+                    stockBadge.style.color = '#721c24';
+                } else if (stock < 10) {
+                    stockBadge.textContent = `⚠️ Stok Tersisa: ${stock} Pcs`;
+                    stockBadge.style.background = '#fff3cd';
+                    stockBadge.style.color = '#856404';
+                } else {
+                    stockBadge.textContent = `✅ Stok Ready (${stock} Pcs)`;
+                    stockBadge.style.background = '#d4edda';
+                    stockBadge.style.color = '#155724';
+                }
+            }
         }
-    };
+    }
+
+    // Update Price & Stock value on change
+    variantSelect.onchange = updateVariantDisplay;
     
     // Trigger initial select value
     if (variantSelect.options.length > 0) {
         variantSelect.selectedIndex = 0;
-        const initialPrice = variantSelect.options[0].dataset.price;
-        document.getElementById('modalPriceValue').textContent = `Rp ${formatRupiah(initialPrice)}`;
+        updateVariantDisplay();
     }
 
     // Configure target inputs based on category slug

@@ -235,7 +235,10 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                         <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">Formulir Pemesanan</h2>
                         <form id="checkoutForm" onsubmit="return false;">
                             <div class="form-group" style="margin-bottom: 1.2rem;">
-                                <label for="variantSelect" style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Pilih Varian / Nominal</label>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <label for="variantSelect" style="font-weight: 600; font-size: 0.9rem; margin: 0;">Pilih Varian / Nominal</label>
+                                    <span id="variantStockBadge" style="font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: #d4edda; color: #155724;">✅ Stok Ready</span>
+                                </div>
                                 <select id="variantSelect" class="form-select" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 0.95rem; outline: none; background: #ffffff;"></select>
                             </div>
                             
