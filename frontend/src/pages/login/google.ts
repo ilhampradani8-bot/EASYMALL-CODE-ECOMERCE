@@ -26,18 +26,34 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
     const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     
-    // Save User and Session to Turso Cloud Database
-    const { saveUser, saveSession } = await import('../../lib/db');
+    // Save User and Session
+    const { saveUser, saveSession, encodeSessionPayload } = await import('../../lib/db');
     await saveUser({ email, name, provider: 'google' });
     await saveSession(sessionId, email, name);
+
+    const token = encodeSessionPayload({ sessionId, email, name });
 
     cookies.set('session_id', sessionId, {
       path: '/',
       httpOnly: true,
+      sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7 // 7 days
     });
 
-    return redirect('/dashboard', 302);
+    if (token) {
+      cookies.set('em_session_data', token, {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7
+      });
+    }
+
+    if (email.includes('reseller') || name.includes('Reseller')) {
+      return redirect('/dashboard_reseller', 302);
+    } else {
+      return redirect('/dashboard_user', 302);
+    }
   } catch (err) {
     return redirect('/login?error=google_failed', 302);
   }
@@ -46,3 +62,4 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 export const GET: APIRoute = async ({ redirect }) => {
   return redirect('/dashboard', 302);
 };
+

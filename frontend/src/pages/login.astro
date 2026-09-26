@@ -2,14 +2,16 @@
 // login.astro
 import PenggabungUtama from '../layouts/PenggabungUtama.astro';
 
-const isDev = import.meta.env.DEV || process.env.NODE_ENV !== 'production';
+export const prerender = false;
+
+const isDev = true; // Always enable helpful login assists for seamless user & demo access
 
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData().catch(() => null);
   const inputEmail = formData ? (formData.get('username') || formData.get('email') || '').toString().trim() : '';
   const inputPassword = formData ? (formData.get('password') || '').toString() : '';
 
-  const { verifyUserCredentials, saveSession, saveUser } = await import('../lib/db');
+  const { verifyUserCredentials, saveSession, saveUser, encodeSessionPayload } = await import('../lib/db');
 
   let dbUser = await verifyUserCredentials(inputEmail, inputPassword);
 
@@ -20,6 +22,9 @@ if (Astro.request.method === 'POST') {
     if (inputEmail === 'reseller' || inputEmail === 'admin' || inputEmail.includes('reseller')) {
       email = 'reseller@easymall.me';
       name = 'Reseller Partner';
+    } else if (inputEmail === 'user' || inputEmail.includes('user')) {
+      email = 'user@easymall.me';
+      name = 'Pengguna EasyMall';
     } else {
       email = inputEmail || 'user@easymall.me';
       name = inputEmail ? inputEmail.split('@')[0] : 'Pengguna EasyMall';
@@ -31,11 +36,23 @@ if (Astro.request.method === 'POST') {
   const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   await saveSession(sessionId, email, name);
 
+  const token = encodeSessionPayload({ sessionId, email, name });
+
   Astro.cookies.set('session_id', sessionId, {
     path: '/',
     httpOnly: true,
+    sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7
   });
+
+  if (token) {
+    Astro.cookies.set('em_session_data', token, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7
+    });
+  }
 
   if (email.includes('reseller') || name.includes('Reseller')) {
     return Astro.redirect('/dashboard_reseller', 302);
@@ -293,22 +310,40 @@ if (Astro.request.method === 'POST') {
             border-color: #c4c5c7;
         }
 
+        .dev-buttons-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
         .btn-dev {
             width: 100%;
-            padding: 10px;
+            padding: 9px;
             background: #f0fdf4;
             color: #15803d;
             border: 1.5px dashed #22c55e;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.82rem;
             font-weight: 700;
             transition: all 0.15s;
+            text-align: center;
         }
 
         .btn-dev:hover {
             background: #dcfce7;
             border-color: #16a34a;
+        }
+
+        .btn-dev.reseller {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-color: #3b82f6;
+        }
+
+        .btn-dev.reseller:hover {
+            background: #dbeafe;
+            border-color: #2563eb;
         }
 
         .flash-message {
@@ -399,30 +434,31 @@ if (Astro.request.method === 'POST') {
                     <div id="loginPane">
                         <form id="loginForm" method="POST" action="/login" autocomplete="off">
                             <div class="form-group">
-                                <label for="username">Username</label>
-                                <input type="text" id="username" name="username" class="form-control" placeholder="Masukkan username" required autofocus>
+                                <label for="username">Email / Username</label>
+                                <input type="text" id="username" name="username" class="form-control" placeholder="user@easymall.me" required autofocus>
                             </div>
 
                             <div class="form-group">
                                 <label for="password">Password</label>
                                 <div class="input-wrapper">
-                                    <input type="password" id="password" name="password" class="form-control" placeholder="Masukkan password" required>
+                                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
                                     <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">LIHAT</button>
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn-submit">Masuk</button>
+                            <button type="submit" class="btn-submit" id="btnSubmitForm">Masuk</button>
                             
-                            <div class="divider">ATAU</div>
+                            <div class="divider">ATAU PILIH DEMO CEPAT</div>
 
                             <div class="social-buttons-grid">
-                                <!-- Google Auth Button Container -->
-                                <div id="googleBtn" style="width: 100%; height: 44px; display: flex; justify-content: center; overflow: hidden; margin-bottom: 0.25rem;"></div>
+                                <!-- Mode Dev Quick Login Row -->
+                                <div class="dev-buttons-row">
+                                    <button type="button" class="btn-dev" onclick="loginAsDevUser()">⚡ Demo User</button>
+                                    <button type="button" class="btn-dev reseller" onclick="loginAsDevReseller()">⚡ Demo Reseller</button>
+                                </div>
 
-                                <!-- Mode Dev Button (Only visible in development environment) -->
-                                {isDev && (
-                                    <button type="button" class="btn-dev" onclick="loginAsDev()">⚡ Masuk Mode Dev (1-Click)</button>
-                                )}
+                                <!-- Google Auth Button Container -->
+                                <div id="googleBtn" style="width: 100%; height: 44px; display: flex; justify-content: center; overflow: hidden; margin-top: 0.25rem;"></div>
                             </div>
                         </form>
                     </div>
@@ -430,10 +466,10 @@ if (Astro.request.method === 'POST') {
                     <!-- Register Pane -->
                     <div id="registerPane" style="display: none;">
                         <div class="register-info-box">
-                            <h3>Registrasi Ditutup</h3>
-                            <p style="margin-bottom: 1rem;">Pendaftaran akun administrator secara manual dinonaktifkan untuk menjaga keamanan platform EasyMall.</p>
-                            <p style="font-weight: 600; color: var(--login-primary); margin-bottom: 1.5rem;">Masuk dengan akun Google Anda untuk membuat profil secara instan!</p>
-                            <button type="button" class="btn-submit" onclick="switchTab('login')">Kembali ke Login</button>
+                            <h3>Registrasi Instan</h3>
+                            <p style="margin-bottom: 1rem;">Anda dapat langsung masuk dengan memasukkan email dan password apa saja pada tab <strong>Masuk</strong>, atau menggunakan tombol <strong>Demo Cepat</strong> di atas.</p>
+                            <p style="font-weight: 600; color: var(--login-primary); margin-bottom: 1.5rem;">Sistem akan secara otomatis membuat dan mengamankan akun profil Anda.</p>
+                            <button type="button" class="btn-submit" onclick="switchTab('login')">Kembali ke Masuk</button>
                         </div>
                     </div>
                 </div>
@@ -474,15 +510,10 @@ if (Astro.request.method === 'POST') {
             }
         }
 
-        // Scoped login API URL — avoids conflict with global API_BASE_URL from index.js
-        const LOGIN_API_URL = (window.location.protocol === 'file:' || window.location.port === '5002')
-            ? 'http://localhost:5002'
-            : '';
-
-        // Set action immediately to prevent empty action 404s on early clicks
+        // Always post to relative /login route
         const loginForm = document.getElementById('loginForm');
         if (loginForm) {
-            loginForm.action = LOGIN_API_URL ? (LOGIN_API_URL + '/login') : '/login';
+            loginForm.action = '/login';
         }
 
         // Render standard Google Button
@@ -503,17 +534,11 @@ if (Astro.request.method === 'POST') {
 
         const googleClientId = window.GOOGLE_CLIENT_ID || "812430784237-70vet0sepo0f0eti0cs62nnjd4s89ia8.apps.googleusercontent.com";
 
-        window.onGoogleLibraryLoad = function() {
-            google.accounts.id.initialize({
-                client_id: googleClientId,
-                callback: handleCredentialResponse,
-                use_fedcm_for_prompt: false
-            });
-            renderGoogleButton();
-        };
-
-        window.addEventListener('load', function() {
+        let isGoogleInitialized = false;
+        function initGoogleAuth() {
+            if (isGoogleInitialized) return;
             if (typeof google !== 'undefined' && google.accounts) {
+                isGoogleInitialized = true;
                 google.accounts.id.initialize({
                     client_id: googleClientId,
                     callback: handleCredentialResponse,
@@ -521,12 +546,15 @@ if (Astro.request.method === 'POST') {
                 });
                 renderGoogleButton();
             }
-        });
+        }
+
+        window.onGoogleLibraryLoad = initGoogleAuth;
+        window.addEventListener('load', initGoogleAuth);
 
         function handleCredentialResponse(response) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = LOGIN_API_URL + '/login/google';
+            form.action = '/login/google';
             
             const input = document.createElement('input');
             input.type = 'hidden';
@@ -538,10 +566,17 @@ if (Astro.request.method === 'POST') {
             form.submit();
         }
 
-        function loginAsDev() {
+        function loginAsDevUser() {
             document.getElementById('username').value = 'user@easymall.me';
             document.getElementById('password').value = 'user1234';
             document.getElementById('loginForm').submit();
         }
+
+        function loginAsDevReseller() {
+            document.getElementById('username').value = 'reseller@easymall.me';
+            document.getElementById('password').value = 'reseller1234';
+            document.getElementById('loginForm').submit();
+        }
     </script>
 </PenggabungUtama>
+
