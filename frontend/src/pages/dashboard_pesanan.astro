@@ -139,47 +139,39 @@ import BottomNav from '../components/BottomNav.astro';
             width: 100%;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            border-radius: 6px;
+            border-radius: 4px;
             margin-bottom: 0.5rem;
+            display: block;
         }
 
         .table-responsive::-webkit-scrollbar {
-            height: 6px;
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f5f9;
         }
 
         .table-responsive::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
+            background: #94a3b8;
             border-radius: 4px;
         }
 
-        .scroll-hint {
-            display: none;
-            font-size: 0.8rem;
-            color: #64748b;
-            margin-bottom: 0.5rem;
-            align-items: center;
-            gap: 4px;
-        }
-
-        @media (max-width: 768px) {
-            .scroll-hint {
-                display: flex;
-            }
-        }
-
         table {
-            min-width: 650px;
+            min-width: 880px;
             width: 100%;
             border-collapse: collapse;
             background-color: #ffffff;
+            table-layout: auto;
         }
 
         th, td {
-            padding: 12px 14px;
+            padding: 13px 18px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
             font-size: 0.88rem;
             vertical-align: middle;
+            white-space: nowrap;
         }
 
         th {
@@ -203,9 +195,10 @@ import BottomNav from '../components/BottomNav.astro';
             font-family: monospace;
             font-size: 0.85rem;
             background-color: #e9ecef;
-            padding: 2px 4px;
-            border-radius: 3px;
+            padding: 3px 6px;
+            border-radius: 4px;
             color: #212529;
+            white-space: nowrap;
         }
 
         .no-data {
@@ -607,7 +600,6 @@ import BottomNav from '../components/BottomNav.astro';
             }
 
             container.innerHTML = `
-                <div class="scroll-hint">👉 Geser tabel ke kanan/kiri untuk melihat detail lengkap</div>
                 <div class="table-responsive">
                     <table>
                         <thead>
