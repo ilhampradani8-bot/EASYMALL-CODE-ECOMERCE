@@ -330,11 +330,17 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         function renderDashboardStatsAndCharts(list) {
-            // 1. Calculate Stats
+            // Filter ONLY successful/paid transactions for customer spending stats and charts
+            const successList = list.filter(t => {
+                const st = (t.status || '').toLowerCase().trim();
+                return st === 'paid' || st === 'success' || st === 'settlement' || st === 'done' || st === 'completed';
+            });
+
+            // 1. Calculate Stats based ONLY on successful transactions
             let totalSpent = 0;
             let uniqueProducts = new Set();
             
-            list.forEach(t => {
+            successList.forEach(t => {
                 totalSpent += parseFloat(t.amount || 0);
                 if (t.product_name) {
                     uniqueProducts.add(t.product_name);
@@ -342,10 +348,10 @@ import BottomNav from '../components/BottomNav.astro';
             });
 
             document.getElementById('stat-total-spent').textContent = formatRupiah(totalSpent);
-            document.getElementById('stat-total-tx').textContent = list.length + ' Transaksi';
+            document.getElementById('stat-total-tx').textContent = successList.length + ' Transaksi';
             document.getElementById('stat-total-products').textContent = uniqueProducts.size + ' Produk';
 
-            // 2. Prepare Chart Data (Group by date)
+            // 2. Prepare Chart Data (Group by date) from successful transactions only
             const dailyData = {};
             
             // Populate last 7 days as default with 0 values
@@ -358,8 +364,8 @@ import BottomNav from '../components/BottomNav.astro';
                 dailyData[dateString] = 0;
             }
 
-            // Fill actual transaction data
-            list.forEach(t => {
+            // Fill actual transaction data ONLY for successful transactions
+            successList.forEach(t => {
                 if (t.created_at) {
                     const datePart = t.created_at.split(' ')[0]; // YYYY-MM-DD
                     if (datePart) {
@@ -397,7 +403,7 @@ import BottomNav from '../components/BottomNav.astro';
                 data: {
                     labels: chartLabels,
                     datasets: [{
-                        label: 'Pengeluaran',
+                        label: 'Pengeluaran Sukses',
                         data: chartDataValues,
                         borderColor: '#0d6efd',
                         backgroundColor: 'rgba(13, 110, 253, 0.05)',

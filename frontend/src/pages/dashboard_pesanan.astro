@@ -582,11 +582,15 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         function renderStatusBadge(status) {
-            const st = (status || 'pending').toLowerCase();
-            if (st === 'paid' || st === 'success') {
+            const st = (status || 'pending').toLowerCase().trim();
+            if (st === 'paid' || st === 'success' || st === 'settlement' || st === 'done' || st === 'completed') {
                 return '<span style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-block;">✅ Lunas / Berhasil</span>';
-            } else if (st === 'failed' || st === 'cancelled') {
+            } else if (st.includes('expire') || st === 'kadaluwarsa') {
+                return '<span style="background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-block;">⌛ Kadaluwarsa</span>';
+            } else if (st === 'failed' || st === 'cancelled' || st === 'cancel' || st === 'refunded') {
                 return '<span style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-block;">❌ Gagal</span>';
+            } else if (st === 'processing') {
+                return '<span style="background: #cff4fc; color: #055160; border: 1px solid #b6effb; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-block;">⚙️ Diproses</span>';
             } else {
                 return '<span style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.78rem; display: inline-block;">⏳ Menunggu Pembayaran</span>';
             }
@@ -720,36 +724,45 @@ import BottomNav from '../components/BottomNav.astro';
                 const res = await fetch(`${API_BASE_URL}/api/order/status/${trxId}`);
                 const data = await res.json();
                 if (res.ok && data.success) {
-                    if (data.status === 'paid' || data.status === 'success') {
-                        // Update in memory & storage
-                        const updated = ordersData.map(o => {
-                            if (o.transaction_id === trxId) {
-                                return {
-                                    ...o,
-                                    status: 'paid',
-                                    stock_data: data.stock_data || o.stock_data,
-                                    sn: data.sn || o.sn,
-                                    link: data.link || o.link
-                                };
-                            }
-                            return o;
-                        });
-                        ordersData = updated;
+                    const rawSt = (data.status || 'pending').toLowerCase();
+                    const newStatus = (rawSt === 'paid' || rawSt === 'success' || rawSt === 'completed' || rawSt === 'settlement') ? 'paid' : rawSt;
+
+                    // Update in memory & storage
+                    const updated = ordersData.map(o => {
+                        if (o.transaction_id === trxId) {
+                            return {
+                                ...o,
+                                status: newStatus,
+                                stock_data: data.stock_data || o.stock_data,
+                                sn: data.sn || o.sn,
+                                link: data.link || o.link
+                            };
+                        }
+                        return o;
+                    });
+                    ordersData = updated;
+                    try {
                         localStorage.setItem('easymall_orders', JSON.stringify(ordersData));
-                        renderOrders(ordersData);
-                        openOrderDetail(trxId);
-                        alert('🎉 Pembayaran terverifikasi! Pesanan Anda telah lunas.');
-                    } else if (data.status === 'failed') {
+                    } catch(e){}
+                    
+                    renderOrders(ordersData);
+                    openOrderDetail(trxId);
+
+                    if (newStatus === 'paid') {
+                        alert('🎉 Pembayaran terverifikasi! Pesanan Anda telah lunas dan data produk telah tersedia.');
+                    } else if (newStatus === 'expired') {
+                        alert('⌛ Pesanan telah kadaluwarsa karena tidak dibayar.');
+                    } else if (newStatus === 'failed') {
                         alert('❌ Transaksi gagal atau dibatalkan.');
                     } else {
-                        alert('⏳ Pembayaran belum terdeteksi. Silakan scan dan selesaikan QRIS terlebih dahulu.');
+                        alert('⏳ Pembayaran belum terdeteksi. Silakan selesaikan scan QRIS terlebih dahulu.');
                     }
                 } else {
                     alert('Gagal memeriksa status pembayaran.');
                 }
             } catch (err) {
                 console.error(err);
-                alert('Terjadi kesalahan jaringan.');
+                alert('Terjadi kesalahan jaringan saat memeriksa status.');
             } finally {
                 if (btn) {
                     btn.disabled = false;
