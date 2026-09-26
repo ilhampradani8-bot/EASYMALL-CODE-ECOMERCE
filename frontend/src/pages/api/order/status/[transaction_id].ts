@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { updateTransactionStatus } from '../../../../lib/db';
 
 export const prerender = false;
 
@@ -33,24 +34,35 @@ export const GET: APIRoute = async ({ params }) => {
           const rawStatus = order.status || 'pending';
           let status = 'pending';
           let stock_data = null;
+          let sn = null;
 
-          if (rawStatus === 'paid') {
+          if (rawStatus === 'paid' || rawStatus === 'success') {
             status = 'paid';
             if (Array.isArray(order.items) && order.items.length > 0) {
               const item = order.items[0];
               if (Array.isArray(item.stock_data) && item.stock_data.length > 0) {
-                stock_data = item.stock_data[0].data_stock || null;
+                // If multiple stock data items, join them
+                stock_data = item.stock_data.map((s: any) => s.data_stock || s).join('\n');
               }
+              if (item.sn) sn = item.sn;
             }
           } else if (rawStatus === 'failed' || rawStatus === 'cancelled') {
             status = 'failed';
           }
 
+          // Persist status and credentials into database
+          await updateTransactionStatus({
+            transaction_id: transactionId,
+            status,
+            stock_data: stock_data || undefined,
+            sn: sn || undefined
+          });
+
           return new Response(JSON.stringify({
             success: true,
             status,
             message: 'Order data retrieved successfully',
-            sn: null,
+            sn,
             link: null,
             stock_data,
             amount: order.total_amount || 0

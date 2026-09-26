@@ -349,21 +349,32 @@ import BottomNav from '../components/BottomNav.astro';
                             <th>Nama Produk</th>
                             <th>Varian</th>
                             <th>Total Bayar</th>
-                            <th>Status</th>
+                            <th>Status & Data Akun / SN</th>
                             <th>Tanggal</th>
                         </tr>
                     </thead>
                     <tbody>
-                        ${list.map(o => `
+                        ${list.map(o => {
+                            const creds = o.stock_data || o.sn || o.link || '';
+                            return `
                             <tr>
                                 <td><code>${o.transaction_id}</code></td>
-                                <td>${o.product_name || '-'}</td>
+                                <td><b>${o.product_name || '-'}</b></td>
                                 <td>${o.variant_name || '-'}</td>
                                 <td><span style="color: #28a745; font-weight: bold;">${formatRupiah(o.amount)}</span></td>
-                                <td>${renderStatusBadge(o.status)}</td>
-                                <td>${o.created_at || '-'}</td>
+                                <td>
+                                    ${renderStatusBadge(o.status)}
+                                    ${creds ? `
+                                        <div style="margin-top: 6px; background: #f8f9fa; border: 1px dashed #28a745; padding: 6px 8px; border-radius: 4px; font-size: 0.8rem;">
+                                            <div style="font-weight: bold; color: #155724; margin-bottom: 2px;">🔑 Data Akun / SN:</div>
+                                            <code style="word-break: break-all; white-space: pre-wrap; font-size: 0.8rem; background: #fff; padding: 2px 4px; display: block; border-radius: 2px;">${creds}</code>
+                                        </div>
+                                    ` : ''}
+                                </td>
+                                <td><small style="color: #6c757d;">${o.created_at || '-'}</small></td>
                             </tr>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </tbody>
                 </table>
             `;

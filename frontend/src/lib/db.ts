@@ -132,8 +132,16 @@ function initLocalDbSchema(client: Client) {
       status TEXT DEFAULT 'pending',
       provider TEXT DEFAULT 'koalastore',
       email TEXT,
+      sn TEXT,
+      stock_data TEXT,
+      link TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`).catch(() => {});
+
+    // Ensure extra columns exist on existing tables
+    client.execute(`ALTER TABLE transactions ADD COLUMN sn TEXT`).catch(() => {});
+    client.execute(`ALTER TABLE transactions ADD COLUMN stock_data TEXT`).catch(() => {});
+    client.execute(`ALTER TABLE transactions ADD COLUMN link TEXT`).catch(() => {});
   } catch (err) {
     console.warn('Local schema init warning:', err);
   }
@@ -170,6 +178,9 @@ const memoryTransactions: Array<{
   provider: string;
   email: string;
   status: string;
+  sn?: string;
+  stock_data?: string;
+  link?: string;
   created_at: string;
 }> = [];
 
@@ -182,6 +193,9 @@ export async function saveTransaction(data: {
   provider: string;
   email?: string;
   status?: string;
+  sn?: string;
+  stock_data?: string;
+  link?: string;
 }) {
   const normEmail = (data.email || '').toLowerCase().trim();
   const txObj = {
@@ -193,6 +207,9 @@ export async function saveTransaction(data: {
     provider: data.provider || 'koalastore',
     email: normEmail,
     status: data.status || 'pending',
+    sn: data.sn || '',
+    stock_data: data.stock_data || '',
+    link: data.link || '',
     created_at: new Date().toISOString().replace('T', ' ').substring(0, 19)
   };
 
@@ -208,7 +225,7 @@ export async function saveTransaction(data: {
   // 2. Save to DB
   try {
     await execQuery({
-      sql: `INSERT OR REPLACE INTO transactions (transaction_id, whatsapp_id, product_name, variant_name, amount, provider, email, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      sql: `INSERT OR REPLACE INTO transactions (transaction_id, whatsapp_id, product_name, variant_name, amount, provider, email, status, sn, stock_data, link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
         txObj.transaction_id,
         txObj.whatsapp_id,
@@ -217,11 +234,49 @@ export async function saveTransaction(data: {
         txObj.amount,
         txObj.provider,
         txObj.email,
-        txObj.status
+        txObj.status,
+        txObj.sn,
+        txObj.stock_data,
+        txObj.link
       ]
     });
   } catch (err) {
     console.error('Error saving transaction to DB:', err);
+  }
+}
+
+export async function updateTransactionStatus(data: {
+  transaction_id: string;
+  status: string;
+  stock_data?: string;
+  sn?: string;
+  link?: string;
+}) {
+  if (!data.transaction_id) return;
+
+  // 1. Update in-memory
+  const existingIdx = memoryTransactions.findIndex(t => t.transaction_id === data.transaction_id);
+  if (existingIdx >= 0) {
+    memoryTransactions[existingIdx].status = data.status;
+    if (data.stock_data) memoryTransactions[existingIdx].stock_data = data.stock_data;
+    if (data.sn) memoryTransactions[existingIdx].sn = data.sn;
+    if (data.link) memoryTransactions[existingIdx].link = data.link;
+  }
+
+  // 2. Update in DB
+  try {
+    await execQuery({
+      sql: `UPDATE transactions SET status = ?, stock_data = COALESCE(?, stock_data), sn = COALESCE(?, sn), link = COALESCE(?, link) WHERE transaction_id = ?`,
+      args: [
+        data.status,
+        data.stock_data || null,
+        data.sn || null,
+        data.link || null,
+        data.transaction_id
+      ]
+    });
+  } catch (err) {
+    console.error('Error updating transaction status in DB:', err);
   }
 }
 
@@ -447,6 +502,9 @@ export async function getTransactions(userEmail?: string) {
           provider: String(r.provider || 'koalastore'),
           email: String(r.email || ''),
           status: String(r.status || 'pending'),
+          sn: String(r.sn || ''),
+          stock_data: String(r.stock_data || ''),
+          link: String(r.link || ''),
           created_at: String(r.created_at || '')
         });
       }
