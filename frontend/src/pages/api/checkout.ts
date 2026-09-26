@@ -74,41 +74,53 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           body: JSON.stringify(body)
         });
 
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.success && data.data) {
-            const transaction_id = data.data.transaction_id || `EM-${Date.now()}`;
-            const total_amount = data.data.total_amount || amount;
-            const raw_qris = data.data.qr_code_url || '';
+        const data = await res.json().catch(() => null);
 
-            const qr_image_url = raw_qris 
-              ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(raw_qris)}`
-              : `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`00020101021226670016COM.NOBUBANK.WWW01189360050300000898400215200826180358503033605204581253033605802ID5910EASYMALL6007JAKARTA61051234562070703A016304EB43`)}`;
+        if (res.ok && data && data.success && data.data) {
+          const transaction_id = data.data.transaction_id || `EM-${Date.now()}`;
+          const total_amount = data.data.total_amount || amount;
+          const raw_qris = data.data.qr_code_url || '';
 
-            await saveTransaction({
-              transaction_id,
-              whatsapp_id: whatsapp,
-              product_name,
-              variant_name,
-              amount: total_amount,
-              provider: 'koalastore',
-              email: userEmail,
-              status: 'pending'
-            });
-
-            return new Response(JSON.stringify({
-              success: true,
-              transaction_id,
-              qr_image_url,
-              amount: total_amount,
-              provider: 'koalastore'
-            }), {
-              status: 200,
-              headers: { 'Content-Type': 'application/json' }
-            });
+          // If raw_qris is already a full image URL (e.g. Belibayar PNG), use it directly
+          let qr_image_url = '';
+          if (raw_qris.startsWith('http://') || raw_qris.startsWith('https://') || raw_qris.startsWith('data:image/')) {
+            qr_image_url = raw_qris;
+          } else if (raw_qris) {
+            qr_image_url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(raw_qris)}`;
           }
+
+          await saveTransaction({
+            transaction_id,
+            whatsapp_id: whatsapp,
+            product_name,
+            variant_name,
+            amount: total_amount,
+            provider: 'koalastore',
+            email: userEmail,
+            status: 'pending'
+          });
+
+          return new Response(JSON.stringify({
+            success: true,
+            transaction_id,
+            qr_image_url,
+            amount: total_amount,
+            provider: 'koalastore'
+          }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        } else if (data && !data.success) {
+          const errMsg = data.message || (Array.isArray(data.data) ? data.data.join(', ') : 'Gagal membuat pesanan di payment gateway.');
+          return new Response(JSON.stringify({
+            success: false,
+            message: errMsg
+          }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+          });
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error('KoalaStore API error:', e);
       }
     }
@@ -142,9 +154,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
           if (qrisData && (qrisData.status === 'success' || qrisData.success)) {
             const transaction_id = qrisData.transaction_id || qrisData.id || `TRX-${Date.now()}`;
-            const qr_image_url = qrisData.qr_url || qrisData.qr_image_url || (qrisData.qr_string 
-              ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrisData.qr_string)}`
-              : '');
+            const rawQr = qrisData.qr_url || qrisData.qr_image_url || qrisData.qris_image || qrisData.qr_string || '';
+            let qr_image_url = '';
+            if (rawQr.startsWith('http://') || rawQr.startsWith('https://') || rawQr.startsWith('data:image/')) {
+              qr_image_url = rawQr;
+            } else if (rawQr) {
+              qr_image_url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(rawQr)}`;
+            }
 
             await saveTransaction({
               transaction_id,
@@ -174,30 +190,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
     }
 
-    // 3. Fallback QRIS Generator (Ensures Checkout Always Works Gracefully)
-    const transaction_id = `EM-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    const dummyQris = `00020101021226670016COM.NOBUBANK.WWW01189360050300000898400215200826180358503033605204581253033605802ID5910EASYMALL6007JAKARTA61051234562070703A016304EB43`;
-    const qr_image_url = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(dummyQris)}`;
-
-    await saveTransaction({
-      transaction_id,
-      whatsapp_id: whatsapp,
-      product_name,
-      variant_name,
-      amount,
-      provider: provider || 'koalastore',
-      email: userEmail,
-      status: 'pending'
-    });
-
     return new Response(JSON.stringify({
-      success: true,
-      transaction_id,
-      qr_image_url,
-      amount,
-      provider: provider || 'koalastore'
+      success: false,
+      message: 'Layanan checkout QRIS untuk produk ini sedang dalam pemeliharaan. Silakan hubungi admin.'
     }), {
-      status: 200,
+      status: 503,
       headers: { 'Content-Type': 'application/json' }
     });
 
