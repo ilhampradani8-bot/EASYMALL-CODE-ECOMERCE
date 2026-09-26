@@ -16,15 +16,15 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
         const parts = String(credential).split('.');
         if (parts.length === 3) {
           const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'));
-          if (payload.email) email = payload.email;
-          if (payload.name) name = payload.name;
+          if (payload.email) email = String(payload.email).toLowerCase().trim();
+          if (payload.name) name = String(payload.name).trim();
         }
       } catch (e) {
         console.error('Failed to parse Google JWT payload:', e);
       }
     }
 
-    // Save User and Session
+    // Save User and Session in Database
     const { saveUser, saveSession, encodeSessionPayload, createSessionId } = await import('../../lib/db');
     await saveUser({ email, name, provider: 'google' });
     

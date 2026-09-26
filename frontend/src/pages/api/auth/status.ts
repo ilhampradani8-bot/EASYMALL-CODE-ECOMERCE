@@ -17,10 +17,19 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       const session = await getSession(sessId, tokVal);
 
       if (session && session.email) {
+        const email = String(session.email).toLowerCase().trim();
+        const name = String(session.name || 'User EasyMall');
+        const provider = email.includes('google') || email.includes('@gmail') ? 'google' : 'email';
+
+        const { saveUser } = await import('../../../lib/db');
+        saveUser({ email, name, provider }).catch(err => {
+          console.warn('Auto save user from session warning:', err);
+        });
+
         return new Response(JSON.stringify({
           logged_in: true,
-          email: String(session.email),
-          name: String(session.name || 'User EasyMall'),
+          email,
+          name,
           verified: 1
         }), {
           status: 200,
