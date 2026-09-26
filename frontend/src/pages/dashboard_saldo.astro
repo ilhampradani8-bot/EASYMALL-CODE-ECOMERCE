@@ -313,21 +313,50 @@ import BottomNav from '../components/BottomNav.astro';
     // ─── Load wallet data ─────────────────────────────────────────────────────
     async function loadWallet() {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/wallet`, { credentials: 'include' });
-        if (!res.ok) { window.location.href = '/login'; return; }
-        const data = await res.json();
-        if (!data.success) { window.location.href = '/login'; return; }
+        // First fetch auth status smoothly
+        try {
+          const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, {
+            credentials: 'include',
+            headers: { 'Cache-Control': 'no-cache' }
+          });
+          if (authRes.ok) {
+            const authData = await authRes.json();
+            if (authData.logged_in) {
+              const nameEl = document.getElementById('user-name');
+              const emailEl = document.getElementById('user-email');
+              const avatarEl = document.getElementById('avatar-initial');
+              if (nameEl) nameEl.textContent = authData.name;
+              if (emailEl) emailEl.textContent = authData.email;
+              if (avatarEl) avatarEl.textContent = (authData.name || 'U').charAt(0).toUpperCase();
+            }
+          }
+        } catch (authErr) {
+          console.warn('Auth check warning in saldo:', authErr);
+        }
 
-        currentBalance = data.balance;
-        const balDisp = document.getElementById('balance-display');
-        const balHint = document.getElementById('wd-balance-hint');
-        if (balDisp) balDisp.textContent = formatRp(data.balance);
-        if (balHint) balHint.textContent = formatRp(data.balance);
+        const res = await fetch(`${API_BASE_URL}/api/wallet`, { 
+          credentials: 'include',
+          headers: { 'Cache-Control': 'no-cache' }
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success) {
+            currentBalance = data.balance || 0;
+            const balDisp = document.getElementById('balance-display');
+            const balHint = document.getElementById('wd-balance-hint');
+            if (balDisp) balDisp.textContent = formatRp(data.balance);
+            if (balHint) balHint.textContent = formatRp(data.balance);
 
-        renderHistory(data.history || []);
-        renderTopups(data.topups || []);
-        renderWithdrawals(data.withdrawals || []);
-      } catch(e) { console.error(e); }
+            renderHistory(data.history || []);
+            renderTopups(data.topups || []);
+            renderWithdrawals(data.withdrawals || []);
+            return;
+          }
+        }
+      } catch(e) { 
+        console.error('Error loading wallet:', e); 
+      }
     }
 
     function renderHistory(list) {

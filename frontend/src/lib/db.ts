@@ -516,3 +516,118 @@ export async function getTransactions(userEmail?: string) {
   return Array.from(txMap.values());
 }
 
+// ─── WALLET & SALDO SYSTEM ──────────────────────────────────────────────────
+const memoryWallets = new Map<string, {
+  balance: number;
+  history: Array<{ id: string; type: 'topup' | 'withdrawal' | 'payment'; amount: number; description: string; created_at: string }>;
+  topups: Array<{ trx_id: string; amount: number; status: string; qr_url?: string; created_at: string }>;
+  withdrawals: Array<{ id: string; amount: number; bank_name: string; bank_account: string; bank_holder: string; status: string; created_at: string }>;
+}>();
+
+export async function getWalletData(email: string) {
+  const normEmail = (email || 'guest').toLowerCase().trim();
+  let wallet = memoryWallets.get(normEmail);
+
+  if (!wallet) {
+    wallet = {
+      balance: 0,
+      history: [],
+      topups: [],
+      withdrawals: []
+    };
+    memoryWallets.set(normEmail, wallet);
+  }
+
+  return wallet;
+}
+
+export async function addWalletTopup(data: {
+  email: string;
+  trx_id: string;
+  amount: number;
+  qr_url?: string;
+}) {
+  const wallet = await getWalletData(data.email);
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+  const topup = {
+    trx_id: data.trx_id,
+    amount: Number(data.amount) || 0,
+    status: 'pending',
+    qr_url: data.qr_url || '',
+    created_at: now
+  };
+
+  wallet.topups.unshift(topup);
+  return topup;
+}
+
+export async function updateWalletTopupStatus(data: {
+  trx_id: string;
+  status: string;
+}) {
+  for (const [email, wallet] of memoryWallets.entries()) {
+    const topup = wallet.topups.find(t => t.trx_id === data.trx_id);
+    if (topup) {
+      const prevStatus = topup.status;
+      topup.status = data.status;
+
+      if ((data.status === 'success' || data.status === 'paid') && prevStatus !== 'success' && prevStatus !== 'paid') {
+        wallet.balance += topup.amount;
+        wallet.history.unshift({
+          id: `HIST-${Date.now()}`,
+          type: 'topup',
+          amount: topup.amount,
+          description: `Top Up Saldo via QRIS (${topup.trx_id})`,
+          created_at: new Date().toISOString().replace('T', ' ').substring(0, 19)
+        });
+      }
+      return { success: true, topup, wallet };
+    }
+  }
+  return { success: false };
+}
+
+export async function createWalletWithdrawal(data: {
+  email: string;
+  amount: number;
+  bank_name: string;
+  bank_account: string;
+  bank_holder: string;
+}) {
+  const wallet = await getWalletData(data.email);
+  const amount = Number(data.amount) || 0;
+
+  if (wallet.balance < amount) {
+    throw new Error('Saldo tidak mencukupi untuk melakukan penarikan.');
+  }
+
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  const wdId = `WD-${Date.now()}`;
+
+  wallet.balance -= amount;
+
+  const withdrawal = {
+    id: wdId,
+    amount,
+    bank_name: data.bank_name,
+    bank_account: data.bank_account,
+    bank_holder: data.bank_holder,
+    status: 'pending',
+    created_at: now
+  };
+
+  wallet.withdrawals.unshift(withdrawal);
+
+  wallet.history.unshift({
+    id: `HIST-${Date.now()}`,
+    type: 'withdrawal',
+    amount: -amount,
+    description: `Penarikan Saldo ke ${data.bank_name} (${data.bank_account})`,
+    created_at: now
+  });
+
+  return withdrawal;
+}
+
+
