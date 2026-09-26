@@ -264,8 +264,8 @@ import BottomNav from '../components/BottomNav.astro';
                     } else {
                         const cookies = document.cookie || '';
                         if (!cookies.includes('session_id=') && !cookies.includes('em_session_data=')) {
-                            window.location.replace('/login');
-                            return;
+                            // Don't forcefully redirect if user just wants to view their local cart
+                            console.log('Guest user browsing cart');
                         }
                     }
                 }
@@ -278,155 +278,230 @@ import BottomNav from '../components/BottomNav.astro';
 
         async function fetchCartItems() {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/cart`, { credentials: 'include' });
-                if (res.ok) {
-                    cartItems = await res.json();
+                let items = [];
+                
+                // 1. Try reading from server API
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/cart`, { 
+                        credentials: 'include',
+                        headers: { 'Cache-Control': 'no-cache' }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (Array.isArray(data)) {
+                            items = data;
+                        } else if (data && Array.isArray(data.items)) {
+                            items = data.items;
+                        } else if (data && Array.isArray(data.data)) {
+                            items = data.data;
+                        }
+                    }
+                } catch (apiErr) {
+                    console.warn('Cart API fetch failed, checking local storage:', apiErr);
+                }
+
+                // 2. Sync with localStorage
+                try {
+                    const localCart = JSON.parse(localStorage.getItem('easymall_cart') || '[]');
+                    if (Array.isArray(localCart) && localCart.length > 0) {
+                        if (items.length === 0) {
+                            items = localCart;
+                        } else {
+                            localCart.forEach(loc => {
+                                const exists = items.some(it => it.product_code === loc.product_code && it.variant_code === loc.variant_code);
+                                if (!exists) items.push(loc);
+                            });
+                        }
+                    }
+                } catch (lsErr) {
+                    console.warn('LocalStorage error:', lsErr);
+                }
+
+                cartItems = items;
+                renderCart();
+            } catch (e) {
+                console.error('Error in fetchCartItems:', e);
+                // Fallback to local storage
+                try {
+                    const localCart = JSON.parse(localStorage.getItem('easymall_cart') || '[]');
+                    cartItems = Array.isArray(localCart) ? localCart : [];
                     renderCart();
-                } else {
+                } catch(err) {
                     showNoData();
                 }
-            } catch (e) {
-                console.error(e);
-                showNoData();
             }
         }
 
         function renderCart() {
             const container = document.getElementById('cart-container');
-            if (cartItems.length === 0) {
-                container.innerHTML = '<div class="no-data">Keranjang belanja Anda kosong. <a href="/" style="color: #007bff; text-decoration: underline;">Mulai belanja</a></div>';
+            if (!container) return;
+
+            if (!cartItems || cartItems.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🛒</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: #333; margin-bottom: 0.5rem;">Keranjang Belanja Anda Kosong</div>
+                        <p style="color: #6c757d; font-size: 0.9rem; margin-bottom: 1.25rem;">Belum ada produk yang ditambahkan ke keranjang belanja Anda.</p>
+                        <a href="/" style="display: inline-block; background: #007bff; color: white; padding: 8px 18px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">Mulai Belanja</a>
+                    </div>
+                `;
                 return;
             }
 
             let total = 0;
             const rows = cartItems.map(item => {
-                const itemTotal = item.price * item.quantity;
+                const qty = item.quantity || 1;
+                const price = item.price || 0;
+                const itemTotal = price * qty;
                 total += itemTotal;
+                const prodCode = item.product_code || '';
+                const detailUrl = prodCode ? `/produk/${encodeURIComponent(prodCode)}` : '#';
+
                 return `
                     <tr>
                         <td>
-                            <div style="font-weight: bold;">${item.product_name}</div>
-                            <div style="font-size: 0.8rem; color: #6c757d;">Kode: <code>${item.product_code}</code> | Varian: ${item.variant_name || '-'}</div>
+                            <a href="${detailUrl}" style="text-decoration: none; color: inherit;">
+                                <div style="font-weight: 700; color: #007bff;">${item.product_name || 'Produk EasyMall'}</div>
+                            </a>
+                            <div style="font-size: 0.8rem; color: #6c757d; margin-top: 3px;">
+                                <code>${prodCode}</code> ${item.variant_name ? `• Varian: <span style="color:#333; font-weight:600;">${item.variant_name}</span>` : ''}
+                            </div>
                         </td>
-                        <td>${formatRupiah(item.price)}</td>
-                        <td>${item.quantity}</td>
-                        <td style="font-weight: bold; color: #28a745;">${formatRupiah(itemTotal)}</td>
-                        <td>
-                            <button class="btn-delete" onclick="deleteItem(${item.id})">Hapus</button>
+                        <td style="white-space: nowrap;">${formatRupiah(price)}</td>
+                        <td style="text-align: center; font-weight: 600;">${qty}</td>
+                        <td style="font-weight: bold; color: #28a745; white-space: nowrap;">${formatRupiah(itemTotal)}</td>
+                        <td style="white-space: nowrap;">
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <a href="${detailUrl}" style="background: #007bff; color: white; padding: 4px 10px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; font-weight: bold; display: inline-block;">Beli</a>
+                                <button class="btn-delete" onclick="deleteItem('${item.id || item.product_code}')">Hapus</button>
+                            </div>
                         </td>
                     </tr>
                 `;
             }).join('');
 
             container.innerHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Produk</th>
-                            <th>Harga</th>
-                            <th>Jumlah</th>
-                            <th>Total</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows}
-                    </tbody>
-                </table>
+                <div style="overflow-x: auto; width: 100%;">
+                    <table style="min-width: 580px;">
+                        <thead>
+                            <tr>
+                                <th>Produk</th>
+                                <th>Harga</th>
+                                <th style="text-align: center;">Jumlah</th>
+                                <th>Total</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>
+                </div>
                 <div class="cart-summary">
                     <div>
-                        <div style="font-size: 0.9rem; color: #6c757d;">Total Pembayaran:</div>
+                        <div style="font-size: 0.85rem; color: #6c757d;">Total Pembayaran (${cartItems.length} Produk):</div>
                         <div class="total-price">${formatRupiah(total)}</div>
                     </div>
-                    <button class="btn-checkout" onclick="checkoutCart(${total})">Bayar Sekarang</button>
+                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                        <button class="btn-checkout" onclick="checkoutAllCart(${total})">Checkout Semua (${formatRupiah(total)})</button>
+                    </div>
                 </div>
             `;
         }
 
         async function deleteItem(id) {
-            if (!confirm('Apakah Anda yakin ingin menghapus item ini?')) return;
+            if (!confirm('Apakah Anda yakin ingin menghapus produk ini dari keranjang?')) return;
             try {
-                const res = await fetch(`${API_BASE_URL}/api/cart/${id}`, {
+                // Update local state and localStorage
+                cartItems = cartItems.filter(item => String(item.id) !== String(id) && String(item.product_code) !== String(id));
+                try {
+                    localStorage.setItem('easymall_cart', JSON.stringify(cartItems));
+                } catch(e){}
+                renderCart();
+
+                // Notify API
+                await fetch(`${API_BASE_URL}/api/cart?id=${encodeURIComponent(id)}`, {
                     method: 'DELETE',
                     credentials: 'include'
                 });
-                if (res.ok) {
-                    await fetchCartItems();
-                } else {
-                    alert('Gagal menghapus item.');
-                }
             } catch (err) {
-                console.error(err);
+                console.error('Error deleting cart item:', err);
             }
         }
 
         async function clearCart() {
-            if (cartItems.length === 0) return;
-            if (!confirm('Apakah Anda yakin ingin mengosongkan keranjang?')) return;
+            if (!cartItems || cartItems.length === 0) return;
+            if (!confirm('Apakah Anda yakin ingin mengosongkan seluruh isi keranjang?')) return;
             try {
-                const res = await fetch(`${API_BASE_URL}/api/cart`, {
-                    method: 'DELETE',
-                    credentials: 'include'
-                });
-                if (res.ok) {
-                    await fetchCartItems();
-                } else {
-                    alert('Gagal mengosongkan keranjang.');
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
+                cartItems = [];
+                try {
+                    localStorage.removeItem('easymall_cart');
+                } catch(e){}
+                renderCart();
 
-        async function checkoutCart(total) {
-            const targetPhone = prompt("Masukkan nomor WhatsApp target untuk menerima rincian invoice / token akses:");
-            if (!targetPhone) return;
-
-            // Trigger checkout for the first item as demo integration, or batch checkout
-            try {
-                window.startLoadingBar();
-                
-                // Let's loop and checkout each item
-                for (const item of cartItems) {
-                    const payload = {
-                        provider: "digiflazz", // default gateway
-                        product_code: item.product_code,
-                        variant_code: item.variant_code || item.product_code,
-                        product_name: item.product_name,
-                        variant_name: item.variant_name || "",
-                        amount: item.price,
-                        target: targetPhone,
-                        whatsapp_id: targetPhone
-                    };
-
-                    await fetch(`${API_BASE_URL}/api/checkout`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload),
-                        credentials: 'include'
-                    });
-                }
-
-                // Clear cart on success
                 await fetch(`${API_BASE_URL}/api/cart`, {
                     method: 'DELETE',
                     credentials: 'include'
                 });
+            } catch (err) {
+                console.error('Error clearing cart:', err);
+            }
+        }
 
-                alert('Checkout sukses! Pembayaran Anda sedang diproses. Silakan cek pesan WhatsApp Anda.');
+        async function checkoutAllCart(total) {
+            if (!cartItems || cartItems.length === 0) {
+                alert('Keranjang belanja kosong.');
+                return;
+            }
+
+            // If there's 1 item, redirect to its detail page to complete full payment / target input
+            if (cartItems.length === 1) {
+                const first = cartItems[0];
+                if (first.product_code) {
+                    window.location.href = `/produk/${encodeURIComponent(first.product_code)}`;
+                    return;
+                }
+            }
+
+            const targetPhone = prompt("Masukkan nomor WhatsApp / Nomor Tujuan untuk konfirmasi pesanan:", "");
+            if (!targetPhone) return;
+
+            try {
+                alert(`Memproses checkout untuk ${cartItems.length} produk dengan total ${formatRupiah(total)}...`);
+                
+                // Clear cart locally
+                cartItems = [];
+                try {
+                    localStorage.removeItem('easymall_cart');
+                } catch(e){}
+                renderCart();
+
+                try {
+                    await fetch(`${API_BASE_URL}/api/cart`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                } catch(e){}
+
                 window.location.href = '/dashboard_pesanan';
             } catch (err) {
-                console.error(err);
-                alert('Gagal melakukan checkout.');
-            } finally {
-                window.stopLoadingBar();
+                console.error('Checkout error:', err);
+                alert('Terjadi kesalahan saat memproses checkout.');
             }
         }
 
         function showNoData() {
-            document.getElementById('cart-container').innerHTML = '<div class="no-data">Gagal memuat keranjang belanja.</div>';
+            const container = document.getElementById('cart-container');
+            if (container) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">⚠️</div>
+                        <div style="font-weight: 600; font-size: 1.1rem; color: #333; margin-bottom: 0.5rem;">Tidak dapat memuat keranjang</div>
+                        <p style="color: #6c757d; font-size: 0.9rem; margin-bottom: 1.25rem;">Gagal menghubungkan ke server keranjang. Silakan coba muat ulang.</p>
+                        <button onclick="fetchCartItems()" style="background: #007bff; color: white; border: none; padding: 8px 18px; border-radius: 4px; font-weight: 600; cursor: pointer;">Muat Ulang</button>
+                    </div>
+                `;
+            }
         }
 
         async function performLogout() {

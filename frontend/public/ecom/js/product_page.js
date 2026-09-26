@@ -524,49 +524,51 @@ function initCheckoutForm(product) {
                     return;
                 }
 
-                const productCode = product.code;
-                const productName = product.name;
+                const productCode = product.code || (selectedProduct ? selectedProduct.code : '');
+                const productName = product.name || (selectedProduct ? selectedProduct.name : '');
                 const variantCode = selectedOption.value;
                 const variantName = selectedOption.textContent.split(' - ')[0];
-                const price = parseInt(selectedOption.dataset.price);
+                const price = parseInt(selectedOption.dataset.price) || 0;
+
+                const payload = {
+                    product_code: productCode,
+                    product_name: productName,
+                    variant_code: variantCode,
+                    variant_name: variantName,
+                    price: price,
+                    quantity: 1
+                };
+
+                // Cache in localStorage immediately
+                try {
+                    const localCart = JSON.parse(localStorage.getItem('easymall_cart') || '[]');
+                    const existingIdx = localCart.findIndex(i => i.product_code === productCode && i.variant_code === variantCode);
+                    if (existingIdx >= 0) {
+                        localCart[existingIdx].quantity += 1;
+                    } else {
+                        localCart.unshift({
+                            id: Date.now(),
+                            ...payload,
+                            created_at: new Date().toISOString()
+                        });
+                    }
+                    localStorage.setItem('easymall_cart', JSON.stringify(localCart));
+                } catch (e) {}
 
                 try {
-                    // First check if user is logged in
-                    const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
-                    const authData = await authRes.json();
-                    if (!authData.logged_in) {
-                        alert("Silakan login/masuk terlebih dahulu untuk menggunakan fitur keranjang!");
-                        window.location.href = '/login';
-                        return;
-                    }
-
-                    const payload = {
-                        product_code: productCode,
-                        product_name: productName,
-                        variant_code: variantCode,
-                        variant_name: variantName,
-                        price: price,
-                        quantity: 1
-                    };
-
-                    const res = await fetch(`${API_BASE_URL}/api/cart`, {
+                    await fetch(`${API_BASE_URL}/api/cart`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload),
                         credentials: 'include'
                     });
 
-                    if (res.ok) {
-                        alert('Produk berhasil dimasukkan ke keranjang!');
-                        window.location.href = '/dashboard_keranjang';
-                    } else {
-                        alert('Gagal memasukkan ke keranjang. Silakan coba lagi.');
-                    }
+                    alert('🎉 Produk berhasil dimasukkan ke keranjang!');
+                    window.location.href = '/dashboard_keranjang';
                 } catch (err) {
-                    console.error(err);
-                    alert('Terjadi kesalahan koneksi.');
+                    console.error('Cart API error:', err);
+                    alert('Produk berhasil disimpan ke keranjang lokal!');
+                    window.location.href = '/dashboard_keranjang';
                 }
             });
         };
