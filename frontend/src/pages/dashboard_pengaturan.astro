@@ -538,27 +538,42 @@ import BottomNav from '../components/BottomNav.astro';
 
         async function fetchUserData() {
             try {
-                const settingsRes = await fetch(`${API_BASE_URL}/api/user/settings`, { credentials: 'include' });
-                if (!settingsRes.ok) {
-                    window.location.href = '/login';
-                    return;
+                // First check auth status gracefully
+                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, {
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                if (authRes.ok) {
+                    const authData = await authRes.json();
+                    if (!authData.logged_in) {
+                        const cookies = document.cookie || '';
+                        if (!cookies.includes('session_id=') && !cookies.includes('em_session_data=')) {
+                            window.location.replace('/login');
+                            return;
+                        }
+                    }
                 }
-                const data = await settingsRes.json();
-                if (!data.success) {
-                    window.location.href = '/login';
-                    return;
-                }
-
-                document.getElementById('usernameInput').value = data.name;
-                document.getElementById('emailInput').value = data.email;
-                document.getElementById('phoneInput').value = data.phone;
-                document.getElementById('recoveryEmail1Input').value = data.recovery_email_1;
-                document.getElementById('recoveryEmail2Input').value = data.recovery_email_2;
-                document.getElementById('bankNameInput').value = data.bank_name || '';
-                document.getElementById('bankAccountNumberInput').value = data.bank_account_number || '';
-                document.getElementById('bankAccountHolderInput').value = data.bank_account_holder || '';
             } catch (err) {
-                console.error(err);
+                console.warn('Network issue checking auth in settings:', err);
+            }
+
+            try {
+                const settingsRes = await fetch(`${API_BASE_URL}/api/user/settings`, { credentials: 'include' });
+                if (settingsRes.ok) {
+                    const data = await settingsRes.json();
+                    if (data && data.success) {
+                        document.getElementById('usernameInput').value = data.name || '';
+                        document.getElementById('emailInput').value = data.email || '';
+                        document.getElementById('phoneInput').value = data.phone || '';
+                        document.getElementById('recoveryEmail1Input').value = data.recovery_email_1 || '';
+                        document.getElementById('recoveryEmail2Input').value = data.recovery_email_2 || '';
+                        document.getElementById('bankNameInput').value = data.bank_name || '';
+                        document.getElementById('bankAccountNumberInput').value = data.bank_account_number || '';
+                        document.getElementById('bankAccountHolderInput').value = data.bank_account_holder || '';
+                    }
+                }
+            } catch (err) {
+                console.error('Error fetching settings:', err);
             }
         }
 
@@ -610,7 +625,7 @@ import BottomNav from '../components/BottomNav.astro';
                 const res = await fetch(`${API_BASE_URL}/api/user/store`, { credentials: 'include' });
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.success && data.id) {
+                    if (data.success && data.store_name) {
                         document.getElementById('store-settings-form').style.display = 'block';
                         document.getElementById('store-unregistered-msg').style.display = 'none';
 
@@ -618,7 +633,7 @@ import BottomNav from '../components/BottomNav.astro';
                         document.getElementById('storeCategoryInput').value = data.store_category || 'perangkat-lunak-aplikasi';
                         document.getElementById('storeDescriptionInput').value = data.description || '';
                         document.getElementById('storeInterestsInput').value = data.interests || '';
-                        document.getElementById('storeVisibleInput').checked = data.is_visible !== false && data.is_visible !== 0;
+                        document.getElementById('storeVisibleInput').checked = data.is_visible !== false && data.is_visible !== 0 && data.is_hidden !== 1;
                         document.getElementById('storePhoneInput').value = data.phone || '';
                         document.getElementById('storeInstagramInput').value = data.instagram || '';
                         document.getElementById('storeFacebookInput').value = data.facebook || '';
