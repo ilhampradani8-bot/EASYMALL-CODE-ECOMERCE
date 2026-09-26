@@ -1166,17 +1166,25 @@ import BottomNav from '../components/BottomNav.astro';
 
         async function fetchUserData() {
             try {
-                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
-                if (!authRes.ok) {
-                    window.location.href = '/login';
-                    return;
+                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, {
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                if (authRes.ok) {
+                    const authData = await authRes.json();
+                    if (!authData.logged_in) {
+                        const cookies = document.cookie || '';
+                        if (!cookies.includes('session_id=') && !cookies.includes('em_session_data=')) {
+                            window.location.replace('/login');
+                            return;
+                        }
+                    }
                 }
-                const authData = await authRes.json();
-                if (!authData.logged_in) {
-                    window.location.href = '/login';
-                    return;
-                }
+            } catch (err) {
+                console.warn('Network issue fetching auth status in dashboard_produk:', err);
+            }
 
+            try {
                 const dataRes = await fetch(`${API_BASE_URL}/api/dashboard/data`, { credentials: 'include' });
                 if (dataRes.ok) {
                     const res = await dataRes.json();

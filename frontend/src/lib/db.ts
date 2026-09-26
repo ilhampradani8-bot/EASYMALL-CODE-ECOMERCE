@@ -28,6 +28,39 @@ memoryUsers.set('admin@easymall.me', {
   provider: 'email'
 });
 
+export function createSessionId(email: string, name: string): string {
+  const normalizedEmail = email.toLowerCase().trim();
+  const userName = name || (normalizedEmail.includes('reseller') ? 'Reseller Partner' : 'User EasyMall');
+  const payload = {
+    email: normalizedEmail,
+    name: userName,
+    iat: Date.now()
+  };
+  return `sess_${Buffer.from(JSON.stringify(payload)).toString('base64url')}`;
+}
+
+export function parseSessionId(sessionId: string): { email: string; name: string; created_at: string } | null {
+  if (!sessionId) return null;
+  
+  if (sessionId.startsWith('sess_')) {
+    const raw = sessionId.substring(5);
+    try {
+      const jsonStr = Buffer.from(raw, 'base64url').toString('utf-8');
+      const parsed = JSON.parse(jsonStr);
+      if (parsed && parsed.email) {
+        return {
+          email: String(parsed.email).toLowerCase().trim(),
+          name: String(parsed.name || 'User EasyMall'),
+          created_at: new Date(parsed.iat || Date.now()).toISOString()
+        };
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return null;
+}
+
 export function encodeSessionPayload(data: { sessionId: string; email: string; name: string }): string {
   try {
     return Buffer.from(JSON.stringify(data)).toString('base64url');
@@ -126,6 +159,20 @@ async function execQuery(stmt: { sql: string; args: any[] }) {
   }
 }
 
+// Global in-memory transactions cache for fast cross-request access in serverless
+const memoryTransactions: Array<{
+  id?: number;
+  transaction_id: string;
+  whatsapp_id: string;
+  product_name: string;
+  variant_name: string;
+  amount: number;
+  provider: string;
+  email: string;
+  status: string;
+  created_at: string;
+}> = [];
+
 export async function saveTransaction(data: {
   transaction_id: string;
   whatsapp_id: string;
@@ -136,22 +183,45 @@ export async function saveTransaction(data: {
   email?: string;
   status?: string;
 }) {
+  const normEmail = (data.email || '').toLowerCase().trim();
+  const txObj = {
+    transaction_id: data.transaction_id,
+    whatsapp_id: data.whatsapp_id || '',
+    product_name: data.product_name || '',
+    variant_name: data.variant_name || '',
+    amount: Number(data.amount) || 0,
+    provider: data.provider || 'koalastore',
+    email: normEmail,
+    status: data.status || 'pending',
+    created_at: new Date().toISOString().replace('T', ' ').substring(0, 19)
+  };
+
+  // 1. Save to in-memory store
+  const existingIdx = memoryTransactions.findIndex(t => t.transaction_id === data.transaction_id);
+  if (existingIdx >= 0) {
+    memoryTransactions[existingIdx] = { ...memoryTransactions[existingIdx], ...txObj };
+  } else {
+    memoryTransactions.unshift(txObj);
+    if (memoryTransactions.length > 200) memoryTransactions.pop();
+  }
+
+  // 2. Save to DB
   try {
     await execQuery({
       sql: `INSERT OR REPLACE INTO transactions (transaction_id, whatsapp_id, product_name, variant_name, amount, provider, email, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       args: [
-        data.transaction_id,
-        data.whatsapp_id || '',
-        data.product_name || '',
-        data.variant_name || '',
-        data.amount || 0,
-        data.provider || 'koalastore',
-        data.email || '',
-        data.status || 'pending'
+        txObj.transaction_id,
+        txObj.whatsapp_id,
+        txObj.product_name,
+        txObj.variant_name,
+        txObj.amount,
+        txObj.provider,
+        txObj.email,
+        txObj.status
       ]
     });
   } catch (err) {
-    console.error('Error saving transaction:', err);
+    console.error('Error saving transaction to DB:', err);
   }
 }
 
@@ -216,41 +286,19 @@ export async function saveSession(sessionId: string, email: string, name?: strin
 }
 
 export async function getSession(sessionId: string, fallbackCookieToken?: string) {
-  if (!sessionId && !fallbackCookieToken) return null;
-
-  // 1. Check in-memory store first
-  if (sessionId && memorySessions.has(sessionId)) {
-    return memorySessions.get(sessionId);
+  // 1. Try decoding directly from sessionId (self-contained JWT-like stateless session)
+  const decodedFromId = parseSessionId(sessionId);
+  if (decodedFromId) {
+    memorySessions.set(sessionId, decodedFromId);
+    return decodedFromId;
   }
 
-  // 2. Try Database lookup
-  if (sessionId) {
-    try {
-      const res = await execQuery({
-        sql: `SELECT * FROM sessions WHERE session_id = ? LIMIT 1`,
-        args: [sessionId]
-      });
-      if (res && res.rows && res.rows.length > 0) {
-        const row: any = res.rows[0];
-        const sessObj = {
-          email: String(row.email),
-          name: String(row.name || 'User EasyMall'),
-          created_at: String(row.created_at || new Date().toISOString())
-        };
-        memorySessions.set(sessionId, sessObj);
-        return sessObj;
-      }
-    } catch (err) {
-      // ignore and proceed to payload fallback
-    }
-  }
-
-  // 3. Check fallback signed/encoded session token if provided
+  // 2. Check fallback cookie token if provided
   if (fallbackCookieToken) {
     const payload = decodeSessionPayload(fallbackCookieToken);
     if (payload && payload.email) {
       const sessObj = {
-        email: payload.email,
+        email: payload.email.toLowerCase().trim(),
         name: payload.name || 'User EasyMall',
         created_at: new Date().toISOString()
       };
@@ -261,14 +309,31 @@ export async function getSession(sessionId: string, fallbackCookieToken?: string
     }
   }
 
-  // 4. If session ID has embedded details (e.g. sess_...)
-  if (sessionId && sessionId.startsWith('sess_')) {
-    // If it's a known valid session ID format, return fallback session
-    return {
-      email: 'user@easymall.me',
-      name: 'Pengguna EasyMall',
-      created_at: new Date().toISOString()
-    };
+  // 3. Check in-memory store
+  if (sessionId && memorySessions.has(sessionId)) {
+    return memorySessions.get(sessionId);
+  }
+
+  // 4. Try Database lookup
+  if (sessionId) {
+    try {
+      const res = await execQuery({
+        sql: `SELECT * FROM sessions WHERE session_id = ? LIMIT 1`,
+        args: [sessionId]
+      });
+      if (res && res.rows && res.rows.length > 0) {
+        const row: any = res.rows[0];
+        const sessObj = {
+          email: String(row.email).toLowerCase().trim(),
+          name: String(row.name || 'User EasyMall'),
+          created_at: String(row.created_at || new Date().toISOString())
+        };
+        memorySessions.set(sessionId, sessObj);
+        return sessObj;
+      }
+    } catch (err) {
+      // ignore
+    }
   }
 
   return null;
@@ -343,22 +408,53 @@ export async function verifyUserCredentials(emailInput: string, passwordInput?: 
 }
 
 export async function getTransactions(userEmail?: string) {
+  const normEmail = (userEmail || '').toLowerCase().trim();
+  const txMap = new Map<string, any>();
+
+  // 1. Add matching in-memory transactions
+  memoryTransactions.forEach(t => {
+    if (!normEmail || !t.email || t.email === normEmail || t.email.includes(normEmail)) {
+      txMap.set(t.transaction_id, { ...t });
+    }
+  });
+
+  // 2. Query DB
   try {
-    if (userEmail) {
+    let dbRows: any[] = [];
+    if (normEmail) {
       const res = await execQuery({
         sql: `SELECT * FROM transactions WHERE email = ? OR email IS NULL OR email = '' ORDER BY id DESC LIMIT 50`,
-        args: [userEmail]
+        args: [normEmail]
       });
-      return res.rows || [];
+      dbRows = (res && res.rows) ? (res.rows as any[]) : [];
     } else {
       const res = await execQuery({
         sql: `SELECT * FROM transactions ORDER BY id DESC LIMIT 50`,
         args: []
       });
-      return res.rows || [];
+      dbRows = (res && res.rows) ? (res.rows as any[]) : [];
     }
+
+    dbRows.forEach(r => {
+      const txId = String(r.transaction_id);
+      if (!txMap.has(txId)) {
+        txMap.set(txId, {
+          transaction_id: txId,
+          whatsapp_id: String(r.whatsapp_id || ''),
+          product_name: String(r.product_name || ''),
+          variant_name: String(r.variant_name || ''),
+          amount: Number(r.amount) || 0,
+          provider: String(r.provider || 'koalastore'),
+          email: String(r.email || ''),
+          status: String(r.status || 'pending'),
+          created_at: String(r.created_at || '')
+        });
+      }
+    });
   } catch (err) {
-    console.error('Error fetching transactions:', err);
-    return [];
+    console.error('Error fetching transactions from DB:', err);
   }
+
+  return Array.from(txMap.values());
 }
+

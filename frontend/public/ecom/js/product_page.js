@@ -135,14 +135,31 @@ async function initProductPage() {
         return;
     }
 
+    // Try extracting user email from cookies/localStorage immediately
+    try {
+        const storedSession = localStorage.getItem('em_session_data') || localStorage.getItem('em_user_session');
+        if (storedSession) {
+            const parsed = JSON.parse(storedSession);
+            if (parsed && parsed.email) loggedInUserEmail = parsed.email;
+        }
+        if (!loggedInUserEmail) {
+            const cookies = document.cookie || '';
+            const match = cookies.match(/em_session_data=([^;]+)/);
+            if (match) {
+                const parsed = JSON.parse(decodeURIComponent(match[1]));
+                if (parsed && parsed.email) loggedInUserEmail = parsed.email;
+            }
+        }
+    } catch (e) {}
+
     try {
         // Fetch Auth Status first
         try {
             const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
             if (authRes.ok) {
                 const authData = await authRes.json();
-                if (authData.logged_in) {
-                    loggedInUserEmail = authData.email || "";
+                if (authData.logged_in && authData.email) {
+                    loggedInUserEmail = authData.email;
                 }
             }
         } catch (e) {
@@ -564,12 +581,27 @@ async function submitCheckout() {
     const slug = selectedProduct ? selectedProduct.category_slug : '';
     const isSpecialCategory = ['game', 'pulsa', 'data', 'pln', 'ssl'].includes(slug);
     
+    // Ensure loggedInUserEmail is known if available
+    if (!loggedInUserEmail) {
+        try {
+            const stored = localStorage.getItem('em_session_data') || localStorage.getItem('em_user_session');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (parsed && parsed.email) loggedInUserEmail = parsed.email;
+            }
+        } catch (e) {}
+    }
+
     let targetVal = targetInput.value.trim();
     if (!targetVal) {
         if (!isSpecialCategory) {
-            alert('Silakan login terlebih dahulu untuk melanjutkan pembayaran!');
-            window.location.href = '/login';
-            return;
+            if (loggedInUserEmail) {
+                targetVal = loggedInUserEmail;
+            } else {
+                alert('Silakan lengkapi email/kontak atau login terlebih dahulu untuk melanjutkan pembayaran!');
+                targetInput.focus();
+                return;
+            }
         } else {
             alert('Mohon lengkapi ID Pengguna / Nomor Tujuan Anda terlebih dahulu!');
             targetInput.focus();
@@ -586,6 +618,8 @@ async function submitCheckout() {
     confirmBuyBtn.disabled = true;
     confirmBuyBtn.textContent = 'Memproses...';
     
+    const userEmailToSave = loggedInUserEmail || (targetVal.includes('@') ? targetVal : '');
+
     const payload = {
         provider: selectedProduct.provider,
         product_code: selectedProduct.raw_code,
@@ -593,6 +627,8 @@ async function submitCheckout() {
         product_name: selectedProduct.name,
         variant_name: selectedOption.textContent.split(' - ')[0],
         target: targetVal,
+        email: userEmailToSave,
+        user_email: userEmailToSave,
         amount: parseInt(selectedOption.dataset.price)
     };
     
@@ -620,6 +656,27 @@ async function submitCheckout() {
             qrisArea.style.display = 'block';
             confirmBuyBtn.style.display = 'none';
             
+            // Save to local easymall_orders cache for instant visibility in order history
+            try {
+                const localOrders = JSON.parse(localStorage.getItem('easymall_orders') || '[]');
+                const newOrder = {
+                    transaction_id: data.transaction_id,
+                    email: userEmailToSave,
+                    product_name: selectedProduct.name,
+                    variant_name: selectedOption.textContent.split(' - ')[0],
+                    amount: parseInt(selectedOption.dataset.price),
+                    status: 'pending',
+                    target: targetVal,
+                    qr_image_url: data.qr_image_url || '',
+                    created_at: new Date().toISOString().replace('T', ' ').substring(0, 19)
+                };
+                const filtered = localOrders.filter(o => o.transaction_id !== data.transaction_id);
+                filtered.unshift(newOrder);
+                localStorage.setItem('easymall_orders', JSON.stringify(filtered.slice(0, 100)));
+            } catch (err) {
+                console.warn('Could not cache order locally:', err);
+            }
+
             if (statusPollingInterval) clearInterval(statusPollingInterval);
             statusPollingInterval = setInterval(() => {
                 checkPaymentStatus(data.transaction_id, false);
@@ -645,7 +702,7 @@ async function checkPaymentStatus(transactionId, showAlertOnPending = false) {
         const data = await response.json();
         
         if (response.ok && data.success) {
-            if (data.status === 'paid') {
+            if (data.status === 'paid' || data.status === 'success') {
                 stopCheckoutPolling();
                 
                 statusBox.className = 'qris-status-box';
@@ -668,6 +725,24 @@ async function checkPaymentStatus(transactionId, showAlertOnPending = false) {
                 statusBox.innerHTML = successMsg;
                 document.getElementById('checkPaymentStatusBtn').style.display = 'none';
                 
+                // Update local storage status
+                try {
+                    const localOrders = JSON.parse(localStorage.getItem('easymall_orders') || '[]');
+                    const updated = localOrders.map(o => {
+                        if (o.transaction_id === transactionId) {
+                            return {
+                                ...o,
+                                status: 'paid',
+                                sn: data.sn || o.sn,
+                                stock_data: data.stock_data || o.stock_data,
+                                link: data.link || o.link
+                            };
+                        }
+                        return o;
+                    });
+                    localStorage.setItem('easymall_orders', JSON.stringify(updated));
+                } catch (e) {}
+
             } else if (data.status === 'failed') {
                 stopCheckoutPolling();
                 statusBox.className = 'qris-status-box';
@@ -676,6 +751,12 @@ async function checkPaymentStatus(transactionId, showAlertOnPending = false) {
                 statusBox.style.borderColor = '#ffa8a8';
                 statusBox.innerHTML = `❌ <b>TRANSAKSI GAGAL</b><br><small>${data.message || 'Silakan hubungi customer service kami.'}</small>`;
                 
+                try {
+                    const localOrders = JSON.parse(localStorage.getItem('easymall_orders') || '[]');
+                    const updated = localOrders.map(o => o.transaction_id === transactionId ? { ...o, status: 'failed' } : o);
+                    localStorage.setItem('easymall_orders', JSON.stringify(updated));
+                } catch (e) {}
+
             } else {
                 if (showAlertOnPending) {
                     alert('Pembayaran belum terdeteksi. Silakan selesaikan pembayaran QRIS Anda terlebih dahulu.');

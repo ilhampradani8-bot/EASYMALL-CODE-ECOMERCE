@@ -11,7 +11,7 @@ if (Astro.request.method === 'POST') {
   const inputEmail = formData ? (formData.get('username') || formData.get('email') || '').toString().trim() : '';
   const inputPassword = formData ? (formData.get('password') || '').toString() : '';
 
-  const { verifyUserCredentials, saveSession, saveUser, encodeSessionPayload } = await import('../lib/db');
+  const { verifyUserCredentials, saveSession, saveUser, encodeSessionPayload, createSessionId } = await import('../lib/db');
 
   let dbUser = await verifyUserCredentials(inputEmail, inputPassword);
 
@@ -33,24 +33,24 @@ if (Astro.request.method === 'POST') {
 
   await saveUser({ email, name, provider: 'email' });
 
-  const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  const sessionId = createSessionId(email, name);
   await saveSession(sessionId, email, name);
 
   const token = encodeSessionPayload({ sessionId, email, name });
 
   Astro.cookies.set('session_id', sessionId, {
     path: '/',
-    httpOnly: true,
+    httpOnly: false, // Accessible to client-side localStorage sync
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 7
+    maxAge: 60 * 60 * 24 * 30 // 30 days persistent
   });
 
   if (token) {
     Astro.cookies.set('em_session_data', token, {
       path: '/',
-      httpOnly: true,
+      httpOnly: false,
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7
+      maxAge: 60 * 60 * 24 * 30 // 30 days persistent
     });
   }
 

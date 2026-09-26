@@ -5,16 +5,6 @@ export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    let userEmail = '';
-    const sessionCookie = cookies.get('session_id');
-    if (sessionCookie && sessionCookie.value) {
-      try {
-        const { getSession } = await import('../../lib/db');
-        const session = await getSession(sessionCookie.value);
-        if (session && session.email) userEmail = String(session.email);
-      } catch (e) {}
-    }
-
     const payload = await request.json().catch(() => ({}));
     const {
       provider = 'koalastore',
@@ -24,8 +14,29 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       variant_name = '',
       target = '',
       amount = 0,
-      whatsapp_id
+      whatsapp_id,
+      email = '',
+      user_email = ''
     } = payload;
+
+    let userEmail = (email || user_email || '').toLowerCase().trim();
+    const sessionCookie = cookies.get('session_id');
+    const tokenCookie = cookies.get('em_session_data');
+    const authHeader = request.headers.get('authorization') || request.headers.get('x-session-token');
+    const headerToken = authHeader ? authHeader.replace(/^Bearer\s+/i, '').trim() : '';
+
+    const sessId = sessionCookie ? sessionCookie.value : (headerToken.startsWith('sess_') ? headerToken : '');
+    const tokVal = tokenCookie ? tokenCookie.value : (!headerToken.startsWith('sess_') ? headerToken : '');
+
+    if (sessId || tokVal) {
+      try {
+        const { getSession } = await import('../../lib/db');
+        const session = await getSession(sessId, tokVal);
+        if (session && session.email) {
+          userEmail = String(session.email).toLowerCase().trim();
+        }
+      } catch (e) {}
+    }
 
     if (!variant_code || !target || amount <= 0) {
       return new Response(JSON.stringify({

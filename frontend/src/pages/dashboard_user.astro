@@ -263,41 +263,69 @@ import BottomNav from '../components/BottomNav.astro';
         async function fetchUserData() {
             try {
                 // Fetch profile
-                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
-                if (!authRes.ok) {
-                    window.location.href = '/login';
-                    return;
-                }
-                const authData = await authRes.json();
-                if (!authData.logged_in) {
-                    window.location.href = '/login';
-                    return;
-                }
-
-                userEmail = authData.email;
-                const nameEl = document.getElementById('user-name');
-                const emailEl = document.getElementById('user-email');
-                const avatarEl = document.getElementById('avatar-initial');
-                if (nameEl) nameEl.textContent = authData.name;
-                if (emailEl) emailEl.textContent = authData.email;
-                if (avatarEl) avatarEl.textContent = authData.name.charAt(0).toUpperCase();
-
-                // Fetch dashboard data
-                const dataRes = await fetch(`${API_BASE_URL}/api/dashboard/data`, { credentials: 'include' });
-                if (dataRes.ok) {
-                    const res = await dataRes.json();
-                    if (res.success) {
-                        transactionsData = res.transactions || [];
-                        renderDashboardStatsAndCharts(transactionsData);
+                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, {
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                
+                if (authRes.ok) {
+                    const authData = await authRes.json();
+                    if (authData.logged_in) {
+                        userEmail = authData.email;
+                        const nameEl = document.getElementById('user-name');
+                        const emailEl = document.getElementById('user-email');
+                        const avatarEl = document.getElementById('avatar-initial');
+                        if (nameEl) nameEl.textContent = authData.name;
+                        if (emailEl) emailEl.textContent = authData.email;
+                        if (avatarEl) avatarEl.textContent = (authData.name || 'U').charAt(0).toUpperCase();
                     } else {
-                        renderDashboardStatsAndCharts([]);
+                        const cookies = document.cookie || '';
+                        if (!cookies.includes('session_id=') && !cookies.includes('em_session_data=')) {
+                            window.location.replace('/login');
+                            return;
+                        }
                     }
-                } else {
-                    renderDashboardStatsAndCharts([]);
                 }
             } catch (err) {
-                console.error(err);
-                renderDashboardStatsAndCharts([]);
+                console.warn('Network issue fetching auth status in dashboard_user:', err);
+            }
+
+            try {
+                // Fetch dashboard data
+                let localOrders = [];
+                try {
+                    localOrders = JSON.parse(localStorage.getItem('easymall_orders') || '[]');
+                } catch (e) {}
+
+                const dataRes = await fetch(`${API_BASE_URL}/api/dashboard/data`, { credentials: 'include' });
+                let serverOrders = [];
+                if (dataRes.ok) {
+                    const res = await dataRes.json();
+                    if (res.success && Array.isArray(res.transactions)) {
+                        serverOrders = res.transactions;
+                    }
+                }
+
+                // Merge deduplicated
+                const orderMap = new Map();
+                localOrders.forEach(o => { if (o && o.transaction_id) orderMap.set(o.transaction_id, o); });
+                serverOrders.forEach(o => {
+                    if (o && o.transaction_id) {
+                        const existing = orderMap.get(o.transaction_id) || {};
+                        orderMap.set(o.transaction_id, { ...existing, ...o });
+                    }
+                });
+
+                transactionsData = Array.from(orderMap.values());
+                renderDashboardStatsAndCharts(transactionsData);
+            } catch (err) {
+                console.error('Error fetching dashboard data:', err);
+                try {
+                    transactionsData = JSON.parse(localStorage.getItem('easymall_orders') || '[]');
+                    renderDashboardStatsAndCharts(transactionsData);
+                } catch (e) {
+                    renderDashboardStatsAndCharts([]);
+                }
             }
         }
 

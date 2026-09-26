@@ -93,33 +93,39 @@
         }
 
         async function checkSessionAndRoute() {
+            const cookies = document.cookie || '';
+            const hasSessionCookie = cookies.includes('session_id=') || cookies.includes('em_session_data=');
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/auth/status`, {
-                    credentials: 'include'
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
                 });
                 
-                if (!response.ok) {
-                    window.location.href = '/login';
-                    return;
-                }
-
-                const data = await response.json();
-                if (data.logged_in) {
-                    const email = data.email || '';
-                    const name = data.name || '';
-                    
-                    if (email.includes('reseller') || name.includes('Reseller') || name.includes('Demo') || email.includes('admin') || name.includes('admin') || name.includes('Discord Demo')) {
-                        window.location.href = '/dashboard_reseller';
-                    } else {
-                        window.location.href = '/dashboard_user';
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.logged_in) {
+                        const email = (data.email || '').toLowerCase();
+                        const name = data.name || '';
+                        
+                        if (email.includes('reseller') || name.includes('Reseller') || email.includes('admin') || name.includes('admin')) {
+                            window.location.replace('/dashboard_reseller');
+                        } else {
+                            window.location.replace('/dashboard_user');
+                        }
+                        return;
                     }
-                } else {
-                    window.location.href = '/login';
                 }
             } catch (err) {
-                console.error(err);
-                window.location.href = '/login';
+                console.warn('Auth status network check delay:', err);
             }
+
+            if (hasSessionCookie) {
+                window.location.replace('/dashboard_user');
+                return;
+            }
+
+            window.location.replace('/login');
         }
 
         checkSessionAndRoute();

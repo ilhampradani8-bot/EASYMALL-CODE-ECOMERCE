@@ -2,14 +2,20 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ cookies }) => {
+export const GET: APIRoute = async ({ request, cookies }) => {
   try {
     const { getSession, getTransactions } = await import('../../../lib/db');
     let email = '';
     const sessionCookie = cookies.get('session_id');
+    const tokenCookie = cookies.get('em_session_data');
+    const authHeader = request.headers.get('authorization') || request.headers.get('x-session-token');
+    const headerToken = authHeader ? authHeader.replace(/^Bearer\s+/i, '').trim() : '';
 
-    if (sessionCookie && sessionCookie.value) {
-      const session = await getSession(sessionCookie.value);
+    const sessId = sessionCookie ? sessionCookie.value : (headerToken.startsWith('sess_') ? headerToken : '');
+    const tokVal = tokenCookie ? tokenCookie.value : (!headerToken.startsWith('sess_') ? headerToken : '');
+
+    if (sessId || tokVal) {
+      const session = await getSession(sessId, tokVal);
       if (session && session.email) {
         email = String(session.email);
       }

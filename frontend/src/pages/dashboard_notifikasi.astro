@@ -390,17 +390,25 @@ import BottomNav from '../components/BottomNav.astro';
         async function fetchNotificationsPageData() {
             try {
                 // 1. Check user login status
-                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
-                if (!authRes.ok) {
-                    window.location.href = '/login';
-                    return;
+                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, {
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                if (authRes.ok) {
+                    const authData = await authRes.json();
+                    if (!authData.logged_in) {
+                        const cookies = document.cookie || '';
+                        if (!cookies.includes('session_id=') && !cookies.includes('em_session_data=')) {
+                            window.location.replace('/login');
+                            return;
+                        }
+                    }
                 }
-                const authData = await authRes.json();
-                if (!authData.logged_in) {
-                    window.location.href = '/login';
-                    return;
-                }
+            } catch (err) {
+                console.warn('Network issue fetching auth status in notifications:', err);
+            }
 
+            try {
                 // 2. Fetch Notifications list
                 const res = await fetch(`${API_BASE_URL}/api/notifications`, { credentials: 'include' });
                 if (res.ok) {

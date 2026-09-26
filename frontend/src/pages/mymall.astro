@@ -1142,25 +1142,34 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         async function fetchStorefrontData() {
+            let authData = null;
             try {
                 // 1. Fetch authentication status to get user details
-                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
-                if (!authRes.ok) {
-                    window.location.href = '/login';
-                    return;
+                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, {
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                if (authRes.ok) {
+                    authData = await authRes.json();
+                    if (!authData.logged_in) {
+                        const cookies = document.cookie || '';
+                        if (!cookies.includes('session_id=') && !cookies.includes('em_session_data=')) {
+                            window.location.replace('/login');
+                            return;
+                        }
+                    }
                 }
-                const authData = await authRes.json();
-                if (!authData.logged_in) {
-                    window.location.href = '/login';
-                    return;
-                }
+            } catch (err) {
+                console.warn('Network issue fetching auth status in mymall:', err);
+            }
 
+            try {
                 // Update Profile name fallback
-                const nickname = authData.user ? (authData.user.username || 'Merchant') : 'Merchant';
+                const nickname = (authData && authData.user) ? (authData.user.username || authData.name || 'Merchant') : (authData ? authData.name : 'Merchant');
                 document.getElementById('store-title-name').textContent = `Mall milik ${nickname}`;
                 
                 // Formulate Join Date
-                const createdAt = authData.user ? authData.user.created_at : '';
+                const createdAt = (authData && authData.user) ? authData.user.created_at : '';
                 if (createdAt) {
                     const formattedDate = new Date(createdAt).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
                     document.getElementById('member-since-badge').innerHTML = `📅 Bergabung: ${formattedDate}`;

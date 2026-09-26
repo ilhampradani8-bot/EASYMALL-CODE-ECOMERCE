@@ -240,40 +240,86 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         async function fetchUserData() {
+            let currentUserEmail = '';
             try {
-                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' });
-                if (!authRes.ok) {
-                    window.location.href = '/login';
-                    return;
-                }
-                const authData = await authRes.json();
-                if (!authData.logged_in) {
-                    window.location.href = '/login';
-                    return;
-                }
-
-                const nameEl = document.getElementById('user-name');
-                const emailEl = document.getElementById('user-email');
-                const avatarEl = document.getElementById('avatar-initial');
-                if (nameEl) nameEl.textContent = authData.name;
-                if (emailEl) emailEl.textContent = authData.email;
-                if (avatarEl) avatarEl.textContent = authData.name.charAt(0).toUpperCase();
-
-                const dataRes = await fetch(`${API_BASE_URL}/api/dashboard/data`, { credentials: 'include' });
-                if (dataRes.ok) {
-                    const res = await dataRes.json();
-                    if (res.success) {
-                        ordersData = res.transactions || [];
-                        renderOrders(ordersData);
+                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, {
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                
+                if (authRes.ok) {
+                    const authData = await authRes.json();
+                    if (authData.logged_in) {
+                        currentUserEmail = (authData.email || '').toLowerCase();
+                        const nameEl = document.getElementById('user-name');
+                        const emailEl = document.getElementById('user-email');
+                        const avatarEl = document.getElementById('avatar-initial');
+                        if (nameEl) nameEl.textContent = authData.name;
+                        if (emailEl) emailEl.textContent = authData.email;
+                        if (avatarEl) avatarEl.textContent = (authData.name || 'U').charAt(0).toUpperCase();
                     } else {
-                        showNoData();
+                        const cookies = document.cookie || '';
+                        if (!cookies.includes('session_id=') && !cookies.includes('em_session_data=')) {
+                            window.location.replace('/login');
+                            return;
+                        }
                     }
-                } else {
-                    showNoData();
                 }
             } catch (err) {
-                console.error(err);
-                showNoData();
+                console.warn('Network issue fetching auth status in dashboard_pesanan:', err);
+            }
+
+            try {
+                // Read local cached orders
+                let localOrders = [];
+                try {
+                    localOrders = JSON.parse(localStorage.getItem('easymall_orders') || '[]');
+                } catch (e) {}
+
+                const dataRes = await fetch(`${API_BASE_URL}/api/dashboard/data`, { credentials: 'include' });
+                let serverOrders = [];
+                if (dataRes.ok) {
+                    const res = await dataRes.json();
+                    if (res.success && Array.isArray(res.transactions)) {
+                        serverOrders = res.transactions;
+                    }
+                }
+
+                // Merge server and local orders, prioritizing latest status and deduplicating by transaction_id
+                const orderMap = new Map();
+                // Add local orders first
+                localOrders.forEach(o => {
+                    if (o && o.transaction_id) {
+                        orderMap.set(o.transaction_id, o);
+                    }
+                });
+                // Overwrite / merge with server orders
+                serverOrders.forEach(o => {
+                    if (o && o.transaction_id) {
+                        const existing = orderMap.get(o.transaction_id) || {};
+                        orderMap.set(o.transaction_id, { ...existing, ...o });
+                    }
+                });
+
+                ordersData = Array.from(orderMap.values());
+                
+                // Sort newest first
+                ordersData.sort((a, b) => {
+                    const dateA = new Date(a.created_at || 0).getTime();
+                    const dateB = new Date(b.created_at || 0).getTime();
+                    return dateB - dateA;
+                });
+
+                renderOrders(ordersData);
+            } catch (err) {
+                console.error('Error fetching dashboard orders:', err);
+                // Fallback to local orders
+                try {
+                    ordersData = JSON.parse(localStorage.getItem('easymall_orders') || '[]');
+                    renderOrders(ordersData);
+                } catch (e) {
+                    showNoData();
+                }
             }
         }
 

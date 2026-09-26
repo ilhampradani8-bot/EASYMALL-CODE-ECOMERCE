@@ -2,14 +2,19 @@ import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ cookies }) => {
+export const GET: APIRoute = async ({ request, cookies }) => {
   const sessionCookie = cookies.get('session_id');
   const tokenCookie = cookies.get('em_session_data');
+  const authHeader = request.headers.get('authorization') || request.headers.get('x-session-token');
+  const headerToken = authHeader ? authHeader.replace(/^Bearer\s+/i, '').trim() : '';
 
-  if ((sessionCookie && sessionCookie.value) || (tokenCookie && tokenCookie.value)) {
+  const sessId = sessionCookie ? sessionCookie.value : (headerToken.startsWith('sess_') ? headerToken : '');
+  const tokVal = tokenCookie ? tokenCookie.value : (!headerToken.startsWith('sess_') ? headerToken : '');
+
+  if (sessId || tokVal) {
     try {
       const { getSession } = await import('../../../lib/db');
-      const session = await getSession(sessionCookie ? sessionCookie.value : '', tokenCookie ? tokenCookie.value : '');
+      const session = await getSession(sessId, tokVal);
 
       if (session && session.email) {
         return new Response(JSON.stringify({
@@ -21,7 +26,7 @@ export const GET: APIRoute = async ({ cookies }) => {
           status: 200,
           headers: {
             'Content-Type': 'application/json',
-            'Cache-Control': 'no-store, no-cache, must-revalidate'
+            'Cache-Control': 'private, no-cache, no-store, must-revalidate'
           }
         });
       }
@@ -39,8 +44,9 @@ export const GET: APIRoute = async ({ cookies }) => {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'no-store, no-cache, must-revalidate'
+      'Cache-Control': 'private, no-cache, no-store, must-revalidate'
     }
   });
 };
+
 
