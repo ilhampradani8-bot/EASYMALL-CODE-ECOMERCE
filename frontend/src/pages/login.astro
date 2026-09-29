@@ -4,8 +4,6 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
 
 export const prerender = false;
 
-const isDev = true; // Always enable helpful login assists for seamless user & demo access
-
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData().catch(() => null);
   const inputEmail = formData ? (formData.get('username') || formData.get('email') || '').toString().trim() : '';
@@ -448,15 +446,9 @@ if (Astro.request.method === 'POST') {
 
                             <button type="submit" class="btn-submit" id="btnSubmitForm">Masuk</button>
                             
-                            <div class="divider">ATAU PILIH DEMO CEPAT</div>
+                            <div class="divider">ATAU MASUK DENGAN GOOGLE</div>
 
                             <div class="social-buttons-grid">
-                                <!-- Mode Dev Quick Login Row -->
-                                <div class="dev-buttons-row">
-                                    <button type="button" class="btn-dev" onclick="loginAsDevUser()">⚡ Demo User</button>
-                                    <button type="button" class="btn-dev reseller" onclick="loginAsDevReseller()">⚡ Demo Reseller</button>
-                                </div>
-
                                 <!-- Google Auth Button Container -->
                                 <div id="googleBtn" style="width: 100%; height: 44px; display: flex; justify-content: center; overflow: hidden; margin-top: 0.25rem;"></div>
                             </div>
@@ -466,8 +458,8 @@ if (Astro.request.method === 'POST') {
                     <!-- Register Pane -->
                     <div id="registerPane" style="display: none;">
                         <div class="register-info-box">
-                            <h3>Registrasi Instan</h3>
-                            <p style="margin-bottom: 1rem;">Anda dapat langsung masuk dengan memasukkan email dan password apa saja pada tab <strong>Masuk</strong>, atau menggunakan tombol <strong>Demo Cepat</strong> di atas.</p>
+                            <h3>Registrasi Pengguna Baru</h3>
+                            <p style="margin-bottom: 1rem;">Anda dapat langsung masuk dengan memasukkan email dan password pilihan Anda pada tab <strong>Masuk</strong>, atau menggunakan <strong>Google Sign-In</strong>.</p>
                             <p style="font-weight: 600; color: var(--login-primary); margin-bottom: 1.5rem;">Sistem akan secara otomatis membuat dan mengamankan akun profil Anda.</p>
                             <button type="button" class="btn-submit" onclick="switchTab('login')">Kembali ke Masuk</button>
                         </div>
@@ -564,18 +556,6 @@ if (Astro.request.method === 'POST') {
             form.appendChild(input);
             document.body.appendChild(form);
             form.submit();
-        }
-
-        function loginAsDevUser() {
-            document.getElementById('username').value = 'user@easymall.me';
-            document.getElementById('password').value = 'user1234';
-            document.getElementById('loginForm').submit();
-        }
-
-        function loginAsDevReseller() {
-            document.getElementById('username').value = 'reseller@easymall.me';
-            document.getElementById('password').value = 'reseller1234';
-            document.getElementById('loginForm').submit();
         }
     </script>
 </PenggabungUtama>

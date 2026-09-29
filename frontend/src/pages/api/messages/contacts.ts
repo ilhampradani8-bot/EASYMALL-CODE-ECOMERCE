@@ -9,9 +9,13 @@ export const GET: APIRoute = async () => {
       {
         email: 'admin@easymall.me',
         name: 'Customer Support EasyMall',
-        avatar: '/favicon.svg',
+        contact_email: 'admin@easymall.me',
+        contact_name: 'Customer Support EasyMall',
+        avatar: '/gambar/logo/easymall-logo.png',
+        contact_avatar: '/gambar/logo/easymall-logo.png',
         unread_count: 0,
-        last_message: 'Halo! Ada yang bisa kami bantu?',
+        last_message: 'Halo! Ada yang bisa kami bantu seputar transaksi EasyMall?',
+        last_message_time: 'Baru saja',
         last_time: 'Baru saja'
       }
     ]
@@ -20,3 +24,4 @@ export const GET: APIRoute = async () => {
     headers: { 'Content-Type': 'application/json' }
   });
 };
+

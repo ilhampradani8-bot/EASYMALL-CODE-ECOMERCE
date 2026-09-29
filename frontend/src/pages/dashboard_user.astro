@@ -261,11 +261,14 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         async function fetchUserData() {
+            const localToken = localStorage.getItem('em_session_data') || localStorage.getItem('session_id') || '';
+            const authHeaders = localToken ? { 'Authorization': `Bearer ${localToken}` } : {};
+
             try {
                 // Fetch profile
                 const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, {
                     credentials: 'include',
-                    headers: { 'Cache-Control': 'no-cache' }
+                    headers: { 'Cache-Control': 'no-cache', ...authHeaders }
                 });
                 
                 if (authRes.ok) {
@@ -278,16 +281,51 @@ import BottomNav from '../components/BottomNav.astro';
                         if (nameEl) nameEl.textContent = authData.name;
                         if (emailEl) emailEl.textContent = authData.email;
                         if (avatarEl) avatarEl.textContent = (authData.name || 'U').charAt(0).toUpperCase();
+
+                        try {
+                            localStorage.setItem('em_user_session', JSON.stringify({ email: authData.email, name: authData.name }));
+                        } catch(e){}
                     } else {
-                        const cookies = document.cookie || '';
-                        if (!cookies.includes('session_id=') && !cookies.includes('em_session_data=')) {
-                            window.location.replace('/login');
-                            return;
+                        const cached = localStorage.getItem('em_user_session');
+                        if (cached) {
+                            try {
+                                const parsed = JSON.parse(cached);
+                                if (parsed && parsed.email) {
+                                    userEmail = parsed.email;
+                                    const nameEl = document.getElementById('user-name');
+                                    const emailEl = document.getElementById('user-email');
+                                    const avatarEl = document.getElementById('avatar-initial');
+                                    if (nameEl) nameEl.textContent = parsed.name || parsed.email;
+                                    if (emailEl) emailEl.textContent = parsed.email;
+                                    if (avatarEl) avatarEl.textContent = (parsed.name || 'U').charAt(0).toUpperCase();
+                                }
+                            } catch(e){}
+                        } else {
+                            const cookies = document.cookie || '';
+                            if (!cookies.includes('session_id=') && !cookies.includes('em_session_data=') && !localToken) {
+                                window.location.replace('/login');
+                                return;
+                            }
                         }
                     }
                 }
             } catch (err) {
                 console.warn('Network issue fetching auth status in dashboard_user:', err);
+                const cached = localStorage.getItem('em_user_session');
+                if (cached) {
+                    try {
+                        const parsed = JSON.parse(cached);
+                        if (parsed && parsed.email) {
+                            userEmail = parsed.email;
+                            const nameEl = document.getElementById('user-name');
+                            const emailEl = document.getElementById('user-email');
+                            const avatarEl = document.getElementById('avatar-initial');
+                            if (nameEl) nameEl.textContent = parsed.name || parsed.email;
+                            if (emailEl) emailEl.textContent = parsed.email;
+                            if (avatarEl) avatarEl.textContent = (parsed.name || 'U').charAt(0).toUpperCase();
+                        }
+                    } catch(e){}
+                }
             }
 
             try {
@@ -297,7 +335,10 @@ import BottomNav from '../components/BottomNav.astro';
                     localOrders = JSON.parse(localStorage.getItem('easymall_orders') || '[]');
                 } catch (e) {}
 
-                const dataRes = await fetch(`${API_BASE_URL}/api/dashboard/data`, { credentials: 'include' });
+                const dataRes = await fetch(`${API_BASE_URL}/api/dashboard/data`, { 
+                    credentials: 'include',
+                    headers: authHeaders
+                });
                 let serverOrders = [];
                 if (dataRes.ok) {
                     const res = await dataRes.json();
@@ -317,6 +358,10 @@ import BottomNav from '../components/BottomNav.astro';
                 });
 
                 transactionsData = Array.from(orderMap.values());
+                try {
+                    localStorage.setItem('easymall_orders', JSON.stringify(transactionsData));
+                } catch(e){}
+
                 renderDashboardStatsAndCharts(transactionsData);
             } catch (err) {
                 console.error('Error fetching dashboard data:', err);
@@ -470,6 +515,13 @@ import BottomNav from '../components/BottomNav.astro';
         async function performLogout() {
             try {
                 await fetch(`${API_BASE_URL}/logout`, { credentials: 'include' });
+            } catch(e){}
+            try {
+                localStorage.removeItem('em_session_data');
+                localStorage.removeItem('em_user_session');
+                localStorage.removeItem('session_id');
+                document.cookie = "session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                document.cookie = "em_session_data=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
             } catch(e){}
             window.location.href = '/login';
         }

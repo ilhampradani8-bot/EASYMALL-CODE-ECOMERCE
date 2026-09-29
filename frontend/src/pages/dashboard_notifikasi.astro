@@ -388,19 +388,25 @@ import BottomNav from '../components/BottomNav.astro';
         let activeFilter = 'all';
 
         async function fetchNotificationsPageData() {
+            const localToken = localStorage.getItem('em_session_data') || localStorage.getItem('session_id') || '';
+            const authHeaders = localToken ? { 'Authorization': `Bearer ${localToken}` } : {};
+
             try {
                 // 1. Check user login status
                 const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, {
                     credentials: 'include',
-                    headers: { 'Cache-Control': 'no-cache' }
+                    headers: { 'Cache-Control': 'no-cache', ...authHeaders }
                 });
                 if (authRes.ok) {
                     const authData = await authRes.json();
                     if (!authData.logged_in) {
-                        const cookies = document.cookie || '';
-                        if (!cookies.includes('session_id=') && !cookies.includes('em_session_data=')) {
-                            window.location.replace('/login');
-                            return;
+                        const cached = localStorage.getItem('em_user_session');
+                        if (!cached && !localToken) {
+                            const cookies = document.cookie || '';
+                            if (!cookies.includes('session_id=') && !cookies.includes('em_session_data=')) {
+                                window.location.replace('/login');
+                                return;
+                            }
                         }
                     }
                 }

@@ -83,11 +83,19 @@ export function decodeSessionPayload(token: string): { sessionId: string; email:
   }
 }
 
+let useLocalOnly = false;
+
 export function getDb(): Client {
+  if (useLocalOnly) return getLocalDb();
   if (primaryDbClient) return primaryDbClient;
 
-  const url = process.env.TURSO_DATABASE_URL || 'libsql://easymall-ilhampradani8-bot.aws-ap-south-1.turso.io';
-  const authToken = (process.env.TURSO_AUTH_TOKEN || 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJMcUVKWWJQbEVmR0dybjd1d0FDRDhRIiwib3JnX2lkIjoxMDAwMjQ4OTQ4fQ.BrWGudcY6W6a4maX5ZJ4A-uzgX7ILztDxqi7A38HGuUSozRDEgLD1NDP8DwyJVFu2XdweROXPQV4plQKNUkyBg').trim();
+  const url = process.env.TURSO_DATABASE_URL || '';
+  const authToken = (process.env.TURSO_AUTH_TOKEN || '').trim();
+
+  if (!url || !authToken) {
+    useLocalOnly = true;
+    return getLocalDb();
+  }
 
   try {
     primaryDbClient = createClient({
@@ -96,6 +104,7 @@ export function getDb(): Client {
     });
     return primaryDbClient;
   } catch (err) {
+    useLocalOnly = true;
     return getLocalDb();
   }
 }
@@ -156,11 +165,18 @@ function getLocalDb(): Client {
 }
 
 async function execQuery(stmt: { sql: string; args: any[] }) {
+  if (useLocalOnly) {
+    const local = getLocalDb();
+    initLocalDbSchema(local);
+    return await local.execute(stmt);
+  }
+
   const primary = getDb();
   try {
     return await primary.execute(stmt);
   } catch (err: any) {
-    // If Turso Cloud DB fails (e.g. 401 Unauthorized or network error), use local SQLite DB fallback
+    // If Turso Cloud DB fails (e.g. 401 Unauthorized), switch permanently to local SQLite
+    useLocalOnly = true;
     const local = getLocalDb();
     initLocalDbSchema(local);
     return await local.execute(stmt);
@@ -468,7 +484,7 @@ export async function getTransactions(userEmail?: string) {
 
   // 1. Add matching in-memory transactions
   memoryTransactions.forEach(t => {
-    if (!normEmail || !t.email || t.email === normEmail || t.email.includes(normEmail)) {
+    if (!normEmail || !t.email || t.email === normEmail || t.email.includes(normEmail) || normEmail.includes(t.email)) {
       txMap.set(t.transaction_id, { ...t });
     }
   });
@@ -478,13 +494,13 @@ export async function getTransactions(userEmail?: string) {
     let dbRows: any[] = [];
     if (normEmail) {
       const res = await execQuery({
-        sql: `SELECT * FROM transactions WHERE email = ? OR email IS NULL OR email = '' ORDER BY id DESC LIMIT 50`,
-        args: [normEmail]
+        sql: `SELECT * FROM transactions WHERE email = ? OR email IS NULL OR email = '' OR email = 'user@easymall.me' OR ? LIKE ('%' || email || '%') ORDER BY id DESC LIMIT 100`,
+        args: [normEmail, normEmail]
       });
       dbRows = (res && res.rows) ? (res.rows as any[]) : [];
     } else {
       const res = await execQuery({
-        sql: `SELECT * FROM transactions ORDER BY id DESC LIMIT 50`,
+        sql: `SELECT * FROM transactions ORDER BY id DESC LIMIT 100`,
         args: []
       });
       dbRows = (res && res.rows) ? (res.rows as any[]) : [];

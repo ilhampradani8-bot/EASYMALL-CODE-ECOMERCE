@@ -459,6 +459,13 @@
             try {
                 await fetch(`${API_BASE_URL}/logout`, { credentials: 'include' });
             } catch(e){}
+            try {
+                localStorage.removeItem('em_session_data');
+                localStorage.removeItem('em_user_session');
+                localStorage.removeItem('session_id');
+                document.cookie = "session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                document.cookie = "em_session_data=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            } catch(e){}
             window.location.href = '/login';
         };
 
@@ -634,13 +641,16 @@
                             listContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 1rem 0;">Belum ada pesan masuk</div>';
                         } else {
                             listContainer.innerHTML = contacts.map(c => {
-                                const unread = c.unread_count > 0 ? `<span style="background: #dc3545; color: #ffffff; font-size: 0.65rem; font-weight: 700; padding: 1px 5px; border-radius: 10px; margin-left: auto;">${c.unread_count}</span>` : '';
+                                const name = c.contact_name || c.name || 'Admin Support';
+                                const email = c.contact_email || c.email || 'admin@easymall.me';
+                                const lastMsg = c.last_message || 'Tidak ada pesan';
+                                const unread = (c.unread_count && c.unread_count > 0) ? `<span style="background: #dc3545; color: #ffffff; font-size: 0.65rem; font-weight: 700; padding: 1px 5px; border-radius: 10px; margin-left: auto;">${c.unread_count}</span>` : '';
                                 return `
-                                    <div onclick="window.location.href='/pesan?chat=${encodeURIComponent(c.contact_email)}'" style="display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #f1f3f5; padding-bottom: 6px; cursor: pointer; transition: background 0.1s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='transparent'">
-                                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #dee2e6; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0; color: #212529;">${c.contact_name.charAt(0).toUpperCase()}</div>
+                                    <div onclick="window.location.href='/pesan?chat=${encodeURIComponent(email)}'" style="display: flex; gap: 8px; align-items: center; border-bottom: 1px solid #f1f3f5; padding-bottom: 6px; cursor: pointer; transition: background 0.1s;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='transparent'">
+                                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #dee2e6; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0; color: #212529;">${(name.charAt(0) || 'A').toUpperCase()}</div>
                                         <div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column;">
-                                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.contact_name}</span>
-                                            <span style="font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${c.last_message || ''}</span>
+                                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</span>
+                                            <span style="font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${lastMsg}</span>
                                         </div>
                                         ${unread}
                                     </div>
@@ -702,18 +712,33 @@
             }
         }
 
-        // Global check at page load
-        fetch(`${API_BASE_URL}/api/auth/status`, { credentials: 'include' })
+        // Global check at page load with token fallback
+        const localToken = localStorage.getItem('em_session_data') || localStorage.getItem('session_id') || '';
+        const authHeaders = localToken ? { 'Authorization': `Bearer ${localToken}` } : {};
+
+        fetch(`${API_BASE_URL}/api/auth/status`, { 
+            credentials: 'include',
+            headers: {
+                'Cache-Control': 'no-cache',
+                ...authHeaders
+            }
+        })
             .then(res => res.ok ? res.json() : null)
             .then(data => {
                 if (data && data.logged_in) {
                     transformToProfileText();
+                    try {
+                        localStorage.setItem('em_user_session', JSON.stringify({ email: data.email, name: data.name }));
+                    } catch(e){}
                     
                     // Fetch cart and unread messages counts for initial badges
                     fetchCartDropdownItems();
                     
                     // Fetch message unread count
-                    fetch(`${API_BASE_URL}/api/messages/unread-count`, { credentials: 'include' })
+                    fetch(`${API_BASE_URL}/api/messages/unread-count`, { 
+                        credentials: 'include',
+                        headers: authHeaders
+                    })
                         .then(r => r.ok ? r.json() : null)
                         .then(countData => {
                             if (countData && countData.unread_count > 0) {
@@ -726,6 +751,17 @@
                         }).catch(e => console.error(e));
 
                 } else {
+                    // Check if local user was cached
+                    const cached = localStorage.getItem('em_user_session');
+                    if (cached) {
+                        try {
+                            const parsed = JSON.parse(cached);
+                            if (parsed && parsed.email) {
+                                transformToProfileText();
+                                return;
+                            }
+                        } catch(e){}
+                    }
                     loginBtn.textContent = 'Login';
                     loginBtn.onclick = (e) => {
                         e.preventDefault();
@@ -733,6 +769,17 @@
                     };
                 }
             })
-            .catch(err => console.error("Header Auth Check Error:", err));
+            .catch(err => {
+                console.error("Header Auth Check Error:", err);
+                const cached = localStorage.getItem('em_user_session');
+                if (cached) {
+                    try {
+                        const parsed = JSON.parse(cached);
+                        if (parsed && parsed.email) {
+                            transformToProfileText();
+                        }
+                    } catch(e){}
+                }
+            });
     })();
 </script>
