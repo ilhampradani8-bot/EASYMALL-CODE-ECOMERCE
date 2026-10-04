@@ -1,45 +1,59 @@
 ---
-// FloatingChat.astro - Floating Capsule Chat Widget
+// FloatingChat.astro - In-Page Live Chat Popup (No Login / No Redirect Required)
 ---
 <div class="floating-chat-widget">
-    <!-- Chat Toggle Capsule -->
+    <!-- Chat Toggle Capsule Button -->
     <button type="button" id="btnFloatingChatToggle" class="chat-capsule-toggle" aria-label="Buka Chat Layanan">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" style="margin-top: 1px;">
             <path d="M16 8c0 3.866-3.582 7-8 7a8.841 8.841 0 0 1-2.223-.309C3.527 15.635 1.04 16 1.04 16s.761-2.85 1.96-5.125C1.866 9.878 1 8.978 1 8c0-3.866 3.582-7 8-7s8 3.134 8 7M5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0"/>
         </svg>
         <span>Chat CS</span>
         <span class="chat-online-dot"></span>
+        <span id="floating-unread-badge" class="floating-unread-badge" style="display: none;">0</span>
     </button>
 
-    <!-- Chat Dropdown Menu -->
-    <div id="floatingChatDropdown" class="chat-dropdown-menu">
-        <div class="chat-dropdown-header">
-            <h4>Pilih Layanan Chat</h4>
-            <p>Hubungi CS kami secara instan</p>
+    <!-- In-Page Live Chat Window -->
+    <div id="floatingChatWindow" class="floating-chat-window">
+        <!-- Chat Header -->
+        <div class="chat-window-header">
+            <div class="header-left">
+                <div class="cs-avatar">
+                    <img src="/gambar/logo/easymall-logo.png" alt="EasyMall CS" onerror="this.src='/favicon.ico'">
+                    <span class="online-indicator"></span>
+                </div>
+                <div class="cs-details">
+                    <h4>Customer Support EasyMall</h4>
+                    <span class="cs-status">● Terhubung ke Telegram CS</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <a href="https://t.me/pesanwebsitebubble_bot" target="_blank" rel="noopener noreferrer" class="hdr-btn telegram-btn" title="Buka di Telegram">
+                    <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.285.194.57.387.963.614.09.052.176.107.259.162.361.242.661.446.996.414.195-.019.396-.201.497-1.03l.635-4.8c.073-.61-.17-1.026-.648-1.026-.26 0-.533.12-.828.243z"/></svg>
+                </a>
+                <a href="https://wa.me/6288971071138" target="_blank" rel="noopener noreferrer" class="hdr-btn whatsapp-btn" title="Buka di WhatsApp">
+                    <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592z"/></svg>
+                </a>
+                <button type="button" id="btnCloseFloatingChat" class="hdr-btn close-btn" title="Tutup Chat">✕</button>
+            </div>
         </div>
-        <div class="chat-dropdown-options">
-            <a href="https://wa.me/6288971071138" target="_blank" class="chat-opt-item whatsapp-opt">
-                <div class="opt-icon-wrapper">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.69-4.98c-.202-.101-1.202-.594-1.387-.662-.185-.068-.32-.101-.453.1-.133.2-.516.652-.632.783-.117.132-.234.148-.436.047a5.07 5.07 0 0 0-.262-.228 6.53 6.53 0 0 0-1.462-.985 4.97 4.97 0 0 0-.316-.127c-.318-.118-.327-.113-.377-.072-.052.04-.251.277-.306.347-.05.068-.102.078-.184.038-.08-.04-1.202-.592-1.748-1.077-.478-.425-.79-.948-.885-1.112-.095-.164-.01-.254.062-.335.071-.08.185-.211.277-.316.09-.106.12-.177.18-.295.06-.118.03-.222-.015-.31-.045-.09-.413-.997-.566-1.364-.15-.357-.3-.309-.413-.315-.11-.004-.236-.004-.361-.004A1.36 1.36 0 0 0 2.2 5.002c-.366.39-.77.826-.77 1.722 0 1.652 1.2 3.25 1.364 3.47.165.223 2.354 3.597 5.698 5.05.797.346 1.42.553 1.905.708.803.256 1.535.219 2.11.134.64-.096 1.975-.807 2.252-1.587.278-.78.278-1.448.195-1.587-.083-.14-.305-.218-.507-.32"/>
-                    </svg>
-                </div>
-                <div class="opt-text">
-                    <strong>WhatsApp CS</strong>
-                    <span>Respon cepat 24 Jam</span>
-                </div>
-            </a>
-            <a href="https://t.me/ilhampradani" target="_blank" class="chat-opt-item live-opt">
-                <div class="opt-icon-wrapper">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.285.194.57.387.963.614.09.052.176.107.259.162.361.242.661.446.996.414.195-.019.396-.201.497-1.03l.635-4.8c.073-.61-.17-1.026-.648-1.026-.26 0-.533.12-.828.243z"/>
-                    </svg>
-                </div>
-                <div class="opt-text">
-                    <strong>Telegram Live</strong>
-                    <span>Live Chat Support</span>
-                </div>
-            </a>
+
+        <!-- Chat Body Messages -->
+        <div id="floatingChatBody" class="chat-window-body">
+            <div class="chat-welcome-box">
+                <div class="welcome-badge">⚡ Respon Cepat 24 Jam</div>
+                <p>Halo! Selamat datang di EasyMall. Ada yang bisa kami bantu? Silakan kirim pesan Anda di bawah ini.</p>
+            </div>
+            <div id="floatingChatMessagesList" class="chat-messages-container">
+                <!-- Messages will appear here -->
+            </div>
+        </div>
+
+        <!-- Chat Input Footer -->
+        <div class="chat-window-footer">
+            <input type="text" id="floatingChatInput" class="popup-chat-input" placeholder="Tulis pesan Anda di sini..." autocomplete="off">
+            <button type="button" id="btnFloatingSend" class="popup-send-btn" aria-label="Kirim">
+                <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm-1.05-1.12L1.587 6.185l11.554-4.622z"/></svg>
+            </button>
         </div>
     </div>
 </div>
@@ -49,8 +63,8 @@
         position: fixed;
         bottom: 24px;
         right: 24px;
-        z-index: 9998;
-        font-family: inherit;
+        z-index: 99999;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
     
     .chat-capsule-toggle {
@@ -75,7 +89,6 @@
         overflow: hidden;
     }
     
-    /* Metallic Shine Sweep Effect */
     .chat-capsule-toggle::before {
         content: '';
         position: absolute;
@@ -94,8 +107,7 @@
     
     .chat-capsule-toggle:hover {
         transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(148, 163, 184, 0.45), 
-                    inset 0 1.5px 0 rgba(255, 255, 255, 0.9);
+        box-shadow: 0 12px 30px rgba(148, 163, 184, 0.45);
         background-position: 100% 50%;
         border-color: #64748b;
     }
@@ -110,38 +122,47 @@
         animation: chat-pulse 2s infinite;
     }
     
+    .floating-unread-badge {
+        background: #ef4444;
+        color: #ffffff;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 10px;
+        margin-left: 2px;
+    }
+
     @keyframes chat-pulse {
-        0% {
-            box-shadow: 0 0 0 0px rgba(37, 211, 102, 0.5);
-        }
-        100% {
-            box-shadow: 0 0 0 6px rgba(37, 211, 102, 0);
-        }
+        0% { box-shadow: 0 0 0 0px rgba(37, 211, 102, 0.5); }
+        100% { box-shadow: 0 0 0 6px rgba(37, 211, 102, 0); }
     }
     
-    .chat-dropdown-menu {
+    /* In-Page Chat Window */
+    .floating-chat-window {
         position: absolute;
-        bottom: calc(100% + 12px);
+        bottom: calc(100% + 14px);
         right: 0;
-        width: 260px;
+        width: 350px;
+        height: 480px;
         background: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 12px;
-        box-shadow: 0 12px 32px rgba(148, 163, 184, 0.25);
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.25);
         display: none;
         flex-direction: column;
         overflow: hidden;
-        animation: chat-fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: chat-pop-up 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 100000;
     }
     
-    .chat-dropdown-menu.active {
+    .floating-chat-window.active {
         display: flex;
     }
     
-    @keyframes chat-fade-in {
+    @keyframes chat-pop-up {
         from {
             opacity: 0;
-            transform: translateY(10px) scale(0.95);
+            transform: translateY(15px) scale(0.96);
         }
         to {
             opacity: 1;
@@ -149,87 +170,239 @@
         }
     }
     
-    .chat-dropdown-header {
-        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-        padding: 1.1rem 1.25rem;
-        border-bottom: 1px solid #e2e8f0;
-    }
-    
-    .chat-dropdown-header h4 {
-        margin: 0 0 3px 0;
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: #1e293b;
-    }
-    
-    .chat-dropdown-header p {
-        margin: 0;
-        font-size: 0.75rem;
-        color: #64748b;
-    }
-    
-    .chat-dropdown-options {
-        display: flex;
-        flex-direction: column;
-        padding: 0.5rem;
-    }
-    
-    .chat-opt-item {
+    .chat-window-header {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        color: #ffffff;
+        padding: 12px 14px;
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 10px 12px;
-        border-radius: 8px;
-        text-decoration: none;
-        transition: all 0.25s ease;
+        justify-content: space-between;
     }
     
-    .chat-opt-item:hover {
-        background: #f1f5f9;
-        text-decoration: none;
-        transform: translateX(2px);
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
     }
     
-    .opt-icon-wrapper {
-        width: 32px;
-        height: 32px;
+    .cs-avatar {
+        position: relative;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
+        background: #3b82f6;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
     }
     
-    .whatsapp-opt .opt-icon-wrapper {
-        background-color: rgba(37, 211, 102, 0.1);
+    .cs-avatar img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+    }
+    
+    .online-indicator {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        background: #10b981;
+        border: 2px solid #0f172a;
+        border-radius: 50%;
+    }
+    
+    .cs-details h4 {
+        margin: 0;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #f8fafc;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .cs-status {
+        font-size: 0.7rem;
+        color: #38bdf8;
+        font-weight: 500;
+        display: block;
+    }
+    
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .hdr-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #ffffff;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 0.8rem;
+        transition: background 0.15s;
+    }
+    
+    .hdr-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+    }
+    
+    .telegram-btn:hover {
+        color: #38bdf8;
+    }
+    
+    .whatsapp-btn:hover {
         color: #25d366;
     }
     
-    .live-opt .opt-icon-wrapper {
-        background-color: rgba(13, 110, 253, 0.1);
-        color: #0d6efd;
-    }
-    
-    .opt-text {
+    .chat-window-body {
+        flex-grow: 1;
+        background: #f8fafc;
+        padding: 12px;
+        overflow-y: auto;
         display: flex;
         flex-direction: column;
-        min-width: 0;
+        gap: 10px;
+        scroll-behavior: smooth;
     }
     
-    .opt-text strong {
-        font-size: 0.85rem;
+    .chat-welcome-box {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-size: 0.82rem;
+        color: #475569;
+        text-align: center;
+        margin-bottom: 6px;
+    }
+    
+    .welcome-badge {
+        display: inline-block;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-bottom: 4px;
+    }
+    
+    .chat-messages-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .popup-msg-wrapper {
+        display: flex;
+        flex-direction: column;
+        max-width: 82%;
+    }
+    
+    .popup-msg-wrapper.sent {
+        align-self: flex-end;
+        align-items: flex-end;
+    }
+    
+    .popup-msg-wrapper.received {
+        align-self: flex-start;
+        align-items: flex-start;
+    }
+    
+    .popup-msg-bubble {
+        padding: 8px 12px;
+        border-radius: 14px;
+        font-size: 0.84rem;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+    
+    .popup-msg-wrapper.sent .popup-msg-bubble {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #ffffff;
+        border-bottom-right-radius: 2px;
+    }
+    
+    .popup-msg-wrapper.received .popup-msg-bubble {
+        background: #ffffff;
         color: #1e293b;
-        font-weight: 600;
+        border: 1px solid #e2e8f0;
+        border-bottom-left-radius: 2px;
     }
     
-    .opt-text span {
-        font-size: 0.7rem;
-        color: #64748b;
+    .popup-msg-time {
+        font-size: 0.65rem;
+        color: #94a3b8;
+        margin-top: 2px;
+        padding: 0 4px;
     }
     
-    @media (max-width: 768px) {
+    .chat-window-footer {
+        padding: 10px 12px;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .popup-chat-input {
+        flex-grow: 1;
+        padding: 9px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        outline: none;
+        background: #f8fafc;
+        transition: all 0.2s;
+    }
+    
+    .popup-chat-input:focus {
+        background: #ffffff;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+    
+    .popup-send-btn {
+        background: #2563eb;
+        color: #ffffff;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s;
+        flex-shrink: 0;
+    }
+    
+    .popup-send-btn:hover {
+        background: #1d4ed8;
+    }
+    
+    @media (max-width: 480px) {
+        .floating-chat-window {
+            width: calc(100vw - 32px);
+            right: 0;
+            bottom: 70px;
+            height: 420px;
+        }
         .floating-chat-widget {
-            bottom: 86px;
+            bottom: 80px;
             right: 16px;
         }
     }
@@ -237,29 +410,156 @@
 
 <script is:inline>
     (function() {
-        function initFloatingChat() {
+        let guestSessionId = localStorage.getItem('em_guest_chat_email');
+        if (!guestSessionId) {
+            const randomCode = Math.floor(1000 + Math.random() * 9000);
+            guestSessionId = `tamu_${randomCode}@guest.easymall.me`;
+            localStorage.setItem('em_guest_chat_email', guestSessionId);
+            localStorage.setItem('em_guest_chat_name', `Pengunjung Web #${randomCode}`);
+        }
+
+        let isWindowOpen = false;
+        let chatPollingInterval = null;
+
+        function initFloatingInPageChat() {
             const toggleBtn = document.getElementById('btnFloatingChatToggle');
-            const dropdown = document.getElementById('floatingChatDropdown');
-            if (!toggleBtn || !dropdown) return;
-            
+            const chatWindow = document.getElementById('floatingChatWindow');
+            const closeBtn = document.getElementById('btnCloseFloatingChat');
+            const sendBtn = document.getElementById('btnFloatingSend');
+            const input = document.getElementById('floatingChatInput');
+
+            if (!toggleBtn || !chatWindow) return;
+
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                dropdown.classList.toggle('active');
-            });
-            
-            document.addEventListener('click', (e) => {
-                if (!dropdown.contains(e.target) && e.target !== toggleBtn) {
-                    dropdown.classList.remove('active');
+                isWindowOpen = !isWindowOpen;
+                if (isWindowOpen) {
+                    chatWindow.classList.add('active');
+                    loadPopupMessages(true);
+                    startPolling();
+                    setTimeout(() => input && input.focus(), 150);
+                } else {
+                    chatWindow.classList.remove('active');
+                    stopPolling();
                 }
             });
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    isWindowOpen = false;
+                    chatWindow.classList.remove('active');
+                    stopPolling();
+                });
+            }
+
+            if (sendBtn) {
+                sendBtn.addEventListener('click', sendPopupMessage);
+            }
+
+            if (input) {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        sendPopupMessage();
+                    }
+                });
+            }
         }
-        
+
+        function startPolling() {
+            if (chatPollingInterval) clearInterval(chatPollingInterval);
+            chatPollingInterval = setInterval(() => {
+                loadPopupMessages(false);
+            }, 2500);
+        }
+
+        function stopPolling() {
+            if (chatPollingInterval) {
+                clearInterval(chatPollingInterval);
+                chatPollingInterval = null;
+            }
+        }
+
+        async function loadPopupMessages(shouldScroll = false) {
+            const guestEmail = localStorage.getItem('em_guest_chat_email') || 'tamu@guest.easymall.me';
+            try {
+                const res = await fetch(`/api/messages/chat?with_email=admin@easymall.me&guest_email=${encodeURIComponent(guestEmail)}`, {
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.messages) {
+                        renderPopupMessages(data.messages, shouldScroll);
+                    }
+                }
+            } catch (err) {}
+        }
+
+        function renderPopupMessages(messages, shouldScroll) {
+            const listEl = document.getElementById('floatingChatMessagesList');
+            const chatBody = document.getElementById('floatingChatBody');
+            if (!listEl) return;
+
+            const guestEmail = localStorage.getItem('em_guest_chat_email') || '';
+
+            listEl.innerHTML = messages.map(m => {
+                const isSent = (m.sender_email === guestEmail) || (m.sender === guestEmail);
+                const alignClass = isSent ? 'sent' : 'received';
+                const timeStr = m.created_at ? new Date(m.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '';
+
+                return `
+                    <div class="popup-msg-wrapper ${alignClass}">
+                        <div class="popup-msg-bubble">${escapeHtml(m.message)}</div>
+                        <span class="popup-msg-time">${timeStr}</span>
+                    </div>
+                `;
+            }).join('');
+
+            if (shouldScroll && chatBody) {
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+        }
+
+        async function sendPopupMessage() {
+            const input = document.getElementById('floatingChatInput');
+            const chatBody = document.getElementById('floatingChatBody');
+            if (!input || !input.value.trim()) return;
+
+            const text = input.value.trim();
+            input.value = '';
+
+            const guestEmail = localStorage.getItem('em_guest_chat_email') || `tamu_${Math.floor(Math.random()*9000)}@guest.easymall.me`;
+            const guestName = localStorage.getItem('em_guest_chat_name') || 'Pengunjung Web';
+
+            try {
+                const res = await fetch('/api/messages/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        receiver_email: 'admin@easymall.me',
+                        sender_email: guestEmail,
+                        sender_name: guestName,
+                        message: text
+                    }),
+                    credentials: 'include'
+                });
+
+                if (res.ok) {
+                    await loadPopupMessages(true);
+                }
+            } catch (e) {}
+        }
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initFloatingChat);
+            document.addEventListener('DOMContentLoaded', initFloatingInPageChat);
         } else {
-            initFloatingChat();
+            initFloatingInPageChat();
         }
-        
-        document.addEventListener('astro:page-load', initFloatingChat);
+        document.addEventListener('astro:page-load', initFloatingInPageChat);
     })();
 </script>

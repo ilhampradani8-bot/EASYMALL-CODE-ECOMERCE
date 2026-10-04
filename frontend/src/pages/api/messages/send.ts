@@ -16,7 +16,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   }
 
   const user = getUserFromRequest(request, cookies);
-  const newMsg = await sendMessage(user.email, receiverEmail, messageText);
+  let senderEmail = user.email;
+  let senderName = user.name;
+
+  if (body.sender_email && (body.sender_email.includes('@') || body.sender_email.startsWith('guest_'))) {
+    senderEmail = body.sender_email.toLowerCase().trim();
+    if (body.sender_name) senderName = String(body.sender_name).trim();
+  }
+
+  const newMsg = await sendMessage(senderEmail, receiverEmail, messageText, senderName);
 
   return new Response(JSON.stringify({
     success: true,

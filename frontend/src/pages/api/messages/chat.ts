@@ -6,13 +6,16 @@ export const prerender = false;
 export const GET: APIRoute = async ({ request, cookies }) => {
   const url = new URL(request.url);
   const targetEmail = url.searchParams.get('with_email') || url.searchParams.get('with') || 'admin@easymall.me';
-  
+  const guestEmail = url.searchParams.get('guest_email');
+
   const user = getUserFromRequest(request, cookies);
-  const messages = await getChatHistory(user.email, targetEmail);
+  const currentEmail = (guestEmail && guestEmail.includes('@')) ? guestEmail.toLowerCase().trim() : user.email;
+  
+  const messages = await getChatHistory(currentEmail, targetEmail);
 
   return new Response(JSON.stringify({
     success: true,
-    user_email: user.email,
+    user_email: currentEmail,
     target_email: targetEmail,
     messages: messages.map(m => ({
       ...m,

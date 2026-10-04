@@ -93,14 +93,14 @@ export async function notifyTelegram(senderEmail: string, senderName: string, me
 }
 
 // Add new message
-export async function sendMessage(senderEmail: string, receiverEmail: string, messageText: string): Promise<MessageItem> {
+export async function sendMessage(senderEmail: string, receiverEmail: string, messageText: string, customSenderName?: string): Promise<MessageItem> {
   const senderNorm = senderEmail.toLowerCase().trim();
   const receiverNorm = receiverEmail.toLowerCase().trim();
   
   const newMessage: MessageItem = {
     id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     sender_email: senderNorm,
-    sender_name: getNameForEmail(senderNorm),
+    sender_name: customSenderName || getNameForEmail(senderNorm),
     receiver_email: receiverNorm,
     receiver_name: getNameForEmail(receiverNorm),
     message: messageText.trim(),
@@ -110,7 +110,7 @@ export async function sendMessage(senderEmail: string, receiverEmail: string, me
 
   memoryMessages.push(newMessage);
 
-  // Trigger Telegram notification if sent to admin or from a regular user
+  // Trigger Telegram notification if sent to admin or from a regular user/guest
   if (senderNorm !== 'admin@easymall.me') {
     notifyTelegram(senderNorm, newMessage.sender_name || senderNorm, newMessage.message).catch(() => {});
   }

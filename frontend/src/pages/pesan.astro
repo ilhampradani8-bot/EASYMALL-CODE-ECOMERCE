@@ -1,5 +1,5 @@
 ---
-// pesan.astro - EasyMall Real-Time Messenger
+// pesan.astro - Dashboard Pusat Pesan & Live Support
 import UserNavbar from '../components/dashboard/UserNavbar.astro';
 import UserSidebar from '../components/dashboard/UserSidebar.astro';
 import BottomNav from '../components/BottomNav.astro';
@@ -11,42 +11,42 @@ import BottomNav from '../components/BottomNav.astro';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesan & Diskusi | EasyMall</title>
+    
+    <!-- Favicon & App Icons -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-color: #f3f4f6;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --primary-light: #eff6ff;
-            --accent-green: #10b981;
-            --radius-lg: 14px;
-            --radius-md: 10px;
-            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --primary: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --primary-light: #e7f1ff;
+            --radius: 8px;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: var(--font-sans);
         }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-main);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             line-height: 1.5;
         }
 
+        /* Container Layout matching dashboard_user.astro */
         .container {
-            max-width: 1250px;
+            max-width: 1140px;
             width: 100%;
             margin: 1.5rem auto;
             padding: 0 1rem;
@@ -63,64 +63,63 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         .content-area {
-            display: grid;
-            grid-template-columns: 340px 1fr;
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            height: calc(100vh - 180px);
-            min-height: 580px;
-        }
-
-        /* Contacts Panel */
-        .contacts-sidebar {
-            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            background: #f8fafc;
+            min-width: 0;
         }
 
-        .contacts-header-box {
-            padding: 1.2rem 1.25rem 0.8rem 1.25rem;
+        /* Chat Master Card */
+        .chat-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            overflow: hidden;
+            height: calc(100vh - 160px);
+            min-height: 560px;
+        }
+
+        /* Left Contacts Panel */
+        .contacts-panel {
+            border-right: 1px solid var(--border-color);
+            background: #fdfdfd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .contacts-header {
+            padding: 1rem;
             border-bottom: 1px solid var(--border-color);
             background: #ffffff;
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 8px;
         }
 
-        .contacts-title-row {
+        .contacts-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .contacts-title {
-            font-weight: 700;
-            font-size: 1.15rem;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .contacts-search-input {
+        .search-box {
             width: 100%;
-            padding: 8px 12px;
+            padding: 7px 10px;
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
+            border-radius: 6px;
             font-size: 0.85rem;
-            background: #f1f5f9;
             outline: none;
-            transition: all 0.2s;
+            background: #f8f9fa;
         }
 
-        .contacts-search-input:focus {
+        .search-box:focus {
             background: #ffffff;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .contacts-list {
@@ -133,52 +132,35 @@ import BottomNav from '../components/BottomNav.astro';
         .contact-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 14px 16px;
-            border-bottom: 1px solid #f1f5f9;
+            gap: 10px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f3f5;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: background 0.15s ease;
             background: #ffffff;
-            position: relative;
         }
 
         .contact-item:hover {
-            background: #f1f5f9;
+            background: #f8f9fa;
         }
 
         .contact-item.active {
             background: var(--primary-light);
-            border-left: 4px solid var(--primary);
-        }
-
-        .avatar-container {
-            position: relative;
-            flex-shrink: 0;
+            border-left: 3px solid var(--primary);
         }
 
         .contact-avatar {
-            width: 44px;
-            height: 44px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            background: #0d6efd;
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.1rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .online-dot {
-            position: absolute;
-            bottom: 1px;
-            right: 1px;
-            width: 11px;
-            height: 11px;
-            background-color: var(--accent-green);
-            border: 2px solid #ffffff;
-            border-radius: 50%;
+            font-size: 0.95rem;
+            flex-shrink: 0;
         }
 
         .contact-info {
@@ -186,37 +168,36 @@ import BottomNav from '../components/BottomNav.astro';
             min-width: 0;
         }
 
-        .contact-name-row {
+        .contact-row-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .contact-name {
             font-weight: 700;
-            font-size: 0.92rem;
-            color: var(--text-main);
+            font-size: 0.88rem;
+            color: var(--text-color);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .contact-time {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
-            font-weight: 500;
         }
 
-        .contact-lastmsg-row {
+        .contact-row-bottom {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .contact-lastmsg {
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             color: var(--text-muted);
             white-space: nowrap;
             overflow: hidden;
@@ -225,229 +206,183 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         .unread-badge {
-            background: #ef4444;
+            background: #dc3545;
             color: #ffffff;
-            font-size: 0.72rem;
+            font-size: 0.68rem;
             font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 12px;
-            min-width: 18px;
-            text-align: center;
+            padding: 1px 6px;
+            border-radius: 10px;
         }
 
-        /* Main Chat Canvas */
-        .chat-main {
+        /* Right Chat Conversation */
+        .chat-conversation {
             display: flex;
             flex-direction: column;
             background: #ffffff;
             height: 100%;
         }
 
-        .chat-header {
-            padding: 12px 20px;
+        .chat-top-header {
+            padding: 10px 16px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: #ffffff;
-            z-index: 10;
         }
 
-        .chat-header-user {
+        .chat-user-profile {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .chat-header-name {
+        .chat-user-name {
             font-weight: 700;
-            font-size: 1.05rem;
-            color: var(--text-main);
+            font-size: 0.95rem;
+            color: var(--text-color);
         }
 
-        .chat-header-status {
-            font-size: 0.78rem;
-            color: var(--accent-green);
+        .chat-user-status {
+            font-size: 0.75rem;
+            color: #198754;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
 
-        .chat-body {
+        .chat-messages-body {
             flex-grow: 1;
-            padding: 1.5rem;
+            padding: 1.25rem;
             overflow-y: auto;
-            background: #f8fafc;
+            background: #f8f9fa;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 10px;
             scroll-behavior: smooth;
         }
 
-        .msg-bubble-wrapper {
+        .msg-bubble-box {
             display: flex;
             flex-direction: column;
-            max-width: 72%;
+            max-width: 70%;
         }
 
-        .msg-bubble-wrapper.sent {
+        .msg-bubble-box.sent {
             align-self: flex-end;
             align-items: flex-end;
         }
 
-        .msg-bubble-wrapper.received {
+        .msg-bubble-box.received {
             align-self: flex-start;
             align-items: flex-start;
         }
 
-        .msg-sender-label {
-            font-size: 0.72rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 3px;
-            padding: 0 4px;
-        }
-
-        .msg-bubble {
-            padding: 11px 16px;
-            border-radius: 18px;
-            font-size: 0.92rem;
-            line-height: 1.45;
+        .msg-bubble-content {
+            padding: 9px 14px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            line-height: 1.4;
             word-break: break-word;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .msg-bubble-wrapper.sent .msg-bubble {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        .msg-bubble-box.sent .msg-bubble-content {
+            background: #0d6efd;
             color: #ffffff;
-            border-bottom-right-radius: 3px;
+            border-bottom-right-radius: 2px;
         }
 
-        .msg-bubble-wrapper.received .msg-bubble {
+        .msg-bubble-box.received .msg-bubble-content {
             background: #ffffff;
-            color: var(--text-main);
-            border-bottom-left-radius: 3px;
+            color: var(--text-color);
             border: 1px solid var(--border-color);
+            border-bottom-left-radius: 2px;
         }
 
-        .msg-meta {
-            font-size: 0.7rem;
-            color: #94a3b8;
-            margin-top: 4px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+        .msg-meta-info {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin-top: 3px;
             padding: 0 4px;
         }
 
-        .chat-footer {
-            padding: 1rem 1.25rem;
+        .chat-input-bar {
+            padding: 10px 14px;
             border-top: 1px solid var(--border-color);
             background: #ffffff;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
 
-        .chat-input {
+        .chat-input-field {
             flex-grow: 1;
-            padding: 12px 16px;
+            padding: 9px 12px;
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            font-size: 0.92rem;
+            border-radius: 6px;
+            font-size: 0.88rem;
             outline: none;
-            background: #f8fafc;
-            transition: all 0.2s ease;
         }
 
-        .chat-input:focus {
-            background: #ffffff;
+        .chat-input-field:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
-        .btn-send {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        .btn-send-msg {
+            background: #0d6efd;
             color: #ffffff;
             border: none;
-            padding: 12px 22px;
-            border-radius: var(--radius-md);
+            padding: 9px 18px;
+            border-radius: 6px;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             cursor: pointer;
-            transition: all 0.15s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            transition: background 0.15s;
         }
 
-        .btn-send:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+        .btn-send-msg:hover {
+            background: #0b5ed7;
         }
 
-        .btn-send:disabled {
-            background: #cbd5e1;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .no-chat-selected {
+        .no-chat-screen {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             flex-grow: 1;
             color: var(--text-muted);
-            gap: 14px;
-            background: #f8fafc;
-            text-align: center;
+            gap: 10px;
+            background: #f8f9fa;
             padding: 2rem;
+            text-align: center;
         }
 
-        .no-chat-icon {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: var(--primary-light);
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem;
-        }
-
-        .back-btn-mobile {
+        .back-mobile-btn {
             display: none;
             background: none;
             border: none;
             font-size: 1.2rem;
             cursor: pointer;
-            padding: 4px 8px;
-            color: var(--text-main);
+            padding: 2px 6px;
+            color: var(--text-color);
         }
 
-        @media (max-width: 850px) {
+        @media (max-width: 768px) {
             .container {
                 grid-template-columns: 1fr;
             }
             .sidebar-col {
                 display: none;
             }
-            .content-area {
+            .chat-card {
                 grid-template-columns: 1fr;
                 height: calc(100vh - 120px);
             }
-            .chat-main.mobile-hidden {
+            .contacts-panel.mobile-hidden {
                 display: none;
             }
-            .contacts-sidebar.mobile-hidden {
+            .chat-conversation.mobile-hidden {
                 display: none;
             }
-            .back-btn-mobile {
+            .back-mobile-btn {
                 display: block;
             }
         }
@@ -462,41 +397,34 @@ import BottomNav from '../components/BottomNav.astro';
         </div>
 
         <div class="content-area">
-            <!-- Contacts Sidebar -->
-            <div class="contacts-sidebar" id="contactsSidebar">
-                <div class="contacts-header-box">
-                    <div class="contacts-title-row">
+            <div class="chat-card">
+                <!-- Contacts Panel -->
+                <div class="contacts-panel" id="contactsPanel">
+                    <div class="contacts-header">
                         <div class="contacts-title">
-                            <span>💬</span> Chat & Diskusi
+                            <span>💬 Pesan Masuk</span>
+                            <span id="unreadTotalBadge" class="unread-badge" style="display: none;">0</span>
                         </div>
-                        <span id="unreadTotalBadge" class="unread-badge" style="display: none;">0</span>
+                        <input type="text" id="searchContactInput" class="search-box" placeholder="Cari kontak..." oninput="filterContacts()">
                     </div>
-                    <input type="text" id="searchContactInput" class="contacts-search-input" placeholder="Cari percakapan..." oninput="filterContacts()">
-                </div>
-                <div class="contacts-list" id="contactsList">
-                    <div style="padding: 2.5rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
-                        Memuat daftar percakapan...
+                    <div class="contacts-list" id="contactsList">
+                        <div style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Memuat percakapan...</div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Chat Main Window -->
-            <div class="chat-main" id="chatMain">
-                <div class="no-chat-selected">
-                    <div class="no-chat-icon">💬</div>
-                    <h3 style="color: var(--text-main); font-weight: 700;">Pusat Pesan EasyMall</h3>
-                    <p style="font-size: 0.88rem; max-width: 320px;">Pilih salah satu kontak di sebelah kiri untuk berkirim pesan secara otomatis dan aman.</p>
+                <!-- Chat Main Window -->
+                <div class="chat-conversation" id="chatMain">
+                    <div class="no-chat-screen">
+                        <div style="font-size: 2.5rem;">💬</div>
+                        <h4 style="color: var(--text-color);">Pusat Pesan EasyMall</h4>
+                        <p style="font-size: 0.85rem;">Pilih salah satu kontak di sebelah kiri untuk berkirim pesan secara instan.</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script is:inline>
-        let API_BASE_URL = '';
-        if (window.location.port !== '5002' && window.location.protocol !== 'file:') {
-            API_BASE_URL = '';
-        }
-
         let activeContactEmail = null;
         let messagesList = [];
         let rawContactsList = [];
@@ -505,8 +433,7 @@ import BottomNav from '../components/BottomNav.astro';
 
         async function initChatSystem() {
             try {
-                // Fetch logged-in user email
-                const authRes = await fetch(`${API_BASE_URL}/api/auth/status`, {
+                const authRes = await fetch('/api/auth/status', {
                     credentials: 'include',
                     headers: { 'Cache-Control': 'no-cache' }
                 });
@@ -516,39 +443,18 @@ import BottomNav from '../components/BottomNav.astro';
                         activeUserEmail = authData.email;
                     }
                 }
-            } catch (err) {
-                console.warn('Auth check fallback:', err);
-            }
+            } catch (err) {}
 
-            // Initial load of contacts
             await loadContactsList();
 
-            // Check URL query param e.g., ?chat=admin@easymall.me
             const params = new URLSearchParams(window.location.search);
             const chatParam = params.get('chat');
             if (chatParam) {
                 const target = chatParam.toLowerCase().trim();
                 activeContactEmail = target;
-                
-                // Add placeholder if contact not in list yet
-                const exists = rawContactsList.some(c => c.contact_email === target);
-                if (!exists) {
-                    const namePart = target.split('@')[0];
-                    const tempName = namePart.charAt(0).toUpperCase() + namePart.slice(1);
-                    rawContactsList.unshift({
-                        contact_email: target,
-                        contact_name: tempName,
-                        contact_avatar: target.includes('admin') ? '/gambar/logo/easymall-logo.png' : '',
-                        unread_count: 0,
-                        last_message: 'Mulai percakapan...',
-                        last_message_time: ''
-                    });
-                    renderContactsList();
-                }
                 await openChat(target);
             }
 
-            // Start polling every 2 seconds
             if (pollingInterval) clearInterval(pollingInterval);
             pollingInterval = setInterval(async () => {
                 await loadContactsList(false);
@@ -560,14 +466,13 @@ import BottomNav from '../components/BottomNav.astro';
 
         async function loadContactsList(shouldRender = true) {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/messages/contacts`, { credentials: 'include' });
+                const res = await fetch('/api/messages/contacts', { credentials: 'include' });
                 if (res.ok) {
                     const data = await res.json();
                     if (data.success) {
                         rawContactsList = data.contacts || [];
                         if (shouldRender) renderContactsList();
                         
-                        // Update total unread badge
                         const totalUnread = rawContactsList.reduce((acc, c) => acc + (c.unread_count || 0), 0);
                         const badgeEl = document.getElementById('unreadTotalBadge');
                         if (badgeEl) {
@@ -580,9 +485,7 @@ import BottomNav from '../components/BottomNav.astro';
                         }
                     }
                 }
-            } catch (err) {
-                console.error('Failed loading contacts:', err);
-            }
+            } catch (err) {}
         }
 
         function filterContacts() {
@@ -600,7 +503,7 @@ import BottomNav from '../components/BottomNav.astro';
             );
 
             if (filtered.length === 0) {
-                listEl.innerHTML = '<div style="padding: 2.5rem; text-align: center; color: var(--text-muted); font-size: 0.88rem;">Tidak ada percakapan ditemukan.</div>';
+                listEl.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Tidak ada kontak ditemukan.</div>';
                 return;
             }
 
@@ -608,23 +511,16 @@ import BottomNav from '../components/BottomNav.astro';
                 const isActive = c.contact_email === activeContactEmail ? 'active' : '';
                 const initial = (c.contact_name || '?').charAt(0).toUpperCase();
                 const unreadBadge = (c.unread_count > 0) ? `<span class="unread-badge">${c.unread_count}</span>` : '';
-                
-                const avatarHtml = c.contact_avatar ? 
-                    `<img src="${c.contact_avatar}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover;" alt="avatar">` : 
-                    `<div class="contact-avatar">${initial}</div>`;
 
                 return `
                     <div class="contact-item ${isActive}" onclick="openChat('${c.contact_email}')">
-                        <div class="avatar-container">
-                            ${avatarHtml}
-                            <span class="online-dot"></span>
-                        </div>
+                        <div class="contact-avatar">${initial}</div>
                         <div class="contact-info">
-                            <div class="contact-name-row">
+                            <div class="contact-row-top">
                                 <span class="contact-name">${c.contact_name || c.contact_email}</span>
                                 <span class="contact-time">${c.last_message_time || ''}</span>
                             </div>
-                            <div class="contact-lastmsg-row">
+                            <div class="contact-row-bottom">
                                 <span class="contact-lastmsg">${c.last_message || ''}</span>
                                 ${unreadBadge}
                             </div>
@@ -638,9 +534,8 @@ import BottomNav from '../components/BottomNav.astro';
             activeContactEmail = contactEmail;
             renderContactsList();
 
-            // Mobile toggle
-            if (window.innerWidth <= 850) {
-                document.getElementById('contactsSidebar')?.classList.add('mobile-hidden');
+            if (window.innerWidth <= 768) {
+                document.getElementById('contactsPanel')?.classList.add('mobile-hidden');
                 document.getElementById('chatMain')?.classList.remove('mobile-hidden');
             }
 
@@ -649,28 +544,22 @@ import BottomNav from '../components/BottomNav.astro';
             const contactName = contact ? contact.contact_name : contactEmail.split('@')[0];
 
             chatMain.innerHTML = `
-                <div class="chat-header">
-                    <div class="chat-header-user">
-                        <button class="back-btn-mobile" onclick="backToContacts()">←</button>
-                        <div class="contact-avatar" style="width: 40px; height: 40px; font-size: 1rem;">${contactName.charAt(0).toUpperCase()}</div>
+                <div class="chat-top-header">
+                    <div class="chat-user-profile">
+                        <button class="back-mobile-btn" onclick="backToContacts()">←</button>
+                        <div class="contact-avatar" style="width: 32px; height: 32px; font-size: 0.85rem;">${contactName.charAt(0).toUpperCase()}</div>
                         <div>
-                            <div class="chat-header-name">${contactName}</div>
-                            <div class="chat-header-status">● Online</div>
+                            <div class="chat-user-name">${contactName}</div>
+                            <div class="chat-user-status">● Online</div>
                         </div>
                     </div>
-                    <div>
-                        <a href="/katalog" style="border: 1px solid var(--border-color); color: var(--text-main); text-decoration: none; padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; background: #ffffff; transition: background 0.15s;">Katalog Produk</a>
-                    </div>
                 </div>
-                <div class="chat-body" id="chatBody">
-                    <div style="padding: 3rem; text-align: center; color: var(--text-muted); font-size: 0.88rem;">Memuat percakapan...</div>
+                <div class="chat-messages-body" id="chatBody">
+                    <div style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Memuat obrolan...</div>
                 </div>
-                <div class="chat-footer">
-                    <input type="text" id="messageInput" class="chat-input" placeholder="Tulis pesan..." onkeydown="handleInputKeyDown(event)">
-                    <button class="btn-send" id="sendBtn" onclick="handleSendMessage()">
-                        <span>Kirim</span>
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm-1.05-1.12L1.587 6.185l11.554-4.622z"/></svg>
-                    </button>
+                <div class="chat-input-bar">
+                    <input type="text" id="messageInput" class="chat-input-field" placeholder="Tulis pesan..." onkeydown="handleInputKeyDown(event)">
+                    <button class="btn-send-msg" id="sendBtn" onclick="handleSendMessage()">Kirim</button>
                 </div>
             `;
 
@@ -678,13 +567,13 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         function backToContacts() {
-            document.getElementById('contactsSidebar')?.classList.remove('mobile-hidden');
+            document.getElementById('contactsPanel')?.classList.remove('mobile-hidden');
             document.getElementById('chatMain')?.classList.add('mobile-hidden');
         }
 
         async function fetchChatHistory(email, shouldScroll = false) {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/messages/chat?with_email=${encodeURIComponent(email)}`, { credentials: 'include' });
+                const res = await fetch(`/api/messages/chat?with_email=${encodeURIComponent(email)}`, { credentials: 'include' });
                 if (res.ok) {
                     const data = await res.json();
                     if (data.success) {
@@ -692,9 +581,7 @@ import BottomNav from '../components/BottomNav.astro';
                         renderChatMessages(shouldScroll);
                     }
                 }
-            } catch (err) {
-                console.error('Failed fetching chat history:', err);
-            }
+            } catch (err) {}
         }
 
         function renderChatMessages(shouldScroll = false) {
@@ -703,8 +590,8 @@ import BottomNav from '../components/BottomNav.astro';
 
             if (messagesList.length === 0) {
                 chatBody.innerHTML = `
-                    <div style="padding: 4rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
-                        👋 Belum ada pesan dengan kontak ini.<br>Kirim pesan pertama Anda untuk memulai obrolan!
+                    <div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+                        Belum ada pesan dengan kontak ini.<br>Kirim pesan pertama Anda!
                     </div>
                 `;
                 return;
@@ -714,16 +601,11 @@ import BottomNav from '../components/BottomNav.astro';
                 const isSent = m.sender_email === activeUserEmail;
                 const alignmentClass = isSent ? 'sent' : 'received';
                 const timeStr = m.created_at ? new Date(m.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '';
-                const senderName = isSent ? 'Anda' : (m.sender_name || m.sender_email);
 
                 return `
-                    <div class="msg-bubble-wrapper ${alignmentClass}">
-                        <span class="msg-sender-label">${senderName}</span>
-                        <div class="msg-bubble">${escapeHtml(m.message)}</div>
-                        <span class="msg-meta">
-                            <span>${timeStr}</span>
-                            ${isSent ? '<span style="color: #3b82f6;">✓✓</span>' : ''}
-                        </span>
+                    <div class="msg-bubble-box ${alignmentClass}">
+                        <div class="msg-bubble-content">${escapeHtml(m.message)}</div>
+                        <span class="msg-meta-info">${timeStr}</span>
                     </div>
                 `;
             }).join('');
@@ -744,7 +626,7 @@ import BottomNav from '../components/BottomNav.astro';
             if (sendBtn) sendBtn.disabled = true;
 
             try {
-                const res = await fetch(`${API_BASE_URL}/api/messages/send`, {
+                const res = await fetch('/api/messages/send', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -757,12 +639,8 @@ import BottomNav from '../components/BottomNav.astro';
                 if (res.ok) {
                     await fetchChatHistory(activeContactEmail, true);
                     await loadContactsList(true);
-                } else {
-                    alert('Gagal mengirim pesan. Silakan coba lagi.');
                 }
             } catch (err) {
-                console.error(err);
-                alert('Terjadi kesalahan koneksi.');
             } finally {
                 input.disabled = false;
                 if (sendBtn) sendBtn.disabled = false;
@@ -771,7 +649,7 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         function handleInputKeyDown(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            if (e.key === 'Enter') {
                 e.preventDefault();
                 handleSendMessage();
             }
@@ -781,7 +659,6 @@ import BottomNav from '../components/BottomNav.astro';
             return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
 
-        // Initialize Messaging System
         initChatSystem();
     </script>
 
