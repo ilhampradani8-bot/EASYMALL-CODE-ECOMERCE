@@ -277,8 +277,7 @@ import BottomNav from '../components/BottomNav.astro';
                     </thead>
                     <tbody>
                         ${transactions.map(t => {
-                            // Find corresponding profit or calculate a mock markup (e.g. 5% of amount)
-                            const profitVal = profitMap.get(t.transaction_id) || Math.round(t.amount * 0.05);
+                            const profitVal = profitMap.get(t.transaction_id) || 0;
                             return `
                                 <tr>
                                     <td><code>${t.transaction_id}</code></td>

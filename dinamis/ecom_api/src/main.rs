@@ -1919,39 +1919,48 @@ async fn dashboard_data_route(
 
     let scope = params_map.get("scope").cloned().unwrap_or_default();
 
-    // 1. Check if user is Admin
-    let mut is_admin = false;
-    if scope == "admin" {
-        if let Ok(count) = conn_tx.query_row(
-            "SELECT COUNT(*) FROM admins WHERE email = ?",
-            params![user.email],
-            |row| row.get::<_, i64>(0),
-        ) {
-            if count > 0 {
-                is_admin = true;
-            }
-        }
-        if !is_admin {
-            if let Ok(role) = conn_tx.query_row(
-                "SELECT role FROM users WHERE email = ?",
-                params![user.email],
-                |row| row.get::<_, String>(0),
-            ) {
-                if role == "admin" {
-                    is_admin = true;
-                }
-            }
-        }
-    }
-
     let mut transactions = vec![];
     let mut profits = vec![];
     let mut resellers = vec![];
 
-    if is_admin {
-        // Admins can see all records
-        if let Ok(mut stmt) = conn_tx.prepare("SELECT transaction_id, whatsapp_id, product_name, variant_name, amount, created_at FROM transactions ORDER BY created_at DESC") {
-            if let Ok(rows) = stmt.query_map([], |row| {
+    // Load their phone number first to help with reseller-specific queries
+    let mut user_phone: Option<String> = None;
+    if let Ok(phone) = conn_tx.query_row(
+        "SELECT phone FROM users WHERE id = ?",
+        params![user.user_id],
+        |row| row.get::<_, Option<String>>(0),
+    ) {
+        user_phone = phone;
+    }
+
+    let mut clean_phone = "".to_string();
+    let mut suffix = "".to_string();
+    if let Some(ref phone) = user_phone {
+        clean_phone = phone.chars().filter(|c| c.is_ascii_digit()).collect();
+        if !clean_phone.is_empty() {
+            suffix = if clean_phone.len() > 9 {
+                format!("%{}", &clean_phone[clean_phone.len() - 9..])
+            } else {
+                format!("%{}", clean_phone)
+            };
+        }
+    }
+    let phone_str = user_phone.unwrap_or_default();
+
+    if scope == "admin" {
+        // Reseller panel view: Strictly ONLY load customer transactions that generated profits for this reseller.
+        // Direct personal purchases made by the user for themselves MUST NEVER appear as reseller sales.
+        if let Ok(mut stmt) = conn_tx.prepare(
+            "SELECT transaction_id, whatsapp_id, product_name, variant_name, amount, created_at \
+             FROM transactions \
+             WHERE transaction_id IN ( \
+                 SELECT transaction_id \
+                 FROM reseller_profits \
+                 WHERE user_id = ? OR (reseller_wa != '' AND (reseller_wa = ? OR reseller_wa = ? OR reseller_wa LIKE ?)) \
+             ) \
+             ORDER BY created_at DESC"
+        ) {
+            if let Ok(rows) = stmt.query_map(params![user.user_id, &phone_str, &clean_phone, &suffix], |row| {
                 Ok(Transaction {
                     transaction_id: row.get(0)?,
                     whatsapp_id: row.get(1)?,
@@ -1967,8 +1976,13 @@ async fn dashboard_data_route(
             }
         }
 
-        if let Ok(mut stmt) = conn_tx.prepare("SELECT transaction_id, reseller_wa, profit_amount, created_at FROM reseller_profits ORDER BY created_at DESC") {
-            if let Ok(rows) = stmt.query_map([], |row| {
+        if let Ok(mut stmt) = conn_tx.prepare(
+            "SELECT transaction_id, reseller_wa, profit_amount, created_at \
+              FROM reseller_profits \
+              WHERE user_id = ? OR (reseller_wa != '' AND (reseller_wa = ? OR reseller_wa = ? OR reseller_wa LIKE ?)) \
+              ORDER BY created_at DESC"
+        ) {
+            if let Ok(rows) = stmt.query_map(params![user.user_id, &phone_str, &clean_phone, &suffix], |row| {
                 Ok(Profit {
                     transaction_id: row.get(0)?,
                     reseller_wa: row.get(1)?,
@@ -1982,8 +1996,13 @@ async fn dashboard_data_route(
             }
         }
 
-        if let Ok(mut stmt) = conn_tx.prepare("SELECT activation_code, whatsapp_id, store_name, markup, is_active, created_at FROM resellers ORDER BY created_at DESC") {
-            if let Ok(rows) = stmt.query_map([], |row| {
+        if let Ok(mut stmt) = conn_tx.prepare(
+            "SELECT activation_code, whatsapp_id, store_name, markup, is_active, created_at \
+              FROM resellers \
+              WHERE user_id = ? OR (whatsapp_id != '' AND (whatsapp_id = ? OR whatsapp_id = ? OR whatsapp_id LIKE ?)) \
+              ORDER BY created_at DESC"
+        ) {
+            if let Ok(rows) = stmt.query_map(params![user.user_id, &phone_str, &clean_phone, &suffix], |row| {
                 Ok(Reseller {
                     activation_code: row.get(0)?,
                     whatsapp_id: row.get(1)?,
@@ -1999,138 +2018,41 @@ async fn dashboard_data_route(
             }
         }
     } else {
-        // Regular users/resellers:
-        
-        // Load their phone number first to help with reseller-specific queries
-        let mut user_phone: Option<String> = None;
-        if let Ok(phone) = conn_tx.query_row(
-            "SELECT phone FROM users WHERE id = ?",
-            params![user.user_id],
-            |row| row.get::<_, Option<String>>(0),
+        // Personal user dashboard view (Pesanan Saya): Only load their own direct personal transactions
+        if let Ok(mut stmt) = conn_tx.prepare(
+            "SELECT transaction_id, whatsapp_id, product_name, variant_name, amount, created_at \
+             FROM transactions \
+             WHERE user_id = ? OR email = ? \
+             ORDER BY created_at DESC"
         ) {
-            user_phone = phone;
-        }
-
-        let mut has_phone = false;
-        let mut clean_phone = "".to_string();
-        let mut suffix = "".to_string();
-        if let Some(ref phone) = user_phone {
-            clean_phone = phone.chars().filter(|c| c.is_ascii_digit()).collect();
-            if !clean_phone.is_empty() {
-                has_phone = true;
-                suffix = if clean_phone.len() > 9 {
-                    format!("%{}", &clean_phone[clean_phone.len() - 9..])
-                } else {
-                    format!("%{}", clean_phone)
-                };
-            }
-        }
-
-        if scope == "admin" {
-            // Reseller panel view: Only load customer transactions that generated profits for this reseller
-            if has_phone {
-                let phone_str = user_phone.as_ref().unwrap();
-                if let Ok(mut stmt) = conn_tx.prepare(
-                    "SELECT transaction_id, whatsapp_id, product_name, variant_name, amount, created_at \
-                     FROM transactions \
-                     WHERE user_id = ? OR transaction_id IN ( \
-                         SELECT transaction_id \
-                         FROM reseller_profits \
-                         WHERE user_id = ? OR reseller_wa = ? OR reseller_wa = ? OR reseller_wa LIKE ? \
-                     ) \
-                     ORDER BY created_at DESC"
-                ) {
-                    if let Ok(rows) = stmt.query_map(params![user.user_id, user.user_id, phone_str, &clean_phone, &suffix], |row| {
-                        Ok(Transaction {
-                            transaction_id: row.get(0)?,
-                            whatsapp_id: row.get(1)?,
-                            product_name: row.get(2)?,
-                            variant_name: row.get(3)?,
-                            amount: row.get(4)?,
-                            created_at: row.get(5)?,
-                        })
-                    }) {
-                        for r in rows.flatten() {
-                            transactions.push(r);
-                        }
-                    }
-                }
-            }
-        } else {
-            // Personal user dashboard view: Only load their own personal transactions (strictly filtered by user_id or email)
-            if let Ok(mut stmt) = conn_tx.prepare(
-                "SELECT transaction_id, whatsapp_id, product_name, variant_name, amount, created_at \
-                 FROM transactions \
-                 WHERE user_id = ? OR email = ? \
-                 ORDER BY created_at DESC"
-            ) {
-                if let Ok(rows) = stmt.query_map(params![user.user_id, user.email], |row| {
-                    Ok(Transaction {
-                        transaction_id: row.get(0)?,
-                        whatsapp_id: row.get(1)?,
-                        product_name: row.get(2)?,
-                        variant_name: row.get(3)?,
-                        amount: row.get(4)?,
-                        created_at: row.get(5)?,
-                    })
-                }) {
-                    for r in rows.flatten() {
-                        transactions.push(r);
-                    }
-                }
-            }
-        }
-
-        // Always load profits and resellers if phone is present, so the stats/tables can be displayed
-        if has_phone {
-            let phone_str = user_phone.as_ref().unwrap();
-            if let Ok(mut stmt) = conn_tx.prepare(
-                "SELECT transaction_id, reseller_wa, profit_amount, created_at \
-                  FROM reseller_profits \
-                  WHERE user_id = ? OR reseller_wa = ? OR reseller_wa = ? OR reseller_wa LIKE ? \
-                  ORDER BY created_at DESC"
-            ) {
-                if let Ok(rows) = stmt.query_map(params![user.user_id, phone_str, &clean_phone, &suffix], |row| {
-                    Ok(Profit {
-                        transaction_id: row.get(0)?,
-                        reseller_wa: row.get(1)?,
-                        profit_amount: row.get(2)?,
-                        created_at: row.get(3)?,
-                    })
-                }) {
-                    for r in rows.flatten() {
-                        profits.push(r);
-                    }
-                }
-            }
-
-            if let Ok(mut stmt) = conn_tx.prepare(
-                "SELECT activation_code, whatsapp_id, store_name, markup, is_active, created_at \
-                  FROM resellers \
-                  WHERE user_id = ? OR whatsapp_id = ? OR whatsapp_id = ? OR whatsapp_id LIKE ? \
-                  ORDER BY created_at DESC"
-            ) {
-                if let Ok(rows) = stmt.query_map(params![user.user_id, phone_str, &clean_phone, &suffix], |row| {
-                    Ok(Reseller {
-                        activation_code: row.get(0)?,
-                        whatsapp_id: row.get(1)?,
-                        store_name: row.get(2)?,
-                        markup: row.get(3)?,
-                        is_active: row.get(4)?,
-                        created_at: row.get(5)?,
-                    })
-                }) {
-                    for r in rows.flatten() {
-                        resellers.push(r);
-                    }
+            if let Ok(rows) = stmt.query_map(params![user.user_id, user.email], |row| {
+                Ok(Transaction {
+                    transaction_id: row.get(0)?,
+                    whatsapp_id: row.get(1)?,
+                    product_name: row.get(2)?,
+                    variant_name: row.get(3)?,
+                    amount: row.get(4)?,
+                    created_at: row.get(5)?,
+                })
+            }) {
+                for r in rows.flatten() {
+                    transactions.push(r);
                 }
             }
         }
     }
 
     let total_orders = transactions.len() as i64;
-    let total_sales: i64 = transactions.iter().map(|t| t.amount).sum();
-    let total_profit: i64 = profits.iter().map(|p| p.profit_amount).sum();
+    let total_sales: i64 = if scope == "admin" {
+        transactions.iter().map(|t| t.amount).sum()
+    } else {
+        0
+    };
+    let total_profit: i64 = if scope == "admin" {
+        profits.iter().map(|p| p.profit_amount).sum()
+    } else {
+        0
+    };
 
     Json(DashboardData {
         success: true,
