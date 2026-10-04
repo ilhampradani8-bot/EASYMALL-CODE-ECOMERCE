@@ -520,11 +520,13 @@ import UserProfileCard from './UserProfileCard.astro';
             window.stopLoadingBar = stopLoading;
             const originalFetch = window.fetch;
             window.fetch = async function(...args) {
-                startLoading();
+                const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+                const isSilent = url.includes('/api/messages') || url.includes('/api/notifications') || url.includes('/api/auth/status');
+                if (!isSilent) startLoading();
                 try {
                     return await originalFetch(...args);
                 } finally {
-                    stopLoading();
+                    if (!isSilent) stopLoading();
                 }
             };
         }

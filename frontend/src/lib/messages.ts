@@ -71,14 +71,14 @@ export function getNameForEmail(email: string): string {
 
 // Notify Telegram Admin Bot
 export async function notifyTelegram(senderEmail: string, senderName: string, messageText: string) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  const token = process.env.TELEGRAM_BOT_TOKEN || (import.meta as any).env?.TELEGRAM_BOT_TOKEN || '8956671588:AAFSMMDe09zzt_2v4vhEsaOFhtflLMMdQTc';
+  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID || (import.meta as any).env?.TELEGRAM_ADMIN_CHAT_ID || '8570234554';
   if (!token || !chatId) return;
 
   const text = `💬 <b>[EasyMall Live Chat]</b>\n👤 <b>Pengirim:</b> ${senderName} (<code>${senderEmail}</code>)\n\n📝 <b>Pesan:</b>\n${messageText}\n\n<i>👉 Balas (Reply) pesan ini di Telegram untuk membalas pembeli secara instan.</i>`;
 
   try {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -87,6 +87,10 @@ export async function notifyTelegram(senderEmail: string, senderName: string, me
         parse_mode: 'HTML'
       })
     });
+    const data = await res.json().catch(() => ({}));
+    if (!data.ok) {
+      console.warn('Telegram API Notification warning:', data);
+    }
   } catch (e) {
     console.error('Failed to notify Telegram:', e);
   }
