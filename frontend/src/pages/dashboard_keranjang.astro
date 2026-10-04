@@ -13,23 +13,27 @@ import BottomNav from '../components/BottomNav.astro';
     <title>Keranjang Belanja | EasyMall</title>
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <style>
+    <style is:global>
         :root {
-            --bg-color: #f8f9fa;
-            --text-color: #212529;
-            --border-color: #dee2e6;
+            --bg-color: #f5f5f7;
+            --text-color: #1d1d1f;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --apple-blue: #007aff;
+            --apple-card-bg: #ffffff;
+            --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: var(--font-apple);
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -37,13 +41,13 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         .container {
-            max-width: 1140px;
+            max-width: 1200px;
             width: 100%;
             margin: 1.5rem auto;
             padding: 0 1rem;
             flex-grow: 1;
             display: grid;
-            grid-template-columns: 280px 1fr;
+            grid-template-columns: 260px 1fr;
             gap: 1.5rem;
         }
 
@@ -62,18 +66,19 @@ import BottomNav from '../components/BottomNav.astro';
 
         .card {
             background: #ffffff;
-            border: 2px solid #dee2e6;
-            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
             overflow: hidden;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
         }
 
         .card-header {
-            background: #f8f9fa;
-            padding: 0.75rem 1.25rem;
-            border-bottom: 2px solid #dee2e6;
-            font-weight: bold;
+            background: #fafafa;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
             font-size: 1rem;
-            color: #212529;
+            color: #1d1d1f;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -90,74 +95,81 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         th, td {
-            padding: 12px 15px;
+            padding: 14px 16px;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
             font-size: 0.9rem;
         }
 
         th {
-            background-color: #f8f9fa;
+            background-color: #fbfbfd;
             font-weight: 600;
-            color: #495057;
-            border-bottom: 2px solid var(--border-color);
+            color: #86868b;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         tr:hover td {
-            background-color: #f1f3f5;
+            background-color: #f8f8fa;
         }
 
         .btn-delete {
-            background: #dc3545;
+            background: #ff3b30;
             color: #ffffff;
             border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 0.8rem;
-            font-weight: bold;
+            font-weight: 600;
+            transition: opacity 0.2s ease;
         }
 
         .btn-delete:hover {
-            background: #bb2d3b;
+            opacity: 0.85;
         }
 
         .cart-summary {
             margin-top: 1.5rem;
-            padding: 1.25rem;
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
+            padding: 1.25rem 1.5rem;
+            background: #fbfbfd;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .total-price {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #212529;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1d1d1f;
         }
 
         .btn-checkout {
             padding: 10px 24px;
-            background: #28a745;
+            background: #007aff;
             color: white;
-            border: 1px solid #28a745;
-            border-radius: 4px;
+            border: none;
+            border-radius: 20px;
             cursor: pointer;
             font-weight: 600;
             font-size: 0.95rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
         }
 
         .btn-checkout:hover {
-            background: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35);
         }
 
         .no-data {
             padding: 3rem;
             text-align: center;
-            color: #6c757d;
+            color: #86868b;
         }
 
         .loading-spinner {
@@ -165,7 +177,7 @@ import BottomNav from '../components/BottomNav.astro';
             justify-content: center;
             align-items: center;
             padding: 3rem 1rem;
-            color: #007bff;
+            color: #007aff;
             gap: 10px;
             font-size: 0.9rem;
         }
@@ -173,8 +185,8 @@ import BottomNav from '../components/BottomNav.astro';
         .spinner {
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(0, 123, 255, 0.1);
-            border-top-color: #007bff;
+            border: 2px solid rgba(0, 122, 255, 0.15);
+            border-top-color: #007aff;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }

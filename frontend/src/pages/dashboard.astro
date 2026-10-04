@@ -12,23 +12,23 @@
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
+    <style is:global>
         :root {
-            --bg-color: #f3f4f6;
+            --bg-color: #f5f5f7;
             --card-bg: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --primary: #2563eb;
-            --border-color: #e5e7eb;
-            --radius: 8px;
-            --font-sans: 'Outfit', sans-serif;
+            --text-main: #1d1d1f;
+            --text-muted: #86868b;
+            --primary: #007aff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: var(--font-sans);
+            font-family: var(--font-apple);
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
@@ -46,16 +46,16 @@
             max-width: 400px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+            border-radius: 16px;
             padding: 2.5rem 2rem;
             text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
         }
 
         .spinner {
             width: 36px;
             height: 36px;
-            border: 3.5px solid rgba(37, 99, 235, 0.1);
+            border: 3.5px solid rgba(0, 122, 255, 0.15);
             border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;

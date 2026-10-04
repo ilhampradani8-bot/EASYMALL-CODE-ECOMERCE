@@ -66,66 +66,76 @@ const { activeTab } = Astro.props;
     })();
 </script>
 
-<style>
+<style is:global>
     .sidebar-menu {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 5px;
         background: #ffffff;
-        border: 2px solid #dee2e6;
-        border-radius: 4px;
-        padding: 0.75rem;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        padding: 0.85rem;
         position: sticky;
-        top: 90px;
+        top: 80px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
     }
 
     .sidebar-btn {
         background: transparent;
         border: none;
-        padding: 10px 12px;
-        color: #495057;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.9rem;
+        padding: 9px 12px;
+        color: #48484a;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.88rem;
         text-align: left;
         cursor: pointer;
         text-decoration: none;
         display: flex;
         align-items: center;
         gap: 10px;
-        transition: all 0.1s ease;
+        transition: all 0.15s ease;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
     }
 
     .sidebar-btn:hover {
-        background: #f1f3f5;
-        color: #212529;
+        background: rgba(0, 0, 0, 0.04);
+        color: #1d1d1f;
     }
 
     .sidebar-btn.active {
-        background: #0d6efd;
-        color: #ffffff;
+        background: #007aff;
+        color: #ffffff !important;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+    }
+
+    .sidebar-btn.active svg {
+        stroke: #ffffff;
     }
 
     .sidebar-divider {
         border: 0;
-        border-top: 1px solid #dee2e6;
-        margin: 0.5rem 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.06);
+        margin: 0.4rem 0;
     }
 
     .reseller-switch-btn {
-        color: #0d6efd;
+        color: #007aff;
+        font-weight: 600;
     }
 
     .reseller-switch-btn:hover {
-        background: #e7f1ff;
+        background: rgba(0, 122, 255, 0.08);
     }
 
     .logout-btn {
-        color: #dc3545;
+        color: #ff3b30;
         width: 100%;
+        font-weight: 600;
     }
 
     .logout-btn:hover {
-        background: #fdf2f2;
+        background: rgba(255, 59, 48, 0.08);
     }
 </style>
