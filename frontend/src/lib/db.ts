@@ -8,19 +8,8 @@ let localDbInitialized = false;
 const memorySessions = new Map<string, { email: string; name: string; created_at: string }>();
 const memoryUsers = new Map<string, { email: string; password?: string; name: string; provider: string }>();
 
-// Seed in-memory demo users
-memoryUsers.set('user@easymall.me', {
-  email: 'user@easymall.me',
-  password: 'user1234',
-  name: 'Demo User EasyMall',
-  provider: 'email'
-});
-memoryUsers.set('reseller@easymall.me', {
-  email: 'reseller@easymall.me',
-  password: 'reseller1234',
-  name: 'Demo Reseller Partner',
-  provider: 'email'
-});
+// Memory users
+
 memoryUsers.set('admin@easymall.me', {
   email: 'admin@easymall.me',
   password: 'admin1234',

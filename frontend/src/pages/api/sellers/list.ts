@@ -36,14 +36,6 @@ export const GET: APIRoute = async ({ request }) => {
       }
     } catch (e) {}
 
-    // 3. Fallback demo users if DB is empty
-    if (userRows.length === 0) {
-      userRows = [
-        { id: 1, email: 'user@easymall.me', name: 'Demo User EasyMall', provider: 'email', created_at: '2026-09-19' },
-        { id: 2, email: 'reseller@easymall.me', name: 'Demo Reseller Partner', provider: 'email', created_at: '2026-09-19' },
-        { id: 3, email: 'admin@easymall.me', name: 'Customer Support EasyMall', provider: 'email', created_at: '2026-09-19' }
-      ];
-    }
 
     // 4. Map and enhance user data
     const sellers = userRows.map(u => {
