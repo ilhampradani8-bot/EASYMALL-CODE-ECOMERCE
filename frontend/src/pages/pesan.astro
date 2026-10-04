@@ -580,12 +580,12 @@ import BottomNav from '../components/BottomNav.astro';
 
         @media (max-width: 768px) {
             body {
-                height: 100vh;
+                height: 100dvh;
                 overflow: hidden;
             }
             .macos-app-container {
                 grid-template-columns: 1fr;
-                height: calc(100vh - 56px);
+                height: calc(100dvh - 56px);
             }
             .sidebar-col,
             .macos-sidebar-nav {
@@ -602,6 +602,27 @@ import BottomNav from '../components/BottomNav.astro';
             }
             .mobile-back-dash {
                 display: inline-flex !important;
+            }
+            .macos-messages-stream {
+                padding: 1rem 0.75rem !important;
+                gap: 8px !important;
+            }
+            .imessage-wrapper {
+                max-width: 86% !important;
+            }
+            .imessage-bubble {
+                font-size: 0.88rem !important;
+                padding: 9px 13px !important;
+                border-radius: 16px !important;
+            }
+            .macos-input-bar {
+                padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px)) 10px !important;
+            }
+            .imessage-input-capsule {
+                padding: 3px 6px 3px 14px !important;
+            }
+            .imessage-text-input {
+                font-size: 0.9rem !important;
             }
         }
     </style>
@@ -633,6 +654,13 @@ import BottomNav from '../components/BottomNav.astro';
                     <svg class="apple-search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     <input type="text" id="searchContactInput" class="apple-search-input" placeholder="Cari percakapan..." oninput="filterContacts()">
                 </div>
+            </div>
+            <!-- Quick Start Chat Button -->
+            <div style="padding: 8px 12px; border-bottom: 1px solid var(--apple-border); background: #ffffff;">
+                <button type="button" onclick="startNewCsChat()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--apple-blue); color: #ffffff; border: none; border-radius: 18px; padding: 7px 12px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: background 0.15s;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                    <span>+ Chat Customer Support</span>
+                </button>
             </div>
             <div class="macos-contacts-scroll" id="contactsList">
                 <div style="padding: 3rem 1rem; text-align: center; color: var(--apple-text-muted); font-size: 0.85rem;">Memuat daftar percakapan...</div>
@@ -719,6 +747,10 @@ import BottomNav from '../components/BottomNav.astro';
             } catch (err) {}
         }
 
+        function startNewCsChat() {
+            openChat('admin@easymall.me');
+        }
+
         function filterContacts() {
             renderContactsList();
         }
@@ -734,7 +766,14 @@ import BottomNav from '../components/BottomNav.astro';
             );
 
             if (filtered.length === 0) {
-                listEl.innerHTML = '<div style="padding: 3rem 1rem; text-align: center; color: var(--apple-text-muted); font-size: 0.85rem;">Tidak ada percakapan ditemukan.</div>';
+                listEl.innerHTML = `
+                    <div style="padding: 2.5rem 1rem; text-align: center; color: var(--apple-text-muted); font-size: 0.85rem; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                        <div style="font-size: 2rem;">💬</div>
+                        <div style="font-weight: 700; color: var(--apple-text-main);">Belum ada percakapan</div>
+                        <p style="font-size: 0.8rem; margin: 0; color: var(--apple-text-secondary); max-width: 200px;">Ada pertanyaan seputar produk atau pesanan Anda?</p>
+                        <button onclick="startNewCsChat()" style="margin-top: 6px; background: var(--apple-blue); color: #ffffff; border: none; padding: 7px 14px; border-radius: 16px; font-weight: 600; font-size: 0.8rem; cursor: pointer;">Chat CS Sekarang</button>
+                    </div>
+                `;
                 return;
             }
 
