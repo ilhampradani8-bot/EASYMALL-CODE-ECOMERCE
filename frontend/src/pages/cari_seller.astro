@@ -14,131 +14,252 @@ import FloatingChat from '../components/FloatingChat.astro';
     <title>Cari Seller & Toko | EasyMall Official</title>
     <meta name="description" content="Temukan seller terpercaya, reseller partner, dan toko digital resmi di platform EasyMall. Hubungi langsung penjual via Live Chat.">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/ecom/css/style.css">
+    
     <style>
         :root {
-            --apple-bg: #f5f5f7;
-            --apple-card: #ffffff;
-            --apple-border: rgba(0, 0, 0, 0.08);
-            --apple-blue: #0071e3;
-            --apple-blue-hover: #0077ed;
-            --apple-text-main: #1d1d1f;
-            --apple-text-muted: #86868b;
+            --seller-bg: #f8fafc;
+            --seller-card-bg: #ffffff;
+            --seller-border: #e2e8f0;
+            --seller-primary: #0d6efd;
+            --seller-primary-dark: #0b5ed7;
+            --seller-primary-subtle: #e7f1ff;
+            --seller-success: #198754;
+            --seller-success-subtle: #d1e7dd;
+            --seller-text: #1e293b;
+            --seller-text-muted: #64748b;
         }
 
         body {
-            background-color: var(--apple-bg);
-            color: var(--apple-text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+            background-color: var(--seller-bg);
+            color: var(--seller-text);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            padding-bottom: 70px;
         }
 
-        .seller-search-hero {
-            background: linear-gradient(180deg, #ffffff 0%, #f5f5f7 100%);
-            padding: 3.5rem 1.5rem 2.5rem 1.5rem;
+        /* Hero Header */
+        .seller-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0d6efd 100%);
+            color: #ffffff;
+            padding: 3.5rem 1.5rem 3rem 1.5rem;
             text-align: center;
-            border-bottom: 1px solid var(--apple-border);
-        }
-
-        .hero-title {
-            font-size: 2.2rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #111827 0%, #4b5563 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero-subtitle {
-            font-size: 1rem;
-            color: var(--apple-text-muted);
-            max-width: 580px;
-            margin: 0 auto 1.8rem auto;
-            line-height: 1.5;
-        }
-
-        .search-box-container {
-            max-width: 600px;
-            margin: 0 auto;
             position: relative;
+            overflow: hidden;
         }
 
-        .search-input-pill {
+        .seller-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 150%, rgba(13, 110, 253, 0.25) 0%, transparent 50%),
+                        radial-gradient(circle at 80% -20%, rgba(99, 102, 241, 0.2) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        .seller-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 30px;
+            margin-bottom: 1.2rem;
+        }
+
+        .seller-hero-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+            margin-bottom: 0.75rem;
+            color: #ffffff;
+        }
+
+        .seller-hero-subtitle {
+            font-size: 0.98rem;
+            color: rgba(255, 255, 255, 0.82);
+            line-height: 1.5;
+            margin-bottom: 2rem;
+        }
+
+        /* Search Box */
+        .seller-search-wrapper {
+            position: relative;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        .seller-search-bar {
             width: 100%;
             background: #ffffff;
-            border: 2px solid rgba(0, 0, 0, 0.1);
-            border-radius: 30px;
-            padding: 14px 22px 14px 48px;
+            border: 2px solid transparent;
+            border-radius: 9999px;
+            padding: 14px 20px 14px 48px;
             font-size: 0.95rem;
+            color: var(--seller-text);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             outline: none;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            transition: all 0.2s ease;
+            transition: all 0.25s ease;
         }
 
-        .search-input-pill:focus {
-            border-color: var(--apple-blue);
-            box-shadow: 0 4px 24px rgba(0, 113, 227, 0.18);
+        .seller-search-bar:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 12px 36px rgba(13, 110, 253, 0.35);
         }
 
-        .search-icon-inside {
+        .seller-search-bar::placeholder {
+            color: #94a3b8;
+        }
+
+        .seller-search-icon {
             position: absolute;
             left: 18px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--apple-text-muted);
+            color: #64748b;
             pointer-events: none;
+            display: flex;
+            align-items: center;
         }
 
-        .main-content {
-            flex-grow: 1;
+        .btn-clear-search {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e2e8f0;
+            border: none;
+            color: #475569;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: background 0.15s;
+        }
+
+        .btn-clear-search:hover {
+            background: #cbd5e1;
+        }
+
+        /* Main Container */
+        .seller-main {
+            flex: 1;
             max-width: 1200px;
             width: 100%;
             margin: 0 auto;
-            padding: 2.5rem 1.5rem 4rem 1.5rem;
+            padding: 2rem 1.25rem 3rem 1.25rem;
         }
 
-        .results-header {
+        /* Filter Tabs & Bar */
+        .filter-header-bar {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+            border-bottom: 1px solid var(--seller-border);
+            padding-bottom: 1rem;
         }
 
-        .results-count {
-            font-size: 0.9rem;
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .filter-tab-btn {
+            background: #ffffff;
+            border: 1px solid var(--seller-border);
+            color: var(--seller-text-muted);
+            padding: 7px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
             font-weight: 600;
-            color: var(--apple-text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
 
+        .filter-tab-btn:hover {
+            background: #f1f5f9;
+            color: var(--seller-text);
+        }
+
+        .filter-tab-btn.active {
+            background: var(--seller-primary);
+            border-color: var(--seller-primary);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+        }
+
+        .results-badge-info {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--seller-text-muted);
+            background: #f1f5f9;
+            padding: 5px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--seller-border);
+        }
+
+        /* Grid Cards */
         .sellers-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
             gap: 1.5rem;
         }
 
         .seller-card {
-            background: var(--apple-card);
-            border: 1px solid var(--apple-border);
-            border-radius: 16px;
+            background: var(--seller-card-bg);
+            border: 1px solid var(--seller-border);
+            border-radius: 18px;
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
             position: relative;
         }
 
         .seller-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            border-color: rgba(0, 113, 227, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            border-color: #bfdbfe;
         }
 
-        .seller-card-top {
+        .seller-card-header {
             display: flex;
             align-items: center;
             gap: 14px;
@@ -147,19 +268,25 @@ import FloatingChat from '../components/FloatingChat.astro';
         .seller-avatar {
             width: 52px;
             height: 52px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+            border-radius: 16px;
+            background: linear-gradient(135deg, #0d6efd 0%, #6366f1 100%);
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 1.25rem;
+            font-weight: 800;
+            font-size: 1.3rem;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+            box-shadow: 0 4px 14px rgba(13, 110, 253, 0.25);
+            text-transform: uppercase;
         }
 
-        .seller-info {
+        .seller-avatar.official {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.28);
+        }
+
+        .seller-meta {
             min-width: 0;
             flex-grow: 1;
         }
@@ -167,7 +294,7 @@ import FloatingChat from '../components/FloatingChat.astro';
         .seller-name {
             font-size: 1.05rem;
             font-weight: 700;
-            color: var(--apple-text-main);
+            color: var(--seller-text);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -176,22 +303,31 @@ import FloatingChat from '../components/FloatingChat.astro';
             gap: 6px;
         }
 
+        .verified-tick {
+            color: #0d6efd;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .seller-email {
             font-size: 0.8rem;
-            color: var(--apple-text-muted);
+            color: var(--seller-text-muted);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-top: 1px;
         }
 
-        .store-status-box {
+        /* Store Status Box */
+        .store-info-box {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 10px 12px;
+            border-radius: 12px;
+            padding: 10px 14px;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
         }
 
         .store-badge {
@@ -206,82 +342,153 @@ import FloatingChat from '../components/FloatingChat.astro';
         }
 
         .store-badge.active-store {
-            background: #dcfce7;
-            color: #15803d;
+            background: var(--seller-success-subtle);
+            color: var(--seller-success);
         }
 
         .store-badge.no-store {
-            background: #f1f5f9;
-            color: #64748b;
+            background: #e2e8f0;
+            color: var(--seller-text-muted);
         }
 
-        .store-title-text {
-            font-size: 0.85rem;
+        .store-name-label {
+            font-size: 0.88rem;
             font-weight: 600;
-            color: #334155;
+            color: var(--seller-text);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
+        /* Card Actions */
         .seller-card-actions {
             display: flex;
             gap: 8px;
             margin-top: auto;
-            padding-top: 8px;
+            padding-top: 4px;
         }
 
-        .btn-chat-seller {
+        .btn-chat-action {
             flex: 1;
-            background: var(--apple-blue);
+            background: var(--seller-primary);
             color: #ffffff;
             border: none;
             border-radius: 10px;
-            padding: 9px 12px;
-            font-size: 0.85rem;
+            padding: 10px 14px;
+            font-size: 0.88rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 7px;
             text-decoration: none;
-            transition: background 0.15s ease;
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+            transition: all 0.2s ease;
         }
 
-        .btn-chat-seller:hover {
-            background: var(--apple-blue-hover);
+        .btn-chat-action:hover {
+            background: var(--seller-primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(13, 110, 253, 0.3);
+            color: #ffffff;
         }
 
-        .btn-view-store {
+        .btn-store-action {
             background: #f1f5f9;
-            color: #334155;
-            border: 1px solid #e2e8f0;
+            color: var(--seller-text);
+            border: 1px solid var(--seller-border);
             border-radius: 10px;
-            padding: 9px 12px;
-            font-size: 0.85rem;
+            padding: 10px 14px;
+            font-size: 0.88rem;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.15s ease;
+            gap: 5px;
+            transition: all 0.2s ease;
         }
 
-        .btn-view-store:hover {
+        .btn-store-action:hover {
             background: #e2e8f0;
+            color: var(--seller-primary);
         }
 
+        /* Empty State & Loader */
+        .empty-state-box {
+            grid-column: 1 / -1;
+            background: #ffffff;
+            border: 1px solid var(--seller-border);
+            border-radius: 20px;
+            padding: 4rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .empty-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--seller-text);
+            margin-bottom: 0.4rem;
+        }
+
+        .empty-desc {
+            font-size: 0.9rem;
+            color: var(--seller-text-muted);
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        /* Spinner */
+        .seller-spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #e2e8f0;
+            border-top-color: var(--seller-primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 1rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
         @media (max-width: 640px) {
-            .hero-title {
-                font-size: 1.6rem;
+            .seller-hero {
+                padding: 2.5rem 1rem 2rem 1rem;
             }
-            .seller-search-hero {
-                padding: 2rem 1rem 1.5rem 1rem;
+
+            .seller-hero-title {
+                font-size: 1.65rem;
             }
+
+            .seller-hero-subtitle {
+                font-size: 0.88rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .seller-search-bar {
+                font-size: 0.88rem;
+                padding: 12px 16px 12px 42px;
+            }
+
             .sellers-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .filter-header-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
             }
         }
     </style>
@@ -289,29 +496,51 @@ import FloatingChat from '../components/FloatingChat.astro';
 <body>
     <Header />
 
-    <!-- Hero Search Section -->
-    <section class="seller-search-hero">
-        <h1 class="hero-title">Cari Seller & Toko Digital</h1>
-        <p class="hero-subtitle">Jelajahi penjual, mitra reseller, dan merchant terverifikasi di EasyMall. Hubungi langsung melalui live chat.</p>
-        
-        <div class="search-box-container">
-            <svg class="search-icon-inside" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            <input type="text" id="sellerSearchInput" class="search-input-pill" placeholder="Ketik nama seller, email, atau nama toko..." autocomplete="off">
+    <!-- Hero Section -->
+    <section class="seller-hero">
+        <div class="seller-hero-content">
+            <div class="hero-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Direktori Seller & Mitra</span>
+            </div>
+            <h1 class="seller-hero-title">Cari Seller & Toko Resmi</h1>
+            <p class="seller-hero-subtitle">Jelajahi penjual terverifikasi, mitra reseller, dan toko digital EasyMall. Mulai percakapan langsung via Live Chat.</p>
+            
+            <div class="seller-search-wrapper">
+                <div class="seller-search-icon">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+                <input type="text" id="sellerSearchInput" class="seller-search-bar" placeholder="Cari nama penjual, toko digital, atau email..." autocomplete="off">
+                <button type="button" id="btnClearSearch" class="btn-clear-search" aria-label="Hapus Pencarian">✕</button>
+            </div>
         </div>
     </section>
 
     <!-- Main Content List -->
-    <main class="main-content">
-        <div class="results-header">
-            <span class="results-count" id="sellersCountText">Memuat daftar seller...</span>
+    <main class="seller-main">
+        <div class="filter-header-bar">
+            <div class="filter-tabs">
+                <button type="button" class="filter-tab-btn active" data-filter="all">
+                    <span>Semua Penjual</span>
+                </button>
+                <button type="button" class="filter-tab-btn" data-filter="store">
+                    <span>🏪 Toko Aktif</span>
+                </button>
+                <button type="button" class="filter-tab-btn" data-filter="user">
+                    <span>👤 Pengguna Reguler</span>
+                </button>
+            </div>
+            <span class="results-badge-info" id="sellersCountText">Memuat data seller...</span>
         </div>
 
         <div id="sellersGrid" class="sellers-grid">
-            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: var(--apple-text-muted);">
-                Memuat data seller & merchant...
+            <div class="empty-state-box">
+                <div class="seller-spinner"></div>
+                <div class="empty-title">Memuat Direktori Seller...</div>
+                <div class="empty-desc">Sedang menyinkronkan data merchant dan toko digital EasyMall.</div>
             </div>
         </div>
     </main>
@@ -321,7 +550,8 @@ import FloatingChat from '../components/FloatingChat.astro';
     <FloatingChat />
 
     <script is:inline>
-        let allSellers = [];
+        let allSellersData = [];
+        let currentFilter = 'all';
 
         async function fetchSellers(query = '') {
             try {
@@ -329,14 +559,35 @@ import FloatingChat from '../components/FloatingChat.astro';
                 if (res.ok) {
                     const data = await res.json();
                     if (data.success) {
-                        allSellers = data.sellers || [];
-                        renderSellers(allSellers);
+                        allSellersData = data.sellers || [];
+                        filterAndRenderSellers();
                     }
                 }
             } catch (err) {
                 console.error(err);
-                document.getElementById('sellersGrid').innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #dc3545;">Gagal memuat data seller.</div>';
+                const container = document.getElementById('sellersGrid');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="empty-state-box">
+                            <div class="empty-icon" style="color: #dc3545;">⚠️</div>
+                            <div class="empty-title">Gagal Memuat Data</div>
+                            <div class="empty-desc">Terjadi kendala saat memuat direktori penjual. Silakan muat ulang halaman.</div>
+                        </div>
+                    `;
+                }
             }
+        }
+
+        function filterAndRenderSellers() {
+            let filtered = allSellersData;
+
+            if (currentFilter === 'store') {
+                filtered = filtered.filter(s => s.has_store);
+            } else if (currentFilter === 'user') {
+                filtered = filtered.filter(s => !s.has_store);
+            }
+
+            renderSellers(filtered);
         }
 
         function renderSellers(list) {
@@ -344,14 +595,14 @@ import FloatingChat from '../components/FloatingChat.astro';
             const countText = document.getElementById('sellersCountText');
             if (!container) return;
 
-            countText.textContent = `Menampilkan ${list.length} Seller / Pengguna Terdaftar`;
+            countText.textContent = `${list.length} Penjual Terdaftar`;
 
             if (list.length === 0) {
                 container.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; background: #ffffff; border-radius: 16px; border: 1px solid var(--apple-border);">
-                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔍</div>
-                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem;">Tidak ada seller ditemukan</h3>
-                        <p style="color: var(--apple-text-muted); font-size: 0.88rem;">Coba kata kunci lain atau bersihkan kotak pencarian.</p>
+                    <div class="empty-state-box">
+                        <div class="empty-icon">🔍</div>
+                        <div class="empty-title">Seller Tidak Ditemukan</div>
+                        <div class="empty-desc">Tidak ada toko atau penjual yang sesuai dengan kriteria pencarian Anda.</div>
                     </div>
                 `;
                 return;
@@ -364,33 +615,38 @@ import FloatingChat from '../components/FloatingChat.astro';
 
                 return `
                     <div class="seller-card">
-                        <div class="seller-card-top">
-                            <div class="seller-avatar" style="${isOfficial ? 'background: linear-gradient(135deg, #10b981 0%, #059669 100%);' : ''}">
+                        <div class="seller-card-header">
+                            <div class="seller-avatar ${isOfficial ? 'official' : ''}">
                                 ${initial}
                             </div>
-                            <div class="seller-info">
+                            <div class="seller-meta">
                                 <div class="seller-name">
-                                    <span>${s.name}</span>
-                                    ${isOfficial ? '<span title="Akun Resmi" style="color: #0d6efd; font-size: 0.9rem;">✓</span>' : ''}
+                                    <span>${escapeHtml(s.name)}</span>
+                                    ${isOfficial ? `
+                                        <span class="verified-tick" title="Akun Resmi EasyMall">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#0d6efd"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                        </span>
+                                    ` : ''}
                                 </div>
-                                <div class="seller-email">${s.email}</div>
+                                <div class="seller-email">${escapeHtml(s.email)}</div>
                             </div>
                         </div>
 
-                        <div class="store-status-box">
+                        <div class="store-info-box">
                             <span class="store-badge ${hasStore ? 'active-store' : 'no-store'}">
                                 <span>${hasStore ? '🏪' : '👤'}</span>
-                                <span>${hasStore ? 'Toko Aktif' : 'Pengguna Stand'}</span>
+                                <span>${hasStore ? 'Toko Aktif' : 'Pengguna Terdaftar'}</span>
                             </span>
-                            <div class="store-title-text">${s.store_name}</div>
+                            <div class="store-name-label">${escapeHtml(s.store_name)}</div>
                         </div>
 
                         <div class="seller-card-actions">
-                            <a href="/pesan?chat=${encodeURIComponent(s.email)}" class="btn-chat-seller">
-                                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <a href="/pesan?chat=${encodeURIComponent(s.email)}" class="btn-chat-action">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                                 <span>Chat Seller</span>
                             </a>
-                            <a href="/mymall" class="btn-view-store" title="Kunjungi Stand / Toko">
+                            <a href="${hasStore ? `/mymall?seller=${encodeURIComponent(s.email)}` : '/mymall'}" class="btn-store-action" title="Lihat Toko / Etalase">
+                                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                                 <span>Toko</span>
                             </a>
                         </div>
@@ -399,17 +655,50 @@ import FloatingChat from '../components/FloatingChat.astro';
             }).join('');
         }
 
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Setup Search and Filters
         const searchInput = document.getElementById('sellerSearchInput');
-        if (searchInput) {
+        const clearBtn = document.getElementById('btnClearSearch');
+
+        if (searchInput && clearBtn) {
             let debounceTimer;
             searchInput.addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                clearBtn.style.display = val.length > 0 ? 'flex' : 'none';
+
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(() => {
-                    fetchSellers(e.target.value.trim());
-                }, 300);
+                    fetchSellers(val);
+                }, 250);
+            });
+
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                clearBtn.style.display = 'none';
+                fetchSellers('');
             });
         }
 
+        // Filter Tabs
+        document.querySelectorAll('.filter-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.getAttribute('data-filter') || 'all';
+                filterAndRenderSellers();
+            });
+        });
+
+        // Initialize
         fetchSellers();
     </script>
 </body>
