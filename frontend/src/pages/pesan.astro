@@ -693,7 +693,7 @@ import BottomNav from '../components/BottomNav.astro';
                 if (authRes.ok) {
                     const authData = await authRes.json();
                     if (authData.logged_in && authData.email) {
-                        activeUserEmail = authData.email;
+                        activeUserEmail = authData.email.toLowerCase().trim();
                     }
                 }
             } catch (err) {}
@@ -706,9 +706,14 @@ import BottomNav from '../components/BottomNav.astro';
                 const target = chatParam.toLowerCase().trim();
                 activeContactEmail = target;
                 await openChat(target);
+            } else if (rawContactsList.length > 0 && window.innerWidth > 768) {
+                // Auto-open primary contact (CS or top conversation)
+                const firstContact = rawContactsList[0].contact_email;
+                activeContactEmail = firstContact;
+                await openChat(firstContact);
             } else {
                 if (window.innerWidth > 768) {
-                    document.getElementById('chatMain')?.classList.remove('mobile-hidden');
+                    await openChat('admin@easymall.me');
                 }
             }
 
@@ -862,8 +867,12 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         async function fetchChatHistory(email, shouldScroll = false) {
+            const guestEmail = localStorage.getItem('em_guest_chat_email') || '';
             try {
-                const res = await fetch(`/api/messages/chat?with_email=${encodeURIComponent(email)}`, { credentials: 'include' });
+                const res = await fetch(`/api/messages/chat?with_email=${encodeURIComponent(email)}&guest_email=${encodeURIComponent(guestEmail)}`, { 
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
                 if (res.ok) {
                     const data = await res.json();
                     if (data.success) {

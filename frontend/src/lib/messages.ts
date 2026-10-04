@@ -222,6 +222,8 @@ export async function getChatHistory(user1: string, user2: string, guestEmail?: 
 
 // Get contact list for a given user
 export async function getContactsForUser(userEmail: string) {
+  await syncDbMessages();
+
   const currentUser = userEmail.toLowerCase().trim();
   const contactsMap = new Map<string, {
     contact_email: string;
