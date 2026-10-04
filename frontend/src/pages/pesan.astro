@@ -1,5 +1,5 @@
 ---
-// pesan.astro - Dashboard Pusat Pesan & Live Support
+// pesan.astro - Apple macOS / iMessage & iTunes Inspired Messenger
 import UserNavbar from '../components/dashboard/UserNavbar.astro';
 import UserSidebar from '../components/dashboard/UserSidebar.astro';
 import BottomNav from '../components/BottomNav.astro';
@@ -10,7 +10,7 @@ import BottomNav from '../components/BottomNav.astro';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pesan & Diskusi | EasyMall</title>
+    <title>Pusat Pesan | EasyMall macOS Edition</title>
     
     <!-- Favicon & App Icons -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
@@ -18,371 +18,560 @@ import BottomNav from '../components/BottomNav.astro';
     
     <style>
         :root {
-            --bg-color: #f8f9fa;
-            --text-color: #212529;
-            --text-muted: #6c757d;
-            --border-color: #dee2e6;
-            --primary: #0d6efd;
-            --primary-hover: #0b5ed7;
-            --primary-light: #e7f1ff;
-            --radius: 8px;
+            --apple-bg: #f5f5f7;
+            --apple-sidebar-bg: #f6f8fa;
+            --apple-card-bg: #ffffff;
+            --apple-blue: #007aff;
+            --apple-blue-hover: #0066d6;
+            --apple-blue-gradient: linear-gradient(180deg, #007aff 0%, #0062d2 100%);
+            --apple-border: rgba(0, 0, 0, 0.08);
+            --apple-text-main: #1d1d1f;
+            --apple-text-muted: #86868b;
+            --apple-text-secondary: #6e6e73;
+            --apple-hover: rgba(0, 0, 0, 0.04);
+            --apple-active: #e5f1ff;
+            --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: var(--font-apple);
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            line-height: 1.5;
-        }
-
-        /* Container Layout matching dashboard_user.astro */
-        .container {
-            max-width: 1140px;
-            width: 100%;
-            margin: 1.5rem auto;
-            padding: 0 1rem;
-            flex-grow: 1;
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            gap: 1.5rem;
-        }
-
-        .sidebar-col {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .content-area {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-
-        /* Chat Master Card */
-        .chat-card {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-            display: grid;
-            grid-template-columns: 280px 1fr;
+            background-color: var(--apple-bg);
+            color: var(--apple-text-main);
+            height: 100vh;
             overflow: hidden;
-            height: calc(100vh - 160px);
-            min-height: 560px;
-        }
-
-        /* Left Contacts Panel */
-        .contacts-panel {
-            border-right: 1px solid var(--border-color);
-            background: #fdfdfd;
             display: flex;
             flex-direction: column;
         }
 
-        .contacts-header {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
+        /* Full Height Edge-to-Edge Desktop App Window (Mentok Full) */
+        .macos-app-container {
+            flex-grow: 1;
+            height: calc(100vh - 62px);
+            display: grid;
+            grid-template-columns: 240px 320px 1fr;
             background: #ffffff;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            overflow: hidden;
+            border-top: 1px solid var(--apple-border);
         }
 
-        .contacts-title {
+        /* 1. Leftmost macOS Sidebar Navigation */
+        .macos-sidebar-nav {
+            background: var(--apple-sidebar-bg);
+            border-right: 1px solid var(--apple-border);
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 0.75rem;
+            gap: 4px;
+            overflow-y: auto;
+        }
+
+        .macos-traffic-lights {
+            display: flex;
+            gap: 6px;
+            padding: 0 8px 1rem 8px;
+            align-items: center;
+        }
+
+        .traffic-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot-red { background: #ff5f56; border: 1px solid #e0443e; }
+        .dot-yellow { background: #ffbd2e; border: 1px solid #dea123; }
+        .dot-green { background: #27c93f; border: 1px solid #1aab29; }
+
+        .macos-sidebar-nav-title {
+            font-size: 0.7rem;
             font-weight: 700;
-            font-size: 1rem;
-            color: var(--text-color);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--apple-text-muted);
+            padding: 6px 12px 2px 12px;
+        }
+
+        .macos-nav-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 7px 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: var(--apple-text-secondary);
             font-size: 0.85rem;
-            outline: none;
-            background: #f8f9fa;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.15s ease;
         }
 
-        .search-box:focus {
+        .macos-nav-item:hover {
+            background: var(--apple-hover);
+            color: var(--apple-text-main);
+        }
+
+        .macos-nav-item.active {
+            background: var(--apple-blue);
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .macos-nav-item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .macos-nav-badge {
+            background: #ff3b30;
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+        }
+
+        .macos-sidebar-divider {
+            height: 1px;
+            background: var(--apple-border);
+            margin: 0.6rem 8px;
+        }
+
+        /* 2. Middle Panel: iTunes / iMessage Contacts List */
+        .macos-contacts-panel {
             background: #ffffff;
-            border-color: var(--primary);
+            border-right: 1px solid var(--apple-border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
-        .contacts-list {
+        .macos-search-header {
+            padding: 1rem 1rem 0.75rem 1rem;
+            border-bottom: 1px solid var(--apple-border);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .panel-header-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header-title h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--apple-text-main);
+            letter-spacing: -0.3px;
+        }
+
+        .apple-search-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .apple-search-input {
+            width: 100%;
+            padding: 8px 12px 8px 32px;
+            background: rgba(118, 118, 128, 0.12);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--apple-text-main);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .apple-search-input:focus {
+            background: #ffffff;
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+        }
+
+        .apple-search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--apple-text-muted);
+            pointer-events: none;
+        }
+
+        .macos-contacts-scroll {
             flex-grow: 1;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            padding: 4px;
         }
 
-        .contact-item {
+        .apple-contact-card {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 12px 14px;
-            border-bottom: 1px solid #f1f3f5;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background 0.15s ease;
-            background: #ffffff;
+            transition: all 0.15s ease;
+            position: relative;
+            margin-bottom: 2px;
         }
 
-        .contact-item:hover {
-            background: #f8f9fa;
+        .apple-contact-card:hover {
+            background: var(--apple-hover);
         }
 
-        .contact-item.active {
-            background: var(--primary-light);
-            border-left: 3px solid var(--primary);
+        .apple-contact-card.active {
+            background: var(--apple-active);
         }
 
-        .contact-avatar {
-            width: 38px;
-            height: 38px;
+        .apple-avatar-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .apple-avatar {
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            background: #0d6efd;
+            background: linear-gradient(135deg, #007aff, #5856d6);
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 0.95rem;
-            flex-shrink: 0;
+            font-size: 1.05rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
         }
 
-        .contact-info {
+        .apple-online-indicator {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 11px;
+            height: 11px;
+            background: #34c759;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+        }
+
+        .apple-contact-content {
             flex-grow: 1;
             min-width: 0;
         }
 
-        .contact-row-top {
+        .contact-top-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2px;
         }
 
-        .contact-name {
-            font-weight: 700;
-            font-size: 0.88rem;
-            color: var(--text-color);
+        .apple-contact-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--apple-text-main);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .contact-time {
+        .apple-contact-time {
             font-size: 0.7rem;
-            color: var(--text-muted);
+            color: var(--apple-text-muted);
+            font-weight: 400;
         }
 
-        .contact-row-bottom {
+        .contact-bottom-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 6px;
         }
 
-        .contact-lastmsg {
-            font-size: 0.78rem;
-            color: var(--text-muted);
+        .apple-last-snippet {
+            font-size: 0.8rem;
+            color: var(--apple-text-secondary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             flex-grow: 1;
         }
 
-        .unread-badge {
-            background: #dc3545;
+        .apple-unread-dot {
+            background: #007aff;
             color: #ffffff;
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             font-weight: 700;
             padding: 1px 6px;
             border-radius: 10px;
         }
 
-        /* Right Chat Conversation */
-        .chat-conversation {
+        /* 3. Right Panel: Apple iMessage Workspace */
+        .macos-chat-workspace {
+            background: #ffffff;
             display: flex;
             flex-direction: column;
-            background: #ffffff;
             height: 100%;
+            overflow: hidden;
         }
 
-        .chat-top-header {
-            padding: 10px 16px;
-            border-bottom: 1px solid var(--border-color);
+        .macos-chat-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--apple-border);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #ffffff;
+            z-index: 10;
         }
 
-        .chat-user-profile {
+        .active-user-meta {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .chat-user-name {
+        .active-user-name {
             font-weight: 700;
-            font-size: 0.95rem;
-            color: var(--text-color);
+            font-size: 1.05rem;
+            color: var(--apple-text-main);
+            letter-spacing: -0.2px;
         }
 
-        .chat-user-status {
+        .active-user-status {
             font-size: 0.75rem;
-            color: #198754;
+            color: #34c759;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
-        .chat-messages-body {
+        .telegram-badge-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 122, 255, 0.08);
+            color: var(--apple-blue);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .telegram-badge-tag:hover {
+            background: rgba(0, 122, 255, 0.15);
+        }
+
+        /* Messages stream with Apple Bubbles */
+        .macos-messages-stream {
             flex-grow: 1;
-            padding: 1.25rem;
+            padding: 1.5rem 2rem;
             overflow-y: auto;
-            background: #f8f9fa;
+            background: #fbfbfd;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             scroll-behavior: smooth;
         }
 
-        .msg-bubble-box {
+        .imessage-wrapper {
             display: flex;
             flex-direction: column;
-            max-width: 70%;
+            max-width: 68%;
+            animation: apple-msg-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .msg-bubble-box.sent {
+        @keyframes apple-msg-in {
+            from { opacity: 0; transform: translateY(8px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .imessage-wrapper.sent {
             align-self: flex-end;
             align-items: flex-end;
         }
 
-        .msg-bubble-box.received {
+        .imessage-wrapper.received {
             align-self: flex-start;
             align-items: flex-start;
         }
 
-        .msg-bubble-content {
-            padding: 9px 14px;
-            border-radius: 12px;
-            font-size: 0.88rem;
-            line-height: 1.4;
-            word-break: break-word;
-        }
-
-        .msg-bubble-box.sent .msg-bubble-content {
-            background: #0d6efd;
-            color: #ffffff;
-            border-bottom-right-radius: 2px;
-        }
-
-        .msg-bubble-box.received .msg-bubble-content {
-            background: #ffffff;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-bottom-left-radius: 2px;
-        }
-
-        .msg-meta-info {
-            font-size: 0.68rem;
-            color: var(--text-muted);
-            margin-top: 3px;
+        .imessage-sender-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--apple-text-muted);
+            margin-bottom: 3px;
             padding: 0 4px;
         }
 
-        .chat-input-bar {
-            padding: 10px 14px;
-            border-top: 1px solid var(--border-color);
-            background: #ffffff;
+        .imessage-bubble {
+            padding: 10px 16px;
+            border-radius: 18px;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            word-break: break-word;
+            position: relative;
+        }
+
+        .imessage-wrapper.sent .imessage-bubble {
+            background: var(--apple-blue-gradient);
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+        }
+
+        .imessage-wrapper.received .imessage-bubble {
+            background: #e9e9eb;
+            color: #000000;
+            border-bottom-left-radius: 4px;
+        }
+
+        .imessage-meta {
+            font-size: 0.68rem;
+            color: var(--apple-text-muted);
+            margin-top: 4px;
+            padding: 0 4px;
             display: flex;
-            gap: 8px;
             align-items: center;
+            gap: 4px;
         }
 
-        .chat-input-field {
+        /* Apple Capsule Message Input */
+        .macos-input-bar {
+            padding: 12px 18px;
+            border-top: 1px solid var(--apple-border);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .imessage-input-capsule {
             flex-grow: 1;
-            padding: 9px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            background: rgba(118, 118, 128, 0.12);
+            border: 1px solid transparent;
+            border-radius: 22px;
+            padding: 4px 6px 4px 16px;
+            transition: all 0.2s ease;
+        }
+
+        .imessage-input-capsule:focus-within {
+            background: #ffffff;
+            border-color: var(--apple-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+        }
+
+        .imessage-text-input {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            font-size: 0.92rem;
             outline: none;
+            color: var(--apple-text-main);
+            padding: 6px 0;
         }
 
-        .chat-input-field:focus {
-            border-color: var(--primary);
-        }
-
-        .btn-send-msg {
-            background: #0d6efd;
+        .imessage-send-arrow {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--apple-blue);
             color: #ffffff;
             border: none;
-            padding: 9px 18px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            transition: background 0.15s;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
         }
 
-        .btn-send-msg:hover {
-            background: #0b5ed7;
+        .imessage-send-arrow:hover {
+            transform: scale(1.08);
+            background: var(--apple-blue-hover);
         }
 
-        .no-chat-screen {
+        .imessage-send-arrow:disabled {
+            background: #c7c7cc;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        /* Empty / No Chat Selected Screen */
+        .apple-empty-chat {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             flex-grow: 1;
-            color: var(--text-muted);
-            gap: 10px;
-            background: #f8f9fa;
-            padding: 2rem;
+            gap: 14px;
+            color: var(--apple-text-secondary);
             text-align: center;
+            padding: 2rem;
+            background: #fbfbfd;
         }
 
-        .back-mobile-btn {
+        .apple-empty-icon {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: rgba(0, 122, 255, 0.1);
+            color: var(--apple-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .back-mobile-button {
             display: none;
             background: none;
             border: none;
             font-size: 1.2rem;
             cursor: pointer;
-            padding: 2px 6px;
-            color: var(--text-color);
+            padding: 4px 8px;
+            color: var(--apple-blue);
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 900px) {
+            .macos-app-container {
+                grid-template-columns: 200px 280px 1fr;
+            }
         }
 
         @media (max-width: 768px) {
-            .container {
+            .macos-app-container {
                 grid-template-columns: 1fr;
             }
-            .sidebar-col {
+            .macos-sidebar-nav {
                 display: none;
             }
-            .chat-card {
-                grid-template-columns: 1fr;
-                height: calc(100vh - 120px);
-            }
-            .contacts-panel.mobile-hidden {
+            .macos-contacts-panel.mobile-hidden {
                 display: none;
             }
-            .chat-conversation.mobile-hidden {
+            .macos-chat-workspace.mobile-hidden {
                 display: none;
             }
-            .back-mobile-btn {
+            .back-mobile-button {
                 display: block;
             }
         }
@@ -391,37 +580,96 @@ import BottomNav from '../components/BottomNav.astro';
 <body>
     <UserNavbar />
 
-    <div class="container">
-        <div class="sidebar-col">
-            <UserSidebar activeTab="pesan" />
-        </div>
+    <!-- Edge-to-Edge macOS Apple Messenger Layout -->
+    <div class="macos-app-container">
+        <!-- 1. Left macOS Sidebar (Mentok Full) -->
+        <aside class="macos-sidebar-nav">
+            <div class="macos-traffic-lights">
+                <span class="traffic-dot dot-red"></span>
+                <span class="traffic-dot dot-yellow"></span>
+                <span class="traffic-dot dot-green"></span>
+            </div>
 
-        <div class="content-area">
-            <div class="chat-card">
-                <!-- Contacts Panel -->
-                <div class="contacts-panel" id="contactsPanel">
-                    <div class="contacts-header">
-                        <div class="contacts-title">
-                            <span>💬 Pesan Masuk</span>
-                            <span id="unreadTotalBadge" class="unread-badge" style="display: none;">0</span>
-                        </div>
-                        <input type="text" id="searchContactInput" class="search-box" placeholder="Cari kontak..." oninput="filterContacts()">
-                    </div>
-                    <div class="contacts-list" id="contactsList">
-                        <div style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Memuat percakapan...</div>
-                    </div>
+            <div class="macos-sidebar-nav-title">Menu Utama</div>
+            <a href="/dashboard_user" class="macos-nav-item">
+                <div class="macos-nav-item-left">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span>Dashboard User</span>
                 </div>
+            </a>
+            <a href="/dashboard_pesanan" class="macos-nav-item">
+                <div class="macos-nav-item-left">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><polygon points="12 22.08 12 12 3 6.92 3 17.08 12 22.08"></polygon><polygon points="12 22.08 12 12 21 6.92 21 17.08 12 22.08"></polygon><polygon points="12 12 3 6.92 12 1.84 21 6.92 12 12"></polygon></svg>
+                    <span>Pesanan Saya</span>
+                </div>
+            </a>
+            <a href="/dashboard_produk" class="macos-nav-item">
+                <div class="macos-nav-item-left">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                    <span>Produk Saya</span>
+                </div>
+            </a>
+            <a href="/dashboard_pengaturan" class="macos-nav-item">
+                <div class="macos-nav-item-left">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>Pengaturan</span>
+                </div>
+            </a>
+            <a href="/pesan" class="macos-nav-item active">
+                <div class="macos-nav-item-left">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <span>Pesan & Chat CS</span>
+                </div>
+                <span id="sidebar-pesan-unread" class="macos-nav-badge" style="display: none;">0</span>
+            </a>
+            <a href="/dashboard_saldo" class="macos-nav-item">
+                <div class="macos-nav-item-left">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                    <span>Saldo & Wallet</span>
+                </div>
+            </a>
 
-                <!-- Chat Main Window -->
-                <div class="chat-conversation" id="chatMain">
-                    <div class="no-chat-screen">
-                        <div style="font-size: 2.5rem;">💬</div>
-                        <h4 style="color: var(--text-color);">Pusat Pesan EasyMall</h4>
-                        <p style="font-size: 0.85rem;">Pilih salah satu kontak di sebelah kiri untuk berkirim pesan secara instan.</p>
-                    </div>
+            <div class="macos-sidebar-divider"></div>
+            <div class="macos-sidebar-nav-title">Partner</div>
+            <a href="/dashboard_reseller" class="macos-nav-item">
+                <div class="macos-nav-item-left">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <span>Reseller Dashboard</span>
+                </div>
+            </a>
+            <button class="macos-nav-item" style="border: none; background: transparent; width: 100%; cursor: pointer; color: #ff3b30;" onclick="performLogout()">
+                <div class="macos-nav-item-left">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    <span>Keluar</span>
+                </div>
+            </button>
+        </aside>
+
+        <!-- 2. Middle Contacts Panel (iTunes / iMessage List) -->
+        <section class="macos-contacts-panel" id="contactsPanel">
+            <div class="macos-search-header">
+                <div class="panel-header-title">
+                    <h3>Pesan Masuk</h3>
+                    <span id="unreadTotalBadge" class="apple-unread-dot" style="display: none;">0</span>
+                </div>
+                <div class="apple-search-wrapper">
+                    <svg class="apple-search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="searchContactInput" class="apple-search-input" placeholder="Cari percakapan..." oninput="filterContacts()">
                 </div>
             </div>
-        </div>
+            <div class="macos-contacts-scroll" id="contactsList">
+                <div style="padding: 3rem 1rem; text-align: center; color: var(--apple-text-muted); font-size: 0.85rem;">Memuat daftar percakapan...</div>
+            </div>
+        </section>
+
+        <!-- 3. Right Chat Workspace (Apple iMessage Canvas) -->
+        <main class="macos-chat-workspace" id="chatMain">
+            <div class="apple-empty-chat">
+                <div class="apple-empty-icon">💬</div>
+                <h3 style="color: var(--apple-text-main); font-weight: 700; letter-spacing: -0.3px;">Pusat Pesan EasyMall</h3>
+                <p style="font-size: 0.88rem; max-width: 320px; color: var(--apple-text-secondary);">Pilih kontak di sebelah kiri untuk berkirim pesan dengan Customer Support atau Reseller.</p>
+            </div>
+        </main>
     </div>
 
     <script is:inline>
@@ -475,13 +723,15 @@ import BottomNav from '../components/BottomNav.astro';
                         
                         const totalUnread = rawContactsList.reduce((acc, c) => acc + (c.unread_count || 0), 0);
                         const badgeEl = document.getElementById('unreadTotalBadge');
+                        const sidebarBadge = document.getElementById('sidebar-pesan-unread');
+                        
                         if (badgeEl) {
-                            if (totalUnread > 0) {
-                                badgeEl.innerText = totalUnread;
-                                badgeEl.style.display = 'inline-block';
-                            } else {
-                                badgeEl.style.display = 'none';
-                            }
+                            badgeEl.innerText = totalUnread;
+                            badgeEl.style.display = totalUnread > 0 ? 'inline-block' : 'none';
+                        }
+                        if (sidebarBadge) {
+                            sidebarBadge.innerText = totalUnread;
+                            sidebarBadge.style.display = totalUnread > 0 ? 'inline-block' : 'none';
                         }
                     }
                 }
@@ -503,25 +753,28 @@ import BottomNav from '../components/BottomNav.astro';
             );
 
             if (filtered.length === 0) {
-                listEl.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Tidak ada kontak ditemukan.</div>';
+                listEl.innerHTML = '<div style="padding: 3rem 1rem; text-align: center; color: var(--apple-text-muted); font-size: 0.85rem;">Tidak ada percakapan ditemukan.</div>';
                 return;
             }
 
             listEl.innerHTML = filtered.map(c => {
                 const isActive = c.contact_email === activeContactEmail ? 'active' : '';
                 const initial = (c.contact_name || '?').charAt(0).toUpperCase();
-                const unreadBadge = (c.unread_count > 0) ? `<span class="unread-badge">${c.unread_count}</span>` : '';
+                const unreadBadge = (c.unread_count > 0) ? `<span class="apple-unread-dot">${c.unread_count}</span>` : '';
 
                 return `
-                    <div class="contact-item ${isActive}" onclick="openChat('${c.contact_email}')">
-                        <div class="contact-avatar">${initial}</div>
-                        <div class="contact-info">
-                            <div class="contact-row-top">
-                                <span class="contact-name">${c.contact_name || c.contact_email}</span>
-                                <span class="contact-time">${c.last_message_time || ''}</span>
+                    <div class="apple-contact-card ${isActive}" onclick="openChat('${c.contact_email}')">
+                        <div class="apple-avatar-wrap">
+                            <div class="apple-avatar">${initial}</div>
+                            <span class="apple-online-indicator"></span>
+                        </div>
+                        <div class="apple-contact-content">
+                            <div class="contact-top-row">
+                                <span class="apple-contact-name">${c.contact_name || c.contact_email}</span>
+                                <span class="apple-contact-time">${c.last_message_time || ''}</span>
                             </div>
-                            <div class="contact-row-bottom">
-                                <span class="contact-lastmsg">${c.last_message || ''}</span>
+                            <div class="contact-bottom-row">
+                                <span class="apple-last-snippet">${c.last_message || ''}</span>
                                 ${unreadBadge}
                             </div>
                         </div>
@@ -544,23 +797,33 @@ import BottomNav from '../components/BottomNav.astro';
             const contactName = contact ? contact.contact_name : contactEmail.split('@')[0];
 
             chatMain.innerHTML = `
-                <div class="chat-top-header">
-                    <div class="chat-user-profile">
-                        <button class="back-mobile-btn" onclick="backToContacts()">←</button>
-                        <div class="contact-avatar" style="width: 32px; height: 32px; font-size: 0.85rem;">${contactName.charAt(0).toUpperCase()}</div>
+                <header class="macos-chat-header">
+                    <div class="active-user-meta">
+                        <button class="back-mobile-button" onclick="backToContacts()">←</button>
+                        <div class="apple-avatar" style="width: 36px; height: 36px; font-size: 0.95rem;">${contactName.charAt(0).toUpperCase()}</div>
                         <div>
-                            <div class="chat-user-name">${contactName}</div>
-                            <div class="chat-user-status">● Online</div>
+                            <div class="active-user-name">${contactName}</div>
+                            <div class="active-user-status">● Online</div>
                         </div>
                     </div>
+                    <div>
+                        <a href="https://t.me/pesanwebsitebubble_bot" target="_blank" class="telegram-badge-tag">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.285.194.57.387.963.614.09.052.176.107.259.162.361.242.661.446.996.414.195-.019.396-.201.497-1.03l.635-4.8c.073-.61-.17-1.026-.648-1.026-.26 0-.533.12-.828.243z"/></svg>
+                            <span>Telegram Bot CS</span>
+                        </a>
+                    </div>
+                </header>
+                <div class="macos-messages-stream" id="chatBody">
+                    <div style="padding: 3rem; text-align: center; color: var(--apple-text-muted); font-size: 0.88rem;">Memuat percakapan...</div>
                 </div>
-                <div class="chat-messages-body" id="chatBody">
-                    <div style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Memuat obrolan...</div>
-                </div>
-                <div class="chat-input-bar">
-                    <input type="text" id="messageInput" class="chat-input-field" placeholder="Tulis pesan..." onkeydown="handleInputKeyDown(event)">
-                    <button class="btn-send-msg" id="sendBtn" onclick="handleSendMessage()">Kirim</button>
-                </div>
+                <footer class="macos-input-bar">
+                    <div class="imessage-input-capsule">
+                        <input type="text" id="messageInput" class="imessage-text-input" placeholder="iMessage..." onkeydown="handleInputKeyDown(event)">
+                        <button type="button" class="imessage-send-arrow" id="sendBtn" onclick="handleSendMessage()" aria-label="Kirim">
+                            <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm-1.05-1.12L1.587 6.185l11.554-4.622z"/></svg>
+                        </button>
+                    </div>
+                </footer>
             `;
 
             await fetchChatHistory(contactEmail, true);
@@ -590,8 +853,8 @@ import BottomNav from '../components/BottomNav.astro';
 
             if (messagesList.length === 0) {
                 chatBody.innerHTML = `
-                    <div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
-                        Belum ada pesan dengan kontak ini.<br>Kirim pesan pertama Anda!
+                    <div style="padding: 4rem 1rem; text-align: center; color: var(--apple-text-secondary); font-size: 0.88rem;">
+                        👋 Belum ada pesan dengan kontak ini.<br>Kirim pesan pertama Anda untuk memulai obrolan!
                     </div>
                 `;
                 return;
@@ -601,11 +864,16 @@ import BottomNav from '../components/BottomNav.astro';
                 const isSent = m.sender_email === activeUserEmail;
                 const alignmentClass = isSent ? 'sent' : 'received';
                 const timeStr = m.created_at ? new Date(m.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '';
+                const senderName = isSent ? 'Anda' : (m.sender_name || m.sender_email);
 
                 return `
-                    <div class="msg-bubble-box ${alignmentClass}">
-                        <div class="msg-bubble-content">${escapeHtml(m.message)}</div>
-                        <span class="msg-meta-info">${timeStr}</span>
+                    <div class="imessage-wrapper ${alignmentClass}">
+                        <span class="imessage-sender-tag">${senderName}</span>
+                        <div class="imessage-bubble">${escapeHtml(m.message)}</div>
+                        <span class="imessage-meta">
+                            <span>${timeStr}</span>
+                            ${isSent ? '<span style="color: #007aff; font-weight: 700;">✓✓</span>' : ''}
+                        </span>
                     </div>
                 `;
             }).join('');
@@ -649,7 +917,7 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         function handleInputKeyDown(e) {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 handleSendMessage();
             }
@@ -659,9 +927,14 @@ import BottomNav from '../components/BottomNav.astro';
             return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
 
+        async function performLogout() {
+            try {
+                await fetch('/logout', { credentials: 'include' });
+            } catch(e){}
+            window.location.href = '/login';
+        }
+
         initChatSystem();
     </script>
-
-    <BottomNav />
 </body>
 </html>
