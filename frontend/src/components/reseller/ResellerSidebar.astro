@@ -1,98 +1,167 @@
 ---
-// ResellerSidebar.astro
+// ResellerSidebar.astro - Apple macOS / iTunes Inspired Sidebar
 const { activeTab } = Astro.props;
 ---
 
-<div class="sidebar-menu">
-    <a href="/dashboard_reseller" class={`sidebar-btn ${activeTab === 'stats' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-icon"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-        Overview & Stat
-    </a>
-    <a href="/reseller_koneksi" class={`sidebar-btn ${activeTab === 'koneksi' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-icon"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-        Koneksi API
-    </a>
-    <a href="/reseller_laporan" class={`sidebar-btn ${activeTab === 'laporan' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        Laporan Penjualan
-    </a>
-    <a href="/reseller_penjualan" class={`sidebar-btn ${activeTab === 'penjualan' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-icon"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-        Data Penjualan
-    </a>
-    <a href="/reseller_keuntungan" class={`sidebar-btn ${activeTab === 'keuntungan' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-icon"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-        Keuntungan
-    </a>
-    <hr class="sidebar-divider" />
-    <a href="/dashboard_user" class="sidebar-btn user-switch-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-icon"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        Ke Dashboard User
-    </a>
-    <button class="sidebar-btn logout-btn" onclick="performLogout()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-icon"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
-        Keluar
-    </button>
-</div>
+<aside class="macos-sidebar-nav">
+    <div class="macos-traffic-lights">
+        <span class="traffic-dot dot-red"></span>
+        <span class="traffic-dot dot-yellow"></span>
+        <span class="traffic-dot dot-green"></span>
+    </div>
 
-<style>
-    .sidebar-menu {
+    <div class="macos-sidebar-nav-title">Menu Reseller</div>
+
+    <a href="/dashboard_reseller" class={`macos-nav-item ${activeTab === 'stats' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>Overview & Stat</span>
+        </div>
+    </a>
+    <a href="/reseller_koneksi" class={`macos-nav-item ${activeTab === 'koneksi' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+            <span>Koneksi API</span>
+        </div>
+    </a>
+    <a href="/reseller_laporan" class={`macos-nav-item ${activeTab === 'laporan' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>Laporan Penjualan</span>
+        </div>
+    </a>
+    <a href="/reseller_penjualan" class={`macos-nav-item ${activeTab === 'penjualan' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            <span>Data Penjualan</span>
+        </div>
+    </a>
+    <a href="/reseller_keuntungan" class={`macos-nav-item ${activeTab === 'keuntungan' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            <span>Keuntungan</span>
+        </div>
+    </a>
+
+    <div class="macos-sidebar-divider"></div>
+    <div class="macos-sidebar-nav-title">Navigasi Utama</div>
+
+    <a href="/dashboard_user" class="macos-nav-item reseller-switch">
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Ke Dashboard User</span>
+        </div>
+    </a>
+    <button class="macos-nav-item logout-btn" onclick="performLogout()">
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>
+            <span>Keluar</span>
+        </div>
+    </button>
+</aside>
+
+<style is:global>
+    .macos-sidebar-nav {
         display: flex;
         flex-direction: column;
-        gap: 6px;
-        background: #ffffff;
-        border: 2px solid #dee2e6;
-        border-radius: 4px;
-        padding: 0.75rem;
-    }
-
-    .sidebar-btn {
+        gap: 4px;
         background: transparent;
         border: none;
-        padding: 10px 12px;
-        color: #495057;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.9rem;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+        width: 100%;
+    }
+
+    .macos-traffic-lights {
+        display: flex;
+        gap: 6px;
+        padding: 4px 10px 0.85rem 10px;
+        align-items: center;
+    }
+
+    .traffic-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot-red { background: #ff5f56; border: 1px solid #e0443e; }
+    .dot-yellow { background: #ffbd2e; border: 1px solid #dea123; }
+    .dot-green { background: #27c93f; border: 1px solid #1aab29; }
+
+    .macos-sidebar-nav-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #86868b;
+        padding: 6px 12px 2px 12px;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .macos-nav-item {
+        background: transparent;
+        border: none;
+        padding: 8px 12px;
+        color: #48484a;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.85rem;
         text-align: left;
         cursor: pointer;
         text-decoration: none;
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        transition: all 0.15s ease;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .macos-nav-item-left {
+        display: flex;
+        align-items: center;
         gap: 10px;
-        transition: all 0.1s ease;
     }
 
-    .sidebar-btn:hover {
-        background: #f1f3f5;
-        color: #212529;
+    .macos-nav-item:hover {
+        background: rgba(0, 0, 0, 0.04);
+        color: #1d1d1f;
     }
 
-    .sidebar-btn.active {
-        background: #0d6efd;
-        color: #ffffff;
+    .macos-nav-item.active {
+        background: #007aff;
+        color: #ffffff !important;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
     }
 
-    .sidebar-divider {
-        border: 0;
-        border-top: 1px solid #dee2e6;
-        margin: 0.5rem 0;
+    .macos-nav-item.active svg {
+        stroke: #ffffff;
     }
 
-    .user-switch-btn {
-        color: #0d6efd;
+    .macos-sidebar-divider {
+        height: 1px;
+        background: rgba(0, 0, 0, 0.08);
+        margin: 0.6rem 8px;
     }
 
-    .user-switch-btn:hover {
-        background: #e7f1ff;
+    .macos-nav-item.reseller-switch {
+        color: #007aff;
+        font-weight: 600;
     }
 
-    .logout-btn {
-        color: #dc3545;
+    .macos-nav-item.reseller-switch:hover {
+        background: rgba(0, 122, 255, 0.08);
+    }
+
+    .macos-nav-item.logout-btn {
+        color: #ff3b30;
         width: 100%;
+        font-weight: 600;
     }
 
-    .logout-btn:hover {
-        background: #fdf2f2;
+    .macos-nav-item.logout-btn:hover {
+        background: rgba(255, 59, 48, 0.08);
     }
 </style>

@@ -1,62 +1,82 @@
 ---
-// UserSidebar.astro
+// UserSidebar.astro - Apple macOS / iTunes Inspired Sidebar
 const { activeTab } = Astro.props;
 ---
-<div class="sidebar-menu">
-    <div class="macos-traffic-lights" style="display: flex; gap: 6px; padding: 4px 8px 0.75rem 8px; align-items: center;">
-        <span style="width: 11px; height: 11px; border-radius: 50%; background: #ff5f56; border: 1px solid #e0443e; display: inline-block;"></span>
-        <span style="width: 11px; height: 11px; border-radius: 50%; background: #ffbd2e; border: 1px solid #dea123; display: inline-block;"></span>
-        <span style="width: 11px; height: 11px; border-radius: 50%; background: #27c93f; border: 1px solid #1aab29; display: inline-block;"></span>
+<aside class="macos-sidebar-nav">
+    <div class="macos-traffic-lights">
+        <span class="traffic-dot dot-red"></span>
+        <span class="traffic-dot dot-yellow"></span>
+        <span class="traffic-dot dot-green"></span>
     </div>
 
-    <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #86868b; padding: 4px 10px 2px 10px;">Menu Utama</div>
+    <div class="macos-sidebar-nav-title">Menu Utama</div>
 
-    <a href="/dashboard_user" class={`sidebar-btn ${activeTab === 'dashboard' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        <span>Dashboard User</span>
+    <a href="/dashboard_user" class={`macos-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span>Dashboard User</span>
+        </div>
     </a>
-    <a href="/dashboard_pesanan" class={`sidebar-btn ${activeTab === 'pesanan' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><polygon points="12 22.08 12 12 3 6.92 3 17.08 12 22.08"></polygon><polygon points="12 22.08 12 12 21 6.92 21 17.08 12 22.08"></polygon><polygon points="12 12 3 6.92 12 1.84 21 6.92 12 12"></polygon></svg>
-        <span>Pesanan Saya</span>
+    <a href="/dashboard_pesanan" class={`macos-nav-item ${activeTab === 'pesanan' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><polygon points="12 22.08 12 12 3 6.92 3 17.08 12 22.08"></polygon><polygon points="12 22.08 12 12 21 6.92 21 17.08 12 22.08"></polygon><polygon points="12 12 3 6.92 12 1.84 21 6.92 12 12"></polygon></svg>
+            <span>Pesanan Saya</span>
+        </div>
     </a>
-    <a href="/dashboard_produk" class={`sidebar-btn ${activeTab === 'produk' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
-        <span>Produk Saya</span>
+    <a href="/dashboard_produk" class={`macos-nav-item ${activeTab === 'produk' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.778-7.778zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+            <span>Produk Saya</span>
+        </div>
     </a>
-    <a href="/dashboard_pengaturan" class={`sidebar-btn ${activeTab === 'pengaturan' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        <span>Pengaturan</span>
+    <a href="/dashboard_pengaturan" class={`macos-nav-item ${activeTab === 'pengaturan' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Pengaturan</span>
+        </div>
     </a>
-    <a href="/dashboard_keranjang" class={`sidebar-btn ${activeTab === 'keranjang' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-        <span>Keranjang Saya</span>
+    <a href="/dashboard_keranjang" class={`macos-nav-item ${activeTab === 'keranjang' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            <span>Keranjang Saya</span>
+        </div>
     </a>
-    <a href="/pesan" class={`sidebar-btn ${activeTab === 'pesan' ? 'active' : ''}`} style="position: relative; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    <a href="/pesan" class={`macos-nav-item ${activeTab === 'pesan' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
             <span>Pesan & Chat CS</span>
         </div>
-        <span id="sidebar-pesan-unread" style="display: none; background: #ff3b30; color: #ffffff; font-size: 0.65rem; font-weight: 700; border-radius: 10px; padding: 1px 6px;">0</span>
+        <span id="sidebar-pesan-unread" class="macos-nav-badge" style="display: none;">0</span>
     </a>
-    <a href="/dashboard_notifikasi" class={`sidebar-btn ${activeTab === 'notifikasi' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-        <span>Notifikasi</span>
+    <a href="/dashboard_notifikasi" class={`macos-nav-item ${activeTab === 'notifikasi' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <span>Notifikasi</span>
+        </div>
     </a>
-    <a href="/dashboard_saldo" class={`sidebar-btn ${activeTab === 'saldo' ? 'active' : ''}`}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-        <span>Saldo & Wallet</span>
+    <a href="/dashboard_saldo" class={`macos-nav-item ${activeTab === 'saldo' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+            <span>Saldo & Wallet</span>
+        </div>
     </a>
-    <hr class="sidebar-divider" />
-    <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #86868b; padding: 4px 10px 2px 10px;">Partner</div>
-    <a href="/dashboard_reseller" class="sidebar-btn reseller-switch-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-        <span>Ke Reseller Dashboard</span>
+
+    <div class="macos-sidebar-divider"></div>
+    <div class="macos-sidebar-nav-title">Partner</div>
+
+    <a href="/dashboard_reseller" class={`macos-nav-item reseller-switch ${activeTab === 'reseller' ? 'active' : ''}`}>
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            <span>Ke Reseller Dashboard</span>
+        </div>
     </a>
-    <button class="sidebar-btn logout-btn" onclick="performLogout()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        <span>Keluar</span>
+    <button class="macos-nav-item logout-btn" onclick="performLogout()">
+        <div class="macos-nav-item-left">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Keluar</span>
+        </div>
     </button>
-</div>
+</aside>
 
 <script is:inline>
     (function() {
@@ -76,18 +96,46 @@ const { activeTab } = Astro.props;
 </script>
 
 <style is:global>
-    .sidebar-menu {
+    .macos-sidebar-nav {
         display: flex;
         flex-direction: column;
-        gap: 3px;
+        gap: 4px;
         background: transparent;
         border: none;
         border-radius: 0;
         padding: 0;
         box-shadow: none;
+        width: 100%;
     }
 
-    .sidebar-btn {
+    .macos-traffic-lights {
+        display: flex;
+        gap: 6px;
+        padding: 4px 10px 0.85rem 10px;
+        align-items: center;
+    }
+
+    .traffic-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .dot-red { background: #ff5f56; border: 1px solid #e0443e; }
+    .dot-yellow { background: #ffbd2e; border: 1px solid #dea123; }
+    .dot-green { background: #27c93f; border: 1px solid #1aab29; }
+
+    .macos-sidebar-nav-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #86868b;
+        padding: 6px 12px 2px 12px;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .macos-nav-item {
         background: transparent;
         border: none;
         padding: 8px 12px;
@@ -100,49 +148,64 @@ const { activeTab } = Astro.props;
         text-decoration: none;
         display: flex;
         align-items: center;
-        gap: 10px;
+        justify-content: space-between;
         transition: all 0.15s ease;
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
     }
 
-    .sidebar-btn:hover {
+    .macos-nav-item-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .macos-nav-item:hover {
         background: rgba(0, 0, 0, 0.04);
         color: #1d1d1f;
     }
 
-    .sidebar-btn.active {
+    .macos-nav-item.active {
         background: #007aff;
         color: #ffffff !important;
         font-weight: 600;
         box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
     }
 
-    .sidebar-btn.active svg {
+    .macos-nav-item.active svg {
         stroke: #ffffff;
     }
 
-    .sidebar-divider {
-        border: 0;
-        border-top: 1px solid rgba(0, 0, 0, 0.08);
-        margin: 0.5rem 6px;
+    .macos-nav-badge {
+        background: #ff3b30;
+        color: #ffffff;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 10px;
     }
 
-    .reseller-switch-btn {
+    .macos-sidebar-divider {
+        height: 1px;
+        background: rgba(0, 0, 0, 0.08);
+        margin: 0.6rem 8px;
+    }
+
+    .macos-nav-item.reseller-switch {
         color: #007aff;
         font-weight: 600;
     }
 
-    .reseller-switch-btn:hover {
+    .macos-nav-item.reseller-switch:hover {
         background: rgba(0, 122, 255, 0.08);
     }
 
-    .logout-btn {
+    .macos-nav-item.logout-btn {
         color: #ff3b30;
         width: 100%;
         font-weight: 600;
     }
 
-    .logout-btn:hover {
+    .macos-nav-item.logout-btn:hover {
         background: rgba(255, 59, 48, 0.08);
     }
 </style>
