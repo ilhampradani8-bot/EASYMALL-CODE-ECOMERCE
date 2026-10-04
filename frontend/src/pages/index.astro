@@ -11,6 +11,46 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
     <main class="main-content">
         <!-- Catalog View Container (visible by default) -->
         <div id="catalogView">
+            <!-- Running Banner Marquee (Right to Left / Berjalan Kanan ke Kiri) -->
+            <section class="banner-marquee-section" aria-label="Banner Promo">
+                <div class="banner-marquee-wrapper">
+                    <div class="banner-marquee-track">
+                        <!-- Set 1 -->
+                        <div class="banner-item">
+                            <a href="/katalog">
+                                <img src="/banner/Gemini_Generated_Image_1s6kb41s6kb41s6k.jpeg" alt="EasyMall Promo Banner 1" loading="eager" />
+                            </a>
+                        </div>
+                        <div class="banner-item">
+                            <a href="/katalog">
+                                <img src="/banner/Gemini_Generated_Image_8kdnen8kdnen8kdn.jpeg" alt="EasyMall Promo Banner 2" loading="eager" />
+                            </a>
+                        </div>
+                        <div class="banner-item">
+                            <a href="/katalog">
+                                <img src="/banner/Gemini_Generated_Image_8uf3so8uf3so8uf3.jpeg" alt="EasyMall Promo Banner 3" loading="eager" />
+                            </a>
+                        </div>
+                        <!-- Set 2 (for continuous seamless infinite loop) -->
+                        <div class="banner-item" aria-hidden="true">
+                            <a href="/katalog" tabindex="-1">
+                                <img src="/banner/Gemini_Generated_Image_1s6kb41s6kb41s6k.jpeg" alt="EasyMall Promo Banner 1 Duplicate" loading="lazy" />
+                            </a>
+                        </div>
+                        <div class="banner-item" aria-hidden="true">
+                            <a href="/katalog" tabindex="-1">
+                                <img src="/banner/Gemini_Generated_Image_8kdnen8kdnen8kdn.jpeg" alt="EasyMall Promo Banner 2 Duplicate" loading="lazy" />
+                            </a>
+                        </div>
+                        <div class="banner-item" aria-hidden="true">
+                            <a href="/katalog" tabindex="-1">
+                                <img src="/banner/Gemini_Generated_Image_8uf3so8uf3so8uf3.jpeg" alt="EasyMall Promo Banner 3 Duplicate" loading="lazy" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Hero Section -->
             <section id="hero" class="hero">
                 <div class="container">
@@ -378,3 +418,106 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
         document.addEventListener('astro:page-load', initCategorySlider);
     })();
 </script>
+
+<style is:global>
+    /* Running Banner Marquee (Right to Left) */
+    .banner-marquee-section {
+        width: 100%;
+        overflow: hidden;
+        background: #f5f5f7;
+        padding: 1.25rem 0 0.75rem 0;
+        position: relative;
+    }
+
+    .banner-marquee-wrapper {
+        display: flex;
+        overflow: hidden;
+        width: 100%;
+        user-select: none;
+        mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
+    }
+
+    .banner-marquee-track {
+        display: flex;
+        gap: 1.25rem;
+        flex-shrink: 0;
+        align-items: center;
+        animation: marqueeScrollLeft 32s linear infinite;
+        will-change: transform;
+    }
+
+    .banner-marquee-wrapper:hover .banner-marquee-track {
+        animation-play-state: paused;
+    }
+
+    .banner-item {
+        flex-shrink: 0;
+        width: 540px;
+        max-width: 82vw;
+        height: 220px;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+        background: #1d1d1f;
+    }
+
+    .banner-item:hover {
+        transform: translateY(-4px) scale(1.015);
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+    }
+
+    .banner-item a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .banner-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.4s ease;
+    }
+
+    .banner-item:hover img {
+        transform: scale(1.03);
+    }
+
+    @keyframes marqueeScrollLeft {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .banner-marquee-section {
+            padding: 0.5rem 0 0.5rem 0;
+        }
+        .banner-marquee-track {
+            gap: 0.75rem;
+            animation-duration: 22s;
+        }
+        .banner-item {
+            width: 320px;
+            max-width: 88vw;
+            height: 150px;
+            border-radius: 12px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .banner-item {
+            width: 290px;
+            height: 140px;
+        }
+    }
+</style>
