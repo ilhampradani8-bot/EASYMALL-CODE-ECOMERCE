@@ -119,7 +119,9 @@ function formatRupiah(num) {
 }
 
 function getBadgeClass(badge) {
-    const b = badge.toLowerCase();
+    const b = (badge || '').toLowerCase();
+    if (b.includes('dev') || b.includes('pengembangan')) return 'badge-dev';
+    if (b.includes('manual') || b.includes('non-realtime')) return 'badge-manual';
     if (b.includes('promo')) return 'badge-promo';
     if (b.includes('terlaris') || b.includes('populer')) return 'badge-popular';
     if (b.includes('instan') || b.includes('24 jam')) return 'badge-instant';
@@ -261,6 +263,7 @@ function renderSearchResults(queryText) {
         const productImg = p.image || p.image_url || '/gambar/logo/easymall-logo.png';
         const iconEmoji = `<img src="${productImg}" alt="${p.name}" style="height: 70px; width: auto; object-fit: contain;">`;
         const originalPrice = Math.round(p.price * 1.15);
+        const isNonRealtime = p.is_realtime === false || p.is_development === true || (p.badge && (p.badge.includes('DEV') || p.badge.includes('MANUAL')));
         
         const card = document.createElement('div');
         card.className = 'card product-card';
@@ -271,7 +274,10 @@ function renderSearchResults(queryText) {
                 ${p.badge ? `<span class="badge ${getBadgeClass(p.badge)}">${p.badge}</span>` : ''}
             </div>
             <div class="card-body" style="padding: 0.65rem 0.75rem;">
-                <span class="product-category" style="font-size: 0.68rem; margin-bottom: 2px;">${cat ? cat.name : p.category_slug}</span>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 2px;">
+                    <span class="product-category" style="font-size: 0.68rem; margin-bottom: 0;">${cat ? cat.name : p.category_slug}</span>
+                </div>
+                ${isNonRealtime ? `<div class="tag-dev-notice">⚠️ Non-Realtime / Dev</div>` : ''}
                 <h3 class="card-title" style="font-size: 0.85rem; margin-bottom: 4px; line-height: 1.2; height: 32px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${p.name}</h3>
                 <p class="card-desc" style="font-size: 0.75rem; margin-bottom: 8px; line-height: 1.3; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${p.description || ''}</p>
                 <div class="product-rating" style="display: flex; align-items: center; gap: 4px; font-size: 0.7rem; margin-bottom: 8px;">

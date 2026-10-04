@@ -512,7 +512,9 @@ function renderCategories() {
 }
 
 function getBadgeClass(badge) {
-    const b = badge.toLowerCase();
+    const b = (badge || '').toLowerCase();
+    if (b.includes('dev') || b.includes('pengembangan')) return 'badge-dev';
+    if (b.includes('manual') || b.includes('non-realtime')) return 'badge-manual';
     if (b.includes('promo')) return 'badge-promo';
     if (b.includes('terlaris') || b.includes('populer')) return 'badge-popular';
     if (b.includes('instan') || b.includes('24 jam')) return 'badge-instant';
@@ -577,6 +579,7 @@ function renderProducts(categorySlug = 'all', searchQuery = '') {
     displayProducts.forEach(p => {
         const cat = allCategories.find(c => c.slug === p.category_slug);
         const originalPrice = Math.round(p.price * 1.15);
+        const isNonRealtime = p.is_realtime === false || p.is_development === true || (p.badge && (p.badge.includes('DEV') || p.badge.includes('MANUAL')));
         
         const card = document.createElement('div');
         
@@ -585,9 +588,10 @@ function renderProducts(categorySlug = 'all', searchQuery = '') {
             card.style.cssText = 'display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; width: 100%; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; transition: all 0.2s;';
             card.innerHTML = `
                 <div class="list-left-col" style="flex: 1; min-width: 0; padding-right: 1rem; text-align: left;">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
                         <span class="product-category" style="font-size: 0.68rem; margin-bottom: 0;">${cat ? cat.name : p.category_slug}</span>
-                        ${p.badge ? `<span class="badge ${getBadgeClass(p.badge)}" style="position: static; font-size: 0.65rem; padding: 1px 4px; border-radius: 4px; color: white; font-weight: 600;">${p.badge}</span>` : ''}
+                        ${p.badge ? `<span class="badge ${getBadgeClass(p.badge)}" style="position: static; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; font-weight: 700;">${p.badge}</span>` : ''}
+                        ${isNonRealtime ? `<span class="tag-dev-notice" style="margin-bottom: 0;">⚠️ Non-Realtime / Dev</span>` : ''}
                     </div>
                     <h3 class="card-title" style="font-size: 0.9rem; margin-bottom: 2px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: auto;">${p.name}</h3>
                     <p class="card-desc" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: auto;">${p.description || ''}</p>
@@ -617,7 +621,10 @@ function renderProducts(categorySlug = 'all', searchQuery = '') {
                     ${p.badge ? `<span class="badge ${getBadgeClass(p.badge)}">${p.badge}</span>` : ''}
                 </div>
                 <div class="card-body" style="padding: 0.65rem 0.75rem;">
-                    <span class="product-category" style="font-size: 0.68rem; margin-bottom: 2px;">${cat ? cat.name : p.category_slug}</span>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 2px;">
+                        <span class="product-category" style="font-size: 0.68rem; margin-bottom: 0;">${cat ? cat.name : p.category_slug}</span>
+                    </div>
+                    ${isNonRealtime ? `<div class="tag-dev-notice">⚠️ Non-Realtime / Dev</div>` : ''}
                     <h3 class="card-title" style="font-size: 0.85rem; margin-bottom: 4px; line-height: 1.2; height: 32px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${p.name}</h3>
                     <p class="card-desc" style="font-size: 0.75rem; margin-bottom: 8px; line-height: 1.3; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${p.description || ''}</p>
                     <div class="product-rating" style="display: flex; align-items: center; gap: 4px; font-size: 0.7rem; margin-bottom: 8px;">

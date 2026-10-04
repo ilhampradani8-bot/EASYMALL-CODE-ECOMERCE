@@ -360,12 +360,26 @@ function renderProductDetails(product, category, storeInfo) {
         </div>
     `;
 
+    const isDevProduct = product.is_development || product.is_realtime === false || (product.badge && (product.badge.includes('DEV') || product.badge.includes('MANUAL'))) || ['pulsa', 'data', 'pln', 'ssl'].includes(product.category_slug);
+    const devNoticeHtml = isDevProduct ? `
+        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 1.5rem; display: flex; align-items: flex-start; gap: 10px;">
+            <span style="font-size: 1.25rem; line-height: 1;">⚠️</span>
+            <div>
+                <strong style="color: #92400e; font-size: 0.9rem; display: block; margin-bottom: 2px;">Layanan Non-Realtime / Tahap Pengembangan</strong>
+                <span style="color: #b45309; font-size: 0.82rem; line-height: 1.4;">Produk ini sedang dalam masa uji coba integrasi / diproses secara manual.</span>
+            </div>
+        </div>
+    ` : '';
+
     layout.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 8px; background: #ffffff; width: 100%; overflow: hidden;">
             ${iconEmoji}
         </div>
         <div style="display: flex; flex-direction: column;">
-            <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); font-weight: 700; margin-bottom: 0.4rem;">${category ? category.name : product.category_slug}</span>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.4rem; flex-wrap: wrap;">
+                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); font-weight: 700;">${category ? category.name : product.category_slug}</span>
+                ${isDevProduct ? `<span class="tag-dev-notice" style="margin-bottom: 0;">⚠️ Non-Realtime / Dev</span>` : ''}
+            </div>
             <h1 style="font-size: 2rem; font-weight: 800; line-height: 1.2; color: var(--text-main); margin-bottom: 0.6rem;">${product.name}</h1>
             <div style="display: flex; align-items: center; gap: 0.8rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
                 <span>⭐ 4.9 Rating</span>
@@ -374,6 +388,8 @@ function renderProductDetails(product, category, storeInfo) {
                 <span>•</span>
                 <span style="color: #2b8a3e; font-weight: 600;">Stok Tersedia</span>
             </div>
+
+            ${devNoticeHtml}
             
             <div style="background: #fafafa; border: 1px solid var(--border-color); padding: 1.5rem; border-radius: var(--radius); margin-bottom: 2rem;">
                 <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Harga Mulai</span>
