@@ -136,6 +136,15 @@ function initLocalDbSchema(client: Client) {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`).catch(() => {});
 
+    client.execute(`CREATE TABLE IF NOT EXISTS messages (
+      id TEXT PRIMARY KEY,
+      sender_email TEXT NOT NULL,
+      receiver_email TEXT NOT NULL,
+      message TEXT NOT NULL,
+      read INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )`).catch(() => {});
+
     // Ensure extra columns exist on existing tables
     client.execute(`ALTER TABLE transactions ADD COLUMN sn TEXT`).catch(() => {});
     client.execute(`ALTER TABLE transactions ADD COLUMN stock_data TEXT`).catch(() => {});

@@ -9,14 +9,20 @@ export const GET: APIRoute = async ({ request, cookies }) => {
   const guestEmail = url.searchParams.get('guest_email');
 
   const user = getUserFromRequest(request, cookies);
-  const currentEmail = (guestEmail && guestEmail.includes('@')) ? guestEmail.toLowerCase().trim() : user.email;
+  const isAuthenticated = user.email && user.email !== 'user@easymall.me' && !user.email.startsWith('tamu_') && !user.email.startsWith('guest_');
+
+  let currentEmail = user.email;
+  if (!isAuthenticated && guestEmail && guestEmail.includes('@')) {
+    currentEmail = guestEmail.toLowerCase().trim();
+  }
   
-  const messages = await getChatHistory(currentEmail, targetEmail);
+  const messages = await getChatHistory(currentEmail, targetEmail, guestEmail || undefined);
 
   return new Response(JSON.stringify({
     success: true,
     user_email: currentEmail,
     target_email: targetEmail,
+    is_authenticated: isAuthenticated,
     messages: messages.map(m => ({
       ...m,
       sender: m.sender_email,

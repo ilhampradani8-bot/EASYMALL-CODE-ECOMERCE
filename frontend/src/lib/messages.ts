@@ -131,21 +131,90 @@ export async function sendMessage(senderEmail: string, receiverEmail: string, me
   return newMessage;
 }
 
+// Migrate guest messages to logged-in user account
+export async function migrateGuestMessages(guestEmail: string, userEmail: string) {
+  if (!guestEmail || !userEmail || guestEmail.toLowerCase() === userEmail.toLowerCase()) return;
+  const gNorm = guestEmail.toLowerCase().trim();
+  const uNorm = userEmail.toLowerCase().trim();
+
+  // Update in memory
+  for (const m of memoryMessages) {
+    if (m.sender_email === gNorm) {
+      m.sender_email = uNorm;
+      m.sender_name = getNameForEmail(uNorm);
+    }
+    if (m.receiver_email === gNorm) {
+      m.receiver_email = uNorm;
+      m.receiver_name = getNameForEmail(uNorm);
+    }
+  }
+
+  // Update in SQLite
+  try {
+    const db = getDb();
+    await db.execute({
+      sql: `UPDATE messages SET sender_email = ? WHERE sender_email = ?`,
+      args: [uNorm, gNorm]
+    }).catch(() => {});
+    await db.execute({
+      sql: `UPDATE messages SET receiver_email = ? WHERE receiver_email = ?`,
+      args: [uNorm, gNorm]
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+let dbLoadedIntoMemory = false;
+async function syncDbMessages() {
+  if (dbLoadedIntoMemory) return;
+  try {
+    const db = getDb();
+    const rows = await db.execute(`SELECT id, sender_email, receiver_email, message, read, created_at FROM messages ORDER BY created_at ASC`).catch(() => null);
+    if (rows && rows.rows && rows.rows.length > 0) {
+      for (const r of rows.rows) {
+        const id = String(r.id);
+        if (!memoryMessages.some(m => m.id === id)) {
+          memoryMessages.push({
+            id,
+            sender_email: String(r.sender_email || '').toLowerCase().trim(),
+            sender_name: getNameForEmail(String(r.sender_email || '')),
+            receiver_email: String(r.receiver_email || '').toLowerCase().trim(),
+            receiver_name: getNameForEmail(String(r.receiver_email || '')),
+            message: String(r.message || ''),
+            read: Number(r.read || 0),
+            created_at: String(r.created_at || new Date().toISOString())
+          });
+        }
+      }
+    }
+    dbLoadedIntoMemory = true;
+  } catch (e) {}
+}
+
 // Get chat history between two users
-export async function getChatHistory(user1: string, user2: string): Promise<MessageItem[]> {
+export async function getChatHistory(user1: string, user2: string, guestEmail?: string): Promise<MessageItem[]> {
+  await syncDbMessages();
+
   const u1 = user1.toLowerCase().trim();
   const u2 = user2.toLowerCase().trim();
+  const gNorm = guestEmail ? guestEmail.toLowerCase().trim() : '';
+
+  // If guestEmail is supplied and user1 is a registered user, migrate guest messages
+  if (gNorm && gNorm !== u1 && !u1.startsWith('tamu_') && !u1.startsWith('guest_')) {
+    await migrateGuestMessages(gNorm, u1);
+  }
 
   // Mark unread messages from u2 to u1 as read
   for (const m of memoryMessages) {
-    if (m.sender_email === u2 && m.receiver_email === u1) {
+    if (m.sender_email === u2 && (m.receiver_email === u1 || (gNorm && m.receiver_email === gNorm))) {
       m.read = 1;
     }
   }
 
   const filtered = memoryMessages.filter(m => 
     (m.sender_email === u1 && m.receiver_email === u2) ||
-    (m.sender_email === u2 && m.receiver_email === u1)
+    (m.sender_email === u2 && m.receiver_email === u1) ||
+    (gNorm && m.sender_email === gNorm && m.receiver_email === u2) ||
+    (gNorm && m.sender_email === u2 && m.receiver_email === gNorm)
   );
 
   return filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());

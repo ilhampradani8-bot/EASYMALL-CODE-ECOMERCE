@@ -403,6 +403,8 @@
 
 <script is:inline>
     (function() {
+        let activeUserEmail = '';
+        let activeUserName = '';
         let guestSessionId = localStorage.getItem('em_guest_chat_email');
         if (!guestSessionId) {
             const randomCode = Math.floor(1000 + Math.random() * 9000);
@@ -413,8 +415,45 @@
 
         let isWindowOpen = false;
         let chatPollingInterval = null;
+        let lastMessageCount = 0;
 
-        function initFloatingInPageChat() {
+        async function checkUserLoginState() {
+            try {
+                // Check auth status
+                const res = await fetch('/api/auth/status', {
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.logged_in && data.email) {
+                        activeUserEmail = data.email.toLowerCase().trim();
+                        activeUserName = data.name || data.email.split('@')[0];
+                        return;
+                    }
+                }
+            } catch (e) {}
+
+            // Fallback from localStorage
+            try {
+                const profileRaw = localStorage.getItem('em_user_profile') || localStorage.getItem('user_data');
+                if (profileRaw) {
+                    const p = JSON.parse(profileRaw);
+                    if (p && p.email) {
+                        activeUserEmail = p.email.toLowerCase().trim();
+                        activeUserName = p.name || p.email.split('@')[0];
+                        return;
+                    }
+                }
+            } catch (e) {}
+
+            activeUserEmail = guestSessionId;
+            activeUserName = localStorage.getItem('em_guest_chat_name') || 'Pengunjung Web';
+        }
+
+        async function initFloatingInPageChat() {
+            await checkUserLoginState();
+
             const toggleBtn = document.getElementById('btnFloatingChatToggle');
             const chatWindow = document.getElementById('floatingChatWindow');
             const closeBtn = document.getElementById('btnCloseFloatingChat');
@@ -428,6 +467,7 @@
                 isWindowOpen = !isWindowOpen;
                 if (isWindowOpen) {
                     chatWindow.classList.add('active');
+                    clearUnreadBadge();
                     loadPopupMessages(true);
                     startPolling();
                     setTimeout(() => input && input.focus(), 150);
@@ -458,6 +498,10 @@
                     }
                 });
             }
+
+            // Background check for unread messages
+            checkUnreadMessages();
+            setInterval(checkUnreadMessages, 5000);
         }
 
         function startPolling() {
@@ -474,8 +518,12 @@
             }
         }
 
-        async function loadPopupMessages(shouldScroll = false) {
-            const guestEmail = localStorage.getItem('em_guest_chat_email') || 'tamu@guest.easymall.me';
+        async function checkUnreadMessages() {
+            if (isWindowOpen) return;
+            const guestEmail = localStorage.getItem('em_guest_chat_email') || '';
+            const emailToQuery = activeUserEmail || guestEmail;
+            if (!emailToQuery) return;
+
             try {
                 const res = await fetch(`/api/messages/chat?with_email=admin@easymall.me&guest_email=${encodeURIComponent(guestEmail)}`, {
                     credentials: 'include'
@@ -483,6 +531,46 @@
                 if (res.ok) {
                     const data = await res.json();
                     if (data.success && data.messages) {
+                        const total = data.messages.length;
+                        if (lastMessageCount > 0 && total > lastMessageCount) {
+                            const diff = total - lastMessageCount;
+                            showUnreadBadge(diff);
+                        }
+                        lastMessageCount = total;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function showUnreadBadge(count) {
+            const badge = document.getElementById('floating-unread-badge');
+            if (badge) {
+                badge.textContent = count > 9 ? '9+' : String(count);
+                badge.style.display = 'inline-block';
+            }
+        }
+
+        function clearUnreadBadge() {
+            const badge = document.getElementById('floating-unread-badge');
+            if (badge) {
+                badge.style.display = 'none';
+            }
+        }
+
+        async function loadPopupMessages(shouldScroll = false) {
+            const guestEmail = localStorage.getItem('em_guest_chat_email') || '';
+            try {
+                const res = await fetch(`/api/messages/chat?with_email=admin@easymall.me&guest_email=${encodeURIComponent(guestEmail)}`, {
+                    credentials: 'include',
+                    headers: { 'Cache-Control': 'no-cache' }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.messages) {
+                        lastMessageCount = data.messages.length;
+                        if (data.user_email) {
+                            activeUserEmail = data.user_email;
+                        }
                         renderPopupMessages(data.messages, shouldScroll);
                     }
                 }
@@ -494,10 +582,12 @@
             const chatBody = document.getElementById('floatingChatBody');
             if (!listEl) return;
 
-            const guestEmail = localStorage.getItem('em_guest_chat_email') || '';
+            const guestEmail = (localStorage.getItem('em_guest_chat_email') || '').toLowerCase();
+            const userEmail = (activeUserEmail || '').toLowerCase();
 
             listEl.innerHTML = messages.map(m => {
-                const isSent = (m.sender_email === guestEmail) || (m.sender === guestEmail);
+                const sNorm = (m.sender_email || m.sender || '').toLowerCase();
+                const isSent = (sNorm === userEmail) || (guestEmail && sNorm === guestEmail);
                 const alignClass = isSent ? 'sent' : 'received';
                 const timeStr = m.created_at ? new Date(m.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '';
 
@@ -523,7 +613,8 @@
             input.value = '';
 
             const guestEmail = localStorage.getItem('em_guest_chat_email') || `tamu_${Math.floor(Math.random()*9000)}@guest.easymall.me`;
-            const guestName = localStorage.getItem('em_guest_chat_name') || 'Pengunjung Web';
+            const senderEmail = activeUserEmail || guestEmail;
+            const senderName = activeUserName || (senderEmail.includes('@') ? senderEmail.split('@')[0] : 'Pengunjung Web');
 
             try {
                 const res = await fetch('/api/messages/send', {
@@ -531,8 +622,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         receiver_email: 'admin@easymall.me',
-                        sender_email: guestEmail,
-                        sender_name: guestName,
+                        sender_email: senderEmail,
+                        sender_name: senderName,
                         message: text
                     }),
                     credentials: 'include'

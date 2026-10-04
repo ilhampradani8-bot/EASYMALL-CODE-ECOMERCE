@@ -76,15 +76,39 @@ export const POST: APIRoute = async ({ request }) => {
 };
 
 export const GET: APIRoute = async ({ url }) => {
-  const token = process.env.TELEGRAM_BOT_TOKEN ? 'Tersedia (Configured)' : 'Belum diisi';
-  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID ? 'Tersedia (Configured)' : 'Belum diisi';
+  const token = process.env.TELEGRAM_BOT_TOKEN || '8956671588:AAFSMMDe09zzt_2v4vhEsaOFhtflLMMdQTc';
+  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID || '8570234554';
+  const action = url.searchParams.get('action');
+
+  let setupResult = null;
+  const targetWebhookUrl = `${url.origin}/api/telegram/webhook`;
+
+  if (action === 'set_webhook' && token) {
+    try {
+      const setRes = await fetch(`https://api.telegram.org/bot${token}/setWebhook?url=${encodeURIComponent(targetWebhookUrl)}`);
+      setupResult = await setRes.json();
+    } catch (e: any) {
+      setupResult = { error: e?.message || String(e) };
+    }
+  }
+
+  // Get current telegram webhook info
+  let currentWebhookInfo = null;
+  if (token) {
+    try {
+      const infoRes = await fetch(`https://api.telegram.org/bot${token}/getWebhookInfo`);
+      currentWebhookInfo = await infoRes.json();
+    } catch (e) {}
+  }
 
   return new Response(JSON.stringify({
     status: 'Telegram Webhook Gateway Active',
-    bot_token_status: token,
-    admin_chat_id_status: chatId,
-    webhook_url: `${url.origin}/api/telegram/webhook`,
-    instruction: 'Set webhook Telegram via: https://api.telegram.org/bot<YOUR_TOKEN>/setWebhook?url=' + `${url.origin}/api/telegram/webhook`
+    bot_token_status: token ? 'Tersedia (Configured)' : 'Belum diisi',
+    admin_chat_id_status: chatId ? 'Tersedia (Configured)' : 'Belum diisi',
+    current_webhook_info: currentWebhookInfo,
+    setup_result: setupResult,
+    webhook_url: targetWebhookUrl,
+    how_to_activate: `Buka ${url.origin}/api/telegram/webhook?action=set_webhook untuk mendaftarkan domain ini ke Telegram bot secara otomatis.`
   }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }
