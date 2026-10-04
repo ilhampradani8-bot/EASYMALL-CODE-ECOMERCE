@@ -543,12 +543,31 @@ import BottomNav from '../components/BottomNav.astro';
 
         .back-mobile-button {
             display: none;
-            background: none;
+            background: transparent;
             border: none;
-            font-size: 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
-            padding: 4px 8px;
+            padding: 4px 6px;
             color: var(--apple-blue);
+            align-items: center;
+            gap: 2px;
+            border-radius: 8px;
+            transition: background 0.15s ease;
+        }
+
+        .back-mobile-button:hover {
+            background: rgba(0, 122, 255, 0.08);
+        }
+
+        .mobile-back-dash {
+            display: none;
+            color: var(--apple-blue);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            align-items: center;
+            gap: 4px;
         }
 
         /* Mobile Adjustments */
@@ -559,20 +578,28 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         @media (max-width: 768px) {
+            body {
+                height: 100vh;
+                overflow: hidden;
+            }
             .macos-app-container {
                 grid-template-columns: 1fr;
+                height: calc(100vh - 56px);
             }
             .macos-sidebar-nav {
-                display: none;
+                display: none !important;
             }
             .macos-contacts-panel.mobile-hidden {
-                display: none;
+                display: none !important;
             }
             .macos-chat-workspace.mobile-hidden {
-                display: none;
+                display: none !important;
             }
             .back-mobile-button {
-                display: block;
+                display: inline-flex !important;
+            }
+            .mobile-back-dash {
+                display: inline-flex !important;
             }
         }
     </style>
@@ -611,7 +638,7 @@ import BottomNav from '../components/BottomNav.astro';
             </a>
             <a href="/dashboard_pengaturan" class="macos-nav-item">
                 <div class="macos-nav-item-left">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                     <span>Pengaturan</span>
                 </div>
             </a>
@@ -649,7 +676,13 @@ import BottomNav from '../components/BottomNav.astro';
         <section class="macos-contacts-panel" id="contactsPanel">
             <div class="macos-search-header">
                 <div class="panel-header-title">
-                    <h3>Pesan Masuk</h3>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <a href="/dashboard_user" class="mobile-back-dash">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            <span>Dashboard</span>
+                        </a>
+                        <h3>Pesan Masuk</h3>
+                    </div>
                     <span id="unreadTotalBadge" class="apple-unread-dot" style="display: none;">0</span>
                 </div>
                 <div class="apple-search-wrapper">
@@ -663,7 +696,7 @@ import BottomNav from '../components/BottomNav.astro';
         </section>
 
         <!-- 3. Right Chat Workspace (Apple iMessage Canvas) -->
-        <main class="macos-chat-workspace" id="chatMain">
+        <main class="macos-chat-workspace mobile-hidden" id="chatMain">
             <div class="apple-empty-chat">
                 <div class="apple-empty-icon">💬</div>
                 <h3 style="color: var(--apple-text-main); font-weight: 700; letter-spacing: -0.3px;">Pusat Pesan EasyMall</h3>
@@ -701,6 +734,10 @@ import BottomNav from '../components/BottomNav.astro';
                 const target = chatParam.toLowerCase().trim();
                 activeContactEmail = target;
                 await openChat(target);
+            } else {
+                if (window.innerWidth > 768) {
+                    document.getElementById('chatMain')?.classList.remove('mobile-hidden');
+                }
             }
 
             if (pollingInterval) clearInterval(pollingInterval);
@@ -790,6 +827,8 @@ import BottomNav from '../components/BottomNav.astro';
             if (window.innerWidth <= 768) {
                 document.getElementById('contactsPanel')?.classList.add('mobile-hidden');
                 document.getElementById('chatMain')?.classList.remove('mobile-hidden');
+            } else {
+                document.getElementById('chatMain')?.classList.remove('mobile-hidden');
             }
 
             const chatMain = document.getElementById('chatMain');
@@ -799,7 +838,10 @@ import BottomNav from '../components/BottomNav.astro';
             chatMain.innerHTML = `
                 <header class="macos-chat-header">
                     <div class="active-user-meta">
-                        <button class="back-mobile-button" onclick="backToContacts()">←</button>
+                        <button class="back-mobile-button" onclick="backToContacts()" aria-label="Kembali">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                            <span>Pesan</span>
+                        </button>
                         <div class="apple-avatar" style="width: 36px; height: 36px; font-size: 0.95rem;">${contactName.charAt(0).toUpperCase()}</div>
                         <div>
                             <div class="active-user-name">${contactName}</div>
@@ -830,8 +872,10 @@ import BottomNav from '../components/BottomNav.astro';
         }
 
         function backToContacts() {
+            activeContactEmail = null;
             document.getElementById('contactsPanel')?.classList.remove('mobile-hidden');
             document.getElementById('chatMain')?.classList.add('mobile-hidden');
+            renderContactsList();
         }
 
         async function fetchChatHistory(email, shouldScroll = false) {
