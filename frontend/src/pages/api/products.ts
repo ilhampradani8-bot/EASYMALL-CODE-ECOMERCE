@@ -4,7 +4,7 @@ export const prerender = false;
 
 // In-memory cache
 let productsCache: { time: number; data: any } | null = null;
-const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION_MS = 3 * 60 * 1000; // 3 minutes
 
 const LOGO_MAPPING: Record<string, string> = {
   'alight motion': '/gambar/logo/Alight-Motion-Logo.png',
@@ -64,6 +64,23 @@ const LOGO_MAPPING: Record<string, string> = {
   'free fire': '/gambar/logo/freefiree-logo.png',
   'ff': '/gambar/logo/freefiree-logo.png',
 
+  'pubg': '/gambar/logo/pubgm-logo.jpg',
+  'pubg mobile': '/gambar/logo/pubgm-logo.jpg',
+  'pubgm': '/gambar/logo/pubgm-logo.jpg',
+
+  'genshin impact': '/gambar/logo/genshin-impact-logo.jpg',
+  'genshin': '/gambar/logo/genshin-impact-logo.jpg',
+
+  'honkai: star rail': '/gambar/logo/genshin-impact-logo.jpg',
+  'honkai star rail': '/gambar/logo/genshin-impact-logo.jpg',
+  'star rail': '/gambar/logo/genshin-impact-logo.jpg',
+
+  'roblox': '/gambar/logo/roblox-logo.jpg',
+  'robux': '/gambar/logo/roblox-logo.jpg',
+
+  'steam': '/gambar/logo/steam-wallet-logo.jpg',
+  'steam wallet': '/gambar/logo/steam-wallet-logo.jpg',
+
   'call of duty': '/gambar/logo/Call-of-Duty-Logo.png',
   'codm': '/gambar/logo/Call-of-Duty-Logo.png',
 
@@ -116,7 +133,7 @@ export const GET: APIRoute = async () => {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60'
+        'Cache-Control': 'public, s-maxage=180, stale-while-revalidate=60'
       }
     });
   }
@@ -125,6 +142,7 @@ export const GET: APIRoute = async () => {
   const markupPercent = parseFloat(process.env.PRICE_MARKUP_PERCENT || '25');
 
   const koalaKey = process.env.KOALASTORE_API_KEY || 'kb_live_af0475f0cd12d8ff9ceb5b087a8977ef09303d9f';
+  const miracleKey = (process.env.MIRACLE_GAMING_API_KEY || '').trim();
 
   const finalProducts: any[] = [];
   const addedCodes = new Set<string>();
@@ -138,15 +156,15 @@ export const GET: APIRoute = async () => {
       }
     });
     if (koalaRes.ok) {
-      const koalaJson = await koalaRes.json();
-      if (koalaJson && Array.isArray(koalaJson.data)) {
-        for (const item of koalaJson.data) {
+      const koalaData = await koalaRes.json();
+      if (koalaData.success && Array.isArray(koalaData.data)) {
+        for (const item of koalaData.data) {
           const product = { ...item };
-          if (Array.isArray(product.variants)) {
+          if (Array.isArray(product.variants) && product.variants.length > 0) {
             product.variants = product.variants.map((v: any) => {
-              const originalPrice = parseFloat(v.price || 0);
-              const markedPrice = originalPrice + markupNominal + (originalPrice * markupPercent / 100);
-              const markedOriginal = v.original_price 
+              const basePrice = parseFloat(v.price || 0);
+              const markedPrice = basePrice + markupNominal + (basePrice * markupPercent / 100);
+              const markedOriginal = v.original_price
                 ? (parseFloat(v.original_price) + markupNominal + (parseFloat(v.original_price) * markupPercent / 100))
                 : markedPrice;
               return {
@@ -192,26 +210,95 @@ export const GET: APIRoute = async () => {
     console.error('Error fetching KoalaStore products:', err);
   }
 
-  // 2. Add Complete Additional Product Catalog (Top Up Games, Pulsa, Data, PLN, SSL/Domain, IP Academy)
+  // 2. Fetch live products from Miracle Gaming if API Key is configured
+  if (miracleKey) {
+    try {
+      const miracleRes = await fetch('https://api.miraclegaming.store/service', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ api_key: miracleKey })
+      });
+      if (miracleRes.ok) {
+        const miracleJson = await miracleRes.json();
+        if (miracleJson && (miracleJson.status || miracleJson.success) && Array.isArray(miracleJson.data)) {
+          const categoryMap = new Map<string, any[]>();
+          for (const item of miracleJson.data) {
+            const cat = item.kategori || 'Game Top Up';
+            if (!categoryMap.has(cat)) categoryMap.set(cat, []);
+            categoryMap.get(cat)!.push(item);
+          }
+
+          for (const [catName, items] of categoryMap.entries()) {
+            const cleanCode = catName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            if (!addedCodes.has(cleanCode)) {
+              const variants = items.map((i: any) => {
+                const basePrice = parseFloat(i.harga || i.price || 0);
+                const markedPrice = basePrice > 0 ? (basePrice + markupNominal + (basePrice * markupPercent / 100)) : 0;
+                return {
+                  code_variant: i.id || i.service_id,
+                  name: i.nama_layanan || i.name,
+                  price: Math.round(markedPrice),
+                  original_price: Math.round(markedPrice * 1.15)
+                };
+              });
+
+              const validPrices = variants.map(v => v.price).filter(p => p > 0);
+              const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : 10000;
+
+              const miracleProduct = {
+                code: cleanCode,
+                name: catName,
+                category: 'Top Up Game',
+                category_slug: 'game',
+                description: `Top up ${catName} resmi instan 24 jam pengiriman otomatis via Miracle Gaming API.`,
+                badge: 'INSTAN',
+                price: minPrice,
+                image: getLocalLogo({ code: cleanCode, name: catName }),
+                provider: 'miraclegaming',
+                variants: variants
+              };
+
+              finalProducts.push(miracleProduct);
+              addedCodes.add(cleanCode);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Miracle Gaming Fetch Info:', err);
+    }
+  }
+
+  // 3. Complete Built-in Game Catalog & Digital Services
   const additionalProducts = [
-    // Top Up Games
+    // --- TOP UP GAMES ---
     {
       code: 'mlbb',
       name: 'Mobile Legends: Bang Bang',
       category: 'Top Up Game',
       category_slug: 'game',
-      description: 'Top up Diamond Mobile Legends tercepat 24 jam legal & aman.',
+      description: 'Top up Diamond Mobile Legends tercepat 24 jam legal & aman. Masukkan User ID dan Zone ID.',
       badge: 'POPULER',
-      price: 15000,
+      price: 1500,
       image: '/gambar/logo/mobilelegend-logo.jpeg',
       provider: 'easymall',
       variants: [
-        { code_variant: 'ml86', name: '86 Diamonds', price: 23000, original_price: 25000 },
+        { code_variant: 'ml5', name: '5 Diamonds', price: 1500, original_price: 2000 },
+        { code_variant: 'ml12', name: '12 Diamonds', price: 3500, original_price: 4500 },
+        { code_variant: 'ml19', name: '19 Diamonds', price: 5500, original_price: 6500 },
+        { code_variant: 'ml28', name: '28 Diamonds', price: 8000, original_price: 9500 },
+        { code_variant: 'ml44', name: '44 Diamonds', price: 12000, original_price: 14000 },
+        { code_variant: 'ml59', name: '59 Diamonds', price: 16000, original_price: 18500 },
+        { code_variant: 'ml86', name: '86 Diamonds', price: 23000, original_price: 26000 },
         { code_variant: 'ml172', name: '172 Diamonds', price: 45000, original_price: 50000 },
         { code_variant: 'ml257', name: '257 Diamonds', price: 67000, original_price: 75000 },
         { code_variant: 'ml344', name: '344 Diamonds', price: 90000, original_price: 100000 },
+        { code_variant: 'ml429', name: '429 Diamonds', price: 112000, original_price: 125000 },
+        { code_variant: 'ml514', name: '514 Diamonds', price: 134000, original_price: 148000 },
         { code_variant: 'ml706', name: '706 Diamonds', price: 180000, original_price: 200000 },
-        { code_variant: 'mlpass', name: 'Weekly Diamond Pass', price: 28500, original_price: 32000 }
+        { code_variant: 'ml2195', name: '2195 Diamonds', price: 540000, original_price: 590000 },
+        { code_variant: 'mlpass', name: 'Weekly Diamond Pass', price: 28500, original_price: 32000 },
+        { code_variant: 'mltwilight', name: 'Twilight Pass', price: 145000, original_price: 160000 }
       ]
     },
     {
@@ -219,16 +306,23 @@ export const GET: APIRoute = async () => {
       name: 'Free Fire',
       category: 'Top Up Game',
       category_slug: 'game',
-      description: 'Top up Diamond Free Fire instant pengiriman 1 detik.',
+      description: 'Top up Diamond Free Fire instant pengiriman 1 detik cukup nomor Player ID.',
       badge: 'INSTAN',
-      price: 10000,
+      price: 1000,
       image: '/gambar/logo/freefiree-logo.png',
       provider: 'easymall',
       variants: [
+        { code_variant: 'ff5', name: '5 Diamonds', price: 1000, original_price: 1500 },
+        { code_variant: 'ff12', name: '12 Diamonds', price: 2000, original_price: 3000 },
+        { code_variant: 'ff50', name: '50 Diamonds', price: 7000, original_price: 8500 },
+        { code_variant: 'ff70', name: '70 Diamonds', price: 9800, original_price: 11500 },
         { code_variant: 'ff140', name: '140 Diamonds', price: 19500, original_price: 22000 },
         { code_variant: 'ff355', name: '355 Diamonds', price: 48000, original_price: 55000 },
         { code_variant: 'ff720', name: '720 Diamonds', price: 95000, original_price: 110000 },
-        { code_variant: 'ff1440', name: '1440 Diamonds', price: 190000, original_price: 215000 }
+        { code_variant: 'ff1440', name: '1440 Diamonds', price: 190000, original_price: 215000 },
+        { code_variant: 'ff2180', name: '2180 Diamonds', price: 285000, original_price: 310000 },
+        { code_variant: 'ff_member_week', name: 'Membership Mingguan', price: 30000, original_price: 35000 },
+        { code_variant: 'ff_member_month', name: 'Membership Bulanan', price: 90000, original_price: 105000 }
       ]
     },
     {
@@ -236,15 +330,18 @@ export const GET: APIRoute = async () => {
       name: 'Valorant Points',
       category: 'Top Up Game',
       category_slug: 'game',
-      description: 'Beli Valorant Points VP murah resmi Riot Games Indonesia.',
+      description: 'Beli Valorant Points VP murah resmi Riot Games Indonesia. Masukkan Riot ID (Nama#Tagline).',
       badge: 'TERLARIS',
-      price: 50000,
+      price: 55000,
       image: '/gambar/logo/valorant-logo.png',
       provider: 'easymall',
       variants: [
-        { code_variant: 'vp475', name: '475 VP', price: 55000, original_price: 60000 },
-        { code_variant: 'vp1000', name: '1000 VP', price: 112000, original_price: 125000 },
-        { code_variant: 'vp2050', name: '2050 VP', price: 220000, original_price: 240000 }
+        { code_variant: 'vp475', name: '475 VP (Valorant Points)', price: 55000, original_price: 60000 },
+        { code_variant: 'vp1000', name: '1000 VP (Valorant Points)', price: 112000, original_price: 125000 },
+        { code_variant: 'vp2050', name: '2050 VP (Valorant Points)', price: 220000, original_price: 240000 },
+        { code_variant: 'vp3650', name: '3650 VP (Valorant Points)', price: 385000, original_price: 420000 },
+        { code_variant: 'vp5350', name: '5350 VP (Valorant Points)', price: 550000, original_price: 600000 },
+        { code_variant: 'vp11000', name: '11000 VP (Valorant Points)', price: 1100000, original_price: 1200000 }
       ]
     },
     {
@@ -252,15 +349,98 @@ export const GET: APIRoute = async () => {
       name: 'Call of Duty Mobile',
       category: 'Top Up Game',
       category_slug: 'game',
-      description: 'Top up CP Call of Duty Mobile CODM murah instan 24 Jam.',
+      description: 'Top up CP Call of Duty Mobile CODM murah instan 24 Jam. Masukkan OpenID akun CODM Anda.',
       badge: 'INSTAN',
-      price: 20000,
+      price: 6000,
       image: '/gambar/logo/Call-of-Duty-Logo.png',
       provider: 'easymall',
       variants: [
-        { code_variant: 'cp153', name: '153 CP', price: 29000, original_price: 33000 },
-        { code_variant: 'cp318', name: '318 CP', price: 58000, original_price: 65000 },
-        { code_variant: 'cp800', name: '800 CP', price: 140000, original_price: 155000 }
+        { code_variant: 'cp31', name: '31 CP (Call of Duty Points)', price: 6000, original_price: 7500 },
+        { code_variant: 'cp62', name: '62 CP (Call of Duty Points)', price: 12000, original_price: 14500 },
+        { code_variant: 'cp128', name: '128 CP (Call of Duty Points)', price: 24000, original_price: 28000 },
+        { code_variant: 'cp321', name: '321 CP (Call of Duty Points)', price: 58000, original_price: 65000 },
+        { code_variant: 'cp645', name: '645 CP (Call of Duty Points)', price: 115000, original_price: 130000 },
+        { code_variant: 'cp800', name: '800 CP (Call of Duty Points)', price: 140000, original_price: 155000 },
+        { code_variant: 'cp1373', name: '1373 CP (Call of Duty Points)', price: 235000, original_price: 260000 },
+        { code_variant: 'cp2060', name: '2060 CP (Call of Duty Points)', price: 345000, original_price: 380000 }
+      ]
+    },
+    {
+      code: 'pubgm',
+      name: 'PUBG Mobile',
+      category: 'Top Up Game',
+      category_slug: 'game',
+      description: 'Beli UC PUBG Mobile resmi termurah proses instan cukup Player ID.',
+      badge: 'POPULER',
+      price: 7500,
+      image: '/gambar/logo/pubgm-logo.jpg',
+      provider: 'easymall',
+      variants: [
+        { code_variant: 'uc30', name: '30 UC (Unknown Cash)', price: 7500, original_price: 9000 },
+        { code_variant: 'uc60', name: '60 UC (Unknown Cash)', price: 14500, original_price: 17000 },
+        { code_variant: 'uc325', name: '325 UC (Unknown Cash)', price: 72000, original_price: 80000 },
+        { code_variant: 'uc660', name: '660 UC (Unknown Cash)', price: 142000, original_price: 160000 },
+        { code_variant: 'uc1800', name: '1800 UC (Unknown Cash)', price: 355000, original_price: 390000 },
+        { code_variant: 'uc3850', name: '3850 UC (Unknown Cash)', price: 710000, original_price: 780000 }
+      ]
+    },
+    {
+      code: 'genshin',
+      name: 'Genshin Impact',
+      category: 'Top Up Game',
+      category_slug: 'game',
+      description: 'Top up Genesis Crystals & Blessing of the Welkin Moon Genshin Impact. Masukkan UID dan Server.',
+      badge: 'TERLARIS',
+      price: 16000,
+      image: '/gambar/logo/genshin-impact-logo.jpg',
+      provider: 'easymall',
+      variants: [
+        { code_variant: 'gi60', name: '60 Genesis Crystals', price: 16000, original_price: 19000 },
+        { code_variant: 'gi330', name: '300+30 Genesis Crystals', price: 79000, original_price: 89000 },
+        { code_variant: 'gi1090', name: '980+110 Genesis Crystals', price: 245000, original_price: 270000 },
+        { code_variant: 'gi2240', name: '1980+260 Genesis Crystals', price: 475000, original_price: 520000 },
+        { code_variant: 'gi3880', name: '3280+600 Genesis Crystals', price: 780000, original_price: 860000 },
+        { code_variant: 'gi8080', name: '6480+1600 Genesis Crystals', price: 1550000, original_price: 1700000 },
+        { code_variant: 'gi_welkin', name: 'Blessing of the Welkin Moon', price: 79000, original_price: 89000 }
+      ]
+    },
+    {
+      code: 'roblox',
+      name: 'Roblox Robux & Gift Card',
+      category: 'Top Up Game',
+      category_slug: 'game',
+      description: 'Beli Robux Roblox legal & voucher gift card instan pengiriman kilat.',
+      badge: 'POPULER',
+      price: 18000,
+      image: '/gambar/logo/roblox-logo.jpg',
+      provider: 'easymall',
+      variants: [
+        { code_variant: 'rbx80', name: '80 Robux', price: 18000, original_price: 22000 },
+        { code_variant: 'rbx400', name: '400 Robux', price: 85000, original_price: 95000 },
+        { code_variant: 'rbx800', name: '800 Robux', price: 165000, original_price: 185000 },
+        { code_variant: 'rbx1700', name: '1700 Robux', price: 330000, original_price: 365000 },
+        { code_variant: 'rbx4500', name: '4500 Robux', price: 820000, original_price: 900000 }
+      ]
+    },
+    {
+      code: 'steam-wallet',
+      name: 'Steam Wallet Code IDR',
+      category: 'Top Up Game',
+      category_slug: 'game',
+      description: 'Voucher kode redeem saldo Steam Wallet Indonesia resmi 100% legal.',
+      badge: 'TERPERCAYA',
+      price: 14000,
+      image: '/gambar/logo/steam-wallet-logo.jpg',
+      provider: 'easymall',
+      variants: [
+        { code_variant: 'steam12', name: 'Steam Wallet IDR 12.000', price: 14500, original_price: 16500 },
+        { code_variant: 'steam45', name: 'Steam Wallet IDR 45.000', price: 52000, original_price: 58000 },
+        { code_variant: 'steam60', name: 'Steam Wallet IDR 60.000', price: 69000, original_price: 76000 },
+        { code_variant: 'steam90', name: 'Steam Wallet IDR 90.000', price: 103000, original_price: 115000 },
+        { code_variant: 'steam120', name: 'Steam Wallet IDR 120.000', price: 136000, original_price: 150000 },
+        { code_variant: 'steam250', name: 'Steam Wallet IDR 250.000', price: 278000, original_price: 300000 },
+        { code_variant: 'steam400', name: 'Steam Wallet IDR 400.000', price: 445000, original_price: 480000 },
+        { code_variant: 'steam600', name: 'Steam Wallet IDR 600.000', price: 660000, original_price: 710000 }
       ]
     },
     {
@@ -269,13 +449,34 @@ export const GET: APIRoute = async () => {
       category: 'Top Up Game',
       category_slug: 'game',
       description: 'Top up Voucher AOV Arena of Valor resmi pengiriman instan.',
-      price: 15000,
+      badge: 'INSTAN',
+      price: 12000,
       image: '/gambar/logo/Arena_of_Valor_logo.png',
       provider: 'easymall',
       variants: [
         { code_variant: 'aov40', name: '40 Voucher', price: 12000, original_price: 15000 },
         { code_variant: 'aov90', name: '90 Voucher', price: 24000, original_price: 28000 },
-        { code_variant: 'aov230', name: '230 Voucher', price: 60000, original_price: 68000 }
+        { code_variant: 'aov230', name: '230 Voucher', price: 60000, original_price: 68000 },
+        { code_variant: 'aov470', name: '470 Voucher', price: 118000, original_price: 130000 },
+        { code_variant: 'aov950', name: '950 Voucher', price: 235000, original_price: 260000 }
+      ]
+    },
+    {
+      code: 'sausage',
+      name: 'Sausage Man',
+      category: 'Top Up Game',
+      category_slug: 'game',
+      description: 'Top up Candies Sausage Man instan pengiriman otomatis.',
+      badge: 'INSTAN',
+      price: 15000,
+      image: '/gambar/logo/sausageman-logo.jpeg',
+      provider: 'easymall',
+      variants: [
+        { code_variant: 'sm60', name: '60 Candies', price: 16000, original_price: 19000 },
+        { code_variant: 'sm180', name: '180 Candies', price: 47000, original_price: 54000 },
+        { code_variant: 'sm316', name: '316 Candies', price: 79000, original_price: 89000 },
+        { code_variant: 'sm686', name: '686 Candies', price: 165000, original_price: 185000 },
+        { code_variant: 'sm1372', name: '1372 Candies', price: 325000, original_price: 360000 }
       ]
     },
     {
@@ -283,31 +484,20 @@ export const GET: APIRoute = async () => {
       name: 'Laplace M',
       category: 'Top Up Game',
       category_slug: 'game',
-      description: 'Top up Spiral / Jade Laplace M murah aman bergaransi.',
-      price: 25000,
+      description: 'Top up Spirals Laplace M instan pengiriman kilat.',
+      badge: 'INSTAN',
+      price: 15000,
       image: '/gambar/logo/laplace-game-logo.png',
       provider: 'easymall',
       variants: [
-        { code_variant: 'lap60', name: '60 Spirals', price: 16000, original_price: 19000 },
-        { code_variant: 'lap300', name: '300 Spirals', price: 78000, original_price: 88000 }
-      ]
-    },
-    {
-      code: 'sausageman',
-      name: 'Sausage Man',
-      category: 'Top Up Game',
-      category_slug: 'game',
-      description: 'Top up Candies Sausage Man instan pengiriman otomatis.',
-      price: 15000,
-      image: '/gambar/logo/sausageman-logo.jpeg',
-      provider: 'easymall',
-      variants: [
-        { code_variant: 'sm60', name: '60 Candies', price: 16000, original_price: 19000 },
-        { code_variant: 'sm316', name: '316 Candies', price: 79000, original_price: 89000 }
+        { code_variant: 'lp30', name: '30 Spirals', price: 15000, original_price: 18000 },
+        { code_variant: 'lp60', name: '60 Spirals', price: 29000, original_price: 34000 },
+        { code_variant: 'lp300', name: '300 Spirals', price: 140000, original_price: 160000 },
+        { code_variant: 'lp680', name: '680 Spirals', price: 310000, original_price: 350000 }
       ]
     },
 
-    // Pulsa & Data Internet
+    // --- PULSA & DATA INTERNET (NON-REALTIME / DEV) ---
     {
       code: 'telkomsel',
       name: 'Telkomsel Pulsa & Paket Data',
@@ -424,7 +614,7 @@ export const GET: APIRoute = async () => {
       ]
     },
 
-    // Token PLN
+    // --- TOKEN PLN (NON-REALTIME / DEV) ---
     {
       code: 'pln-token',
       name: 'Token Listrik PLN Prabayar',
@@ -447,7 +637,7 @@ export const GET: APIRoute = async () => {
       ]
     },
 
-    // SSL & Domain Services
+    // --- SSL & DOMAIN (MANUAL / DEV) ---
     {
       code: 'domain-ssl',
       name: 'SSL Certificate & Domain Registrar API',
@@ -469,7 +659,7 @@ export const GET: APIRoute = async () => {
       ]
     },
 
-    // IP Academy
+    // --- IP ACADEMY & COURSES ---
     {
       code: 'ip-academy',
       name: 'IP Academy Certified Course',
@@ -507,25 +697,29 @@ export const GET: APIRoute = async () => {
     { slug: 'pulsa', name: 'Pulsa', icon: 'FaMobileAlt' },
     { slug: 'data', name: 'Data Internet', icon: 'FaWifi' },
     { slug: 'pln', name: 'Token PLN', icon: 'FaBolt' },
-    { slug: 'ssl', name: 'SSL & Domain', icon: 'FaGlobe' },
-    { slug: 'digital', name: 'Produk Digital', icon: 'FaKey' },
-    { slug: 'music', name: 'Music Streaming', icon: 'FaMusic' },
-    { slug: 'productivity', name: 'Productivity Tools', icon: 'FaTools' }
+    { slug: 'digital', name: 'Streaming & Akun', icon: 'FaPlay' },
+    { slug: 'productivity', name: 'Produktivitas & Desain', icon: 'FaLaptopCode' },
+    { slug: 'music', name: 'Musik', icon: 'FaMusic' },
+    { slug: 'ssl', name: 'SSL & Domain', icon: 'FaShieldAlt' }
   ];
 
   const responseData = {
     success: true,
-    products: finalProducts,
-    categories
+    count: finalProducts.length,
+    categories,
+    products: finalProducts
   };
 
-  productsCache = { time: now, data: responseData };
+  productsCache = {
+    time: now,
+    data: responseData
+  };
 
   return new Response(JSON.stringify(responseData), {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60'
+      'Cache-Control': 'public, s-maxage=180, stale-while-revalidate=60'
     }
   });
 };
