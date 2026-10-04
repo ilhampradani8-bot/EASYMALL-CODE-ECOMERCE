@@ -308,13 +308,15 @@ import FloatingChat from '../components/FloatingChat.astro';
             justify-content: center;
         }
 
-        .seller-email {
-            font-size: 0.8rem;
+        .seller-id-tag {
+            font-size: 0.78rem;
+            font-weight: 600;
             color: var(--seller-text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-top: 1px;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 6px;
+            width: fit-content;
+            margin-top: 3px;
         }
 
         /* Store Status Box */
@@ -511,7 +513,7 @@ import FloatingChat from '../components/FloatingChat.astro';
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </div>
-                <input type="text" id="sellerSearchInput" class="seller-search-bar" placeholder="Cari nama penjual, toko digital, atau email..." autocomplete="off">
+                <input type="text" id="sellerSearchInput" class="seller-search-bar" placeholder="Cari nama penjual, ID akun, atau nama toko..." autocomplete="off">
                 <button type="button" id="btnClearSearch" class="btn-clear-search" aria-label="Hapus Pencarian">✕</button>
             </div>
         </div>
@@ -626,7 +628,7 @@ import FloatingChat from '../components/FloatingChat.astro';
                                         </span>
                                     ` : ''}
                                 </div>
-                                <div class="seller-email">${escapeHtml(s.email)}</div>
+                                <div class="seller-id-tag">ID: #${escapeHtml(s.id)}</div>
                             </div>
                         </div>
 
