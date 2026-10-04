@@ -1,6 +1,56 @@
 ---
 // index.astro
 import PenggabungUtama from '../layouts/PenggabungUtama.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Automatically detect all image files from public/banner and IKLAN/banner folders
+const imageExts = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.svg']);
+let bannerList: string[] = [];
+
+try {
+    const publicBannerDir = path.resolve('./public/banner');
+    const iklanBannerDir = path.resolve('./IKLAN/banner');
+
+    if (!fs.existsSync(publicBannerDir)) {
+        fs.mkdirSync(publicBannerDir, { recursive: true });
+    }
+
+    // Auto-sync any images placed in IKLAN/banner into public/banner
+    if (fs.existsSync(iklanBannerDir)) {
+        const iklanFiles = fs.readdirSync(iklanBannerDir);
+        for (const file of iklanFiles) {
+            if (imageExts.has(path.extname(file).toLowerCase())) {
+                const src = path.join(iklanBannerDir, file);
+                const dest = path.join(publicBannerDir, file);
+                if (!fs.existsSync(dest)) {
+                    try { fs.copyFileSync(src, dest); } catch (e) {}
+                }
+            }
+        }
+    }
+
+    if (fs.existsSync(publicBannerDir)) {
+        const publicFiles = fs.readdirSync(publicBannerDir);
+        bannerList = publicFiles
+            .filter(f => imageExts.has(path.extname(f).toLowerCase()))
+            .map(f => `/banner/${f}`);
+    }
+} catch (err) {
+    console.warn("Banner auto-detection warning:", err);
+}
+
+// Fallback if directory reading failed or empty
+if (bannerList.length === 0) {
+    bannerList = [
+        '/banner/Gemini_Generated_Image_1s6kb41s6kb41s6k.jpeg',
+        '/banner/Gemini_Generated_Image_8kdnen8kdnen8kdn.jpeg',
+        '/banner/Gemini_Generated_Image_8uf3so8uf3so8uf3.jpeg'
+    ];
+}
+
+// Duplicate items for continuous seamless marquee loop
+const loopBanners = [...bannerList, ...bannerList];
 ---
 
 <PenggabungUtama 
@@ -11,46 +61,6 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
     <main class="main-content">
         <!-- Catalog View Container (visible by default) -->
         <div id="catalogView">
-            <!-- Running Banner Marquee (Right to Left / Berjalan Kanan ke Kiri) -->
-            <section class="banner-marquee-section" aria-label="Banner Promo">
-                <div class="banner-marquee-wrapper">
-                    <div class="banner-marquee-track">
-                        <!-- Set 1 -->
-                        <div class="banner-item">
-                            <a href="/katalog">
-                                <img src="/banner/Gemini_Generated_Image_1s6kb41s6kb41s6k.jpeg" alt="EasyMall Promo Banner 1" loading="eager" />
-                            </a>
-                        </div>
-                        <div class="banner-item">
-                            <a href="/katalog">
-                                <img src="/banner/Gemini_Generated_Image_8kdnen8kdnen8kdn.jpeg" alt="EasyMall Promo Banner 2" loading="eager" />
-                            </a>
-                        </div>
-                        <div class="banner-item">
-                            <a href="/katalog">
-                                <img src="/banner/Gemini_Generated_Image_8uf3so8uf3so8uf3.jpeg" alt="EasyMall Promo Banner 3" loading="eager" />
-                            </a>
-                        </div>
-                        <!-- Set 2 (for continuous seamless infinite loop) -->
-                        <div class="banner-item" aria-hidden="true">
-                            <a href="/katalog" tabindex="-1">
-                                <img src="/banner/Gemini_Generated_Image_1s6kb41s6kb41s6k.jpeg" alt="EasyMall Promo Banner 1 Duplicate" loading="lazy" />
-                            </a>
-                        </div>
-                        <div class="banner-item" aria-hidden="true">
-                            <a href="/katalog" tabindex="-1">
-                                <img src="/banner/Gemini_Generated_Image_8kdnen8kdnen8kdn.jpeg" alt="EasyMall Promo Banner 2 Duplicate" loading="lazy" />
-                            </a>
-                        </div>
-                        <div class="banner-item" aria-hidden="true">
-                            <a href="/katalog" tabindex="-1">
-                                <img src="/banner/Gemini_Generated_Image_8uf3so8uf3so8uf3.jpeg" alt="EasyMall Promo Banner 3 Duplicate" loading="lazy" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
             <!-- Hero Section -->
             <section id="hero" class="hero">
                 <div class="container">
@@ -62,6 +72,23 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
                     </div>
                 </div>
             </section>
+
+            <!-- Running Banner Marquee (Right to Left / Berjalan Kanan ke Kiri) -->
+            {bannerList.length > 0 && (
+                <section class="banner-marquee-section" aria-label="Banner Promo">
+                    <div class="banner-marquee-wrapper">
+                        <div class="banner-marquee-track">
+                            {loopBanners.map((imgSrc, idx) => (
+                                <div class="banner-item" aria-hidden={idx >= bannerList.length ? "true" : undefined}>
+                                    <a href="/katalog" tabindex={idx >= bannerList.length ? "-1" : undefined}>
+                                        <img src={imgSrc} alt={`Promo Banner ${(idx % bannerList.length) + 1}`} loading={idx < 3 ? "eager" : "lazy"} />
+                                    </a>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             <!-- Kategori Section (Compact 2-Row Horizontal Scroller) -->
             <section id="categories" class="section" style="background: #ffffff; padding: 2rem 0; border-bottom: 1px solid var(--border-color);">
