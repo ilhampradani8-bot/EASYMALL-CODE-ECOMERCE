@@ -1,27 +1,27 @@
 import type { APIRoute } from 'astro';
+import { getContactsForUser, getUserFromRequest } from '../../../lib/messages';
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ request, cookies }) => {
+  const user = getUserFromRequest(request, cookies);
+  const contacts = await getContactsForUser(user.email);
+
   return new Response(JSON.stringify({
     success: true,
-    contacts: [
-      {
-        email: 'admin@easymall.me',
-        name: 'Customer Support EasyMall',
-        contact_email: 'admin@easymall.me',
-        contact_name: 'Customer Support EasyMall',
-        avatar: '/gambar/logo/easymall-logo.png',
-        contact_avatar: '/gambar/logo/easymall-logo.png',
-        unread_count: 0,
-        last_message: 'Halo! Ada yang bisa kami bantu seputar transaksi EasyMall?',
-        last_message_time: 'Baru saja',
-        last_time: 'Baru saja'
-      }
-    ]
+    user_email: user.email,
+    contacts: contacts.map(c => ({
+      ...c,
+      email: c.contact_email,
+      name: c.contact_name,
+      avatar: c.contact_avatar,
+      last_time: c.last_message_time
+    }))
   }), {
     status: 200,
-    headers: { 'Content-Type': 'application/json' }
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'private, no-cache, no-store, must-revalidate'
+    }
   });
 };
-

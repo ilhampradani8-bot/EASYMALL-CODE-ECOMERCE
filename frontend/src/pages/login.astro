@@ -4,6 +4,39 @@ import PenggabungUtama from '../layouts/PenggabungUtama.astro';
 
 export const prerender = false;
 
+const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID || import.meta.env.GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '812430784237-70vet0sepo0f0eti0cs62nnjd4s89ia8.apps.googleusercontent.com';
+
+const isDev = import.meta.env.DEV || process.env.NODE_ENV !== 'production';
+const hasSession = Astro.cookies.has('session_id') || Astro.cookies.has('em_session_data');
+
+if (!hasSession && isDev && Astro.request.method === 'GET') {
+  const { createSessionId, encodeSessionPayload, saveSession, saveUser } = await import('../lib/db');
+  const email = 'user@easymall.me';
+  const name = 'Demo User EasyMall';
+  const sessionId = createSessionId(email, name);
+  await saveSession(sessionId, email, name);
+  await saveUser({ email, name, provider: 'email' });
+
+  const token = encodeSessionPayload({ sessionId, email, name });
+  Astro.cookies.set('session_id', sessionId, {
+    path: '/',
+    httpOnly: false,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 30
+  });
+
+  if (token) {
+    Astro.cookies.set('em_session_data', token, {
+      path: '/',
+      httpOnly: false,
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30
+    });
+  }
+
+  return Astro.redirect('/dashboard_user', 302);
+}
+
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData().catch(() => null);
   const inputEmail = formData ? (formData.get('username') || formData.get('email') || '').toString().trim() : '';
@@ -469,7 +502,7 @@ if (Astro.request.method === 'POST') {
         </div>
     </div>
 
-    <script is:inline>
+    <script define:vars={{ googleClientId }}>
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
             const toggleBtn = document.querySelector('.toggle-password');
@@ -523,8 +556,6 @@ if (Astro.request.method === 'POST') {
                 }
             }
         }
-
-        const googleClientId = window.GOOGLE_CLIENT_ID || "812430784237-70vet0sepo0f0eti0cs62nnjd4s89ia8.apps.googleusercontent.com";
 
         let isGoogleInitialized = false;
         function initGoogleAuth() {
