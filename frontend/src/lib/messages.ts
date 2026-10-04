@@ -164,25 +164,18 @@ export async function getContactsForUser(userEmail: string) {
     raw_time: number;
   }>();
 
-  // Ensure default contacts exist so users always have someone to chat with
-  const defaultContacts = [
-    { email: 'admin@easymall.me', name: 'Customer Support EasyMall' },
-    { email: 'reseller@easymall.me', name: 'Demo Reseller Partner' },
-    { email: 'user@easymall.me', name: 'Demo User EasyMall' }
-  ];
-
-  for (const def of defaultContacts) {
-    if (def.email !== currentUser) {
-      contactsMap.set(def.email, {
-        contact_email: def.email,
-        contact_name: def.name,
-        contact_avatar: def.email.includes('admin') ? '/gambar/logo/easymall-logo.png' : '',
-        last_message: 'Mulai percakapan baru...',
-        last_message_time: '',
-        unread_count: 0,
-        raw_time: 0
-      });
-    }
+  // Only 1 permanent default contact: Customer Support (CS)
+  const csEmail = 'admin@easymall.me';
+  if (currentUser !== csEmail) {
+    contactsMap.set(csEmail, {
+      contact_email: csEmail,
+      contact_name: 'Customer Support EasyMall',
+      contact_avatar: '/gambar/logo/easymall-logo.png',
+      last_message: 'Layanan bantuan & support resmi EasyMall',
+      last_message_time: '',
+      unread_count: 0,
+      raw_time: 0
+    });
   }
 
   // Iterate all messages to collect conversations & unread count
