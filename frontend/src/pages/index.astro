@@ -447,12 +447,12 @@ const loopBanners = [...bannerList, ...bannerList];
 </script>
 
 <style is:global>
-    /* Running Banner Marquee (Right to Left) */
+    /* Running Banner Marquee (Right to Left - Fullwidth & Exact 16:9 Ratio, No Cropping) */
     .banner-marquee-section {
         width: 100%;
         overflow: hidden;
-        background: #f5f5f7;
-        padding: 1.25rem 0 0.75rem 0;
+        background: transparent;
+        padding: 1.5rem 0;
         position: relative;
     }
 
@@ -461,16 +461,14 @@ const loopBanners = [...bannerList, ...bannerList];
         overflow: hidden;
         width: 100%;
         user-select: none;
-        mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
-        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 97%, transparent 100%);
     }
 
     .banner-marquee-track {
         display: flex;
-        gap: 1.25rem;
+        gap: 1.5rem;
         flex-shrink: 0;
         align-items: center;
-        animation: marqueeScrollLeft 32s linear infinite;
+        animation: marqueeScrollLeft 35s linear infinite;
         will-change: transform;
     }
 
@@ -480,20 +478,19 @@ const loopBanners = [...bannerList, ...bannerList];
 
     .banner-item {
         flex-shrink: 0;
-        width: 540px;
-        max-width: 82vw;
-        height: 220px;
-        border-radius: 16px;
+        width: clamp(420px, 48vw, 780px);
+        aspect-ratio: 16 / 9;
+        border-radius: 18px;
         overflow: hidden;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
         border: 1px solid rgba(0, 0, 0, 0.08);
         transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-        background: #1d1d1f;
+        background: #ffffff;
     }
 
     .banner-item:hover {
-        transform: translateY(-4px) scale(1.015);
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
     }
 
     .banner-item a {
@@ -507,13 +504,8 @@ const loopBanners = [...bannerList, ...bannerList];
     .banner-item img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: fill;
         display: block;
-        transition: transform 0.4s ease;
-    }
-
-    .banner-item:hover img {
-        transform: scale(1.03);
     }
 
     @keyframes marqueeScrollLeft {
@@ -527,24 +519,24 @@ const loopBanners = [...bannerList, ...bannerList];
 
     @media (max-width: 768px) {
         .banner-marquee-section {
-            padding: 0.5rem 0 0.5rem 0;
+            padding: 1rem 0;
         }
         .banner-marquee-track {
-            gap: 0.75rem;
-            animation-duration: 22s;
+            gap: 1rem;
+            animation-duration: 25s;
         }
         .banner-item {
-            width: 320px;
-            max-width: 88vw;
-            height: 150px;
-            border-radius: 12px;
+            width: 86vw;
+            max-width: 420px;
+            aspect-ratio: 16 / 9;
+            border-radius: 14px;
         }
     }
 
     @media (max-width: 480px) {
         .banner-item {
-            width: 290px;
-            height: 140px;
+            width: 88vw;
+            border-radius: 12px;
         }
     }
 </style>
