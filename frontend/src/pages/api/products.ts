@@ -64,23 +64,6 @@ const LOGO_MAPPING: Record<string, string> = {
   'free fire': '/gambar/logo/freefiree-logo.png',
   'ff': '/gambar/logo/freefiree-logo.png',
 
-  'pubg': '/gambar/logo/pubgm-logo.jpg',
-  'pubg mobile': '/gambar/logo/pubgm-logo.jpg',
-  'pubgm': '/gambar/logo/pubgm-logo.jpg',
-
-  'genshin impact': '/gambar/logo/genshin-impact-logo.jpg',
-  'genshin': '/gambar/logo/genshin-impact-logo.jpg',
-
-  'honkai: star rail': '/gambar/logo/genshin-impact-logo.jpg',
-  'honkai star rail': '/gambar/logo/genshin-impact-logo.jpg',
-  'star rail': '/gambar/logo/genshin-impact-logo.jpg',
-
-  'roblox': '/gambar/logo/roblox-logo.jpg',
-  'robux': '/gambar/logo/roblox-logo.jpg',
-
-  'steam': '/gambar/logo/steam-wallet-logo.jpg',
-  'steam wallet': '/gambar/logo/steam-wallet-logo.jpg',
-
   'call of duty': '/gambar/logo/Call-of-Duty-Logo.png',
   'codm': '/gambar/logo/Call-of-Duty-Logo.png',
 
@@ -373,7 +356,7 @@ export const GET: APIRoute = async () => {
       description: 'Beli UC PUBG Mobile resmi termurah proses instan cukup Player ID.',
       badge: 'POPULER',
       price: 7500,
-      image: '/gambar/logo/pubgm-logo.jpg',
+      image: '/gambar/logo/easymall-logo.png',
       provider: 'easymall',
       variants: [
         { code_variant: 'uc30', name: '30 UC (Unknown Cash)', price: 7500, original_price: 9000 },
@@ -392,7 +375,7 @@ export const GET: APIRoute = async () => {
       description: 'Top up Genesis Crystals & Blessing of the Welkin Moon Genshin Impact. Masukkan UID dan Server.',
       badge: 'TERLARIS',
       price: 16000,
-      image: '/gambar/logo/genshin-impact-logo.jpg',
+      image: '/gambar/logo/easymall-logo.png',
       provider: 'easymall',
       variants: [
         { code_variant: 'gi60', name: '60 Genesis Crystals', price: 16000, original_price: 19000 },
@@ -412,7 +395,7 @@ export const GET: APIRoute = async () => {
       description: 'Beli Robux Roblox legal & voucher gift card instan pengiriman kilat.',
       badge: 'POPULER',
       price: 18000,
-      image: '/gambar/logo/roblox-logo.jpg',
+      image: '/gambar/logo/easymall-logo.png',
       provider: 'easymall',
       variants: [
         { code_variant: 'rbx80', name: '80 Robux', price: 18000, original_price: 22000 },
@@ -430,7 +413,7 @@ export const GET: APIRoute = async () => {
       description: 'Voucher kode redeem saldo Steam Wallet Indonesia resmi 100% legal.',
       badge: 'TERPERCAYA',
       price: 14000,
-      image: '/gambar/logo/steam-wallet-logo.jpg',
+      image: '/gambar/logo/easymall-logo.png',
       provider: 'easymall',
       variants: [
         { code_variant: 'steam12', name: 'Steam Wallet IDR 12.000', price: 14500, original_price: 16500 },
